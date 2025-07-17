@@ -24,7 +24,7 @@
         }
 
         .sidebar {
-            width: 300px;
+            width: 320px;
             background: #2c3e50;
             color: white;
             padding: 20px;
@@ -76,31 +76,106 @@
             background: #229954;
         }
 
-        .book-list {
-            margin-top: 20px;
+        .library-section {
+            margin-top: 30px;
         }
 
-        .book-item {
+        .library-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #34495e;
+        }
+
+        .books-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .book-card {
             background: #34495e;
-            margin: 10px 0;
-            padding: 15px;
-            border-radius: 5px;
+            border-radius: 8px;
             cursor: pointer;
-            transition: background 0.2s;
+            transition: all 0.3s ease;
+            overflow: hidden;
+            position: relative;
         }
 
-        .book-item:hover {
+        .book-card:hover {
             background: #4a6478;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        .book-cover {
+            width: 100%;
+            height: 120px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+            position: relative;
+        }
+
+        .book-cover img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .book-info {
+            padding: 12px;
         }
 
         .book-title {
             font-weight: bold;
             margin-bottom: 5px;
+            font-size: 13px;
+            line-height: 1.3;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
         }
 
         .book-author {
-            font-size: 12px;
+            font-size: 11px;
             opacity: 0.8;
+            margin-bottom: 5px;
+        }
+
+        .book-meta {
+            font-size: 10px;
+            opacity: 0.6;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .new-badge {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: #e74c3c;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-size: 9px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .no-books {
+            text-align: center;
+            opacity: 0.6;
+            font-style: italic;
+            margin-top: 20px;
+            font-size: 14px;
         }
 
         .settings-panel {
@@ -184,9 +259,9 @@
             <button class="btn" onclick="openFile()">Open ePub File</button>
             <button class="btn" onclick="showSettings()">Settings</button>
             
-            <div class="book-list" id="bookList">
-                <h3>Saved Books</h3>
-                <div id="savedBooks"></div>
+            <div class="library-section">
+                <div class="library-title">📚 Biblioteca</div>
+                <div id="savedBooks" class="books-grid"></div>
             </div>
         </div>
 

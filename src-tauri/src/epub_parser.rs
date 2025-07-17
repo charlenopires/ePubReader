@@ -2,6 +2,7 @@ use epub::doc::EpubDoc;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use anyhow::{Result, anyhow};
+use base64::{Engine as _, engine::general_purpose};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct EpubInfo {
@@ -10,6 +11,7 @@ pub struct EpubInfo {
     pub language: String,
     pub chapters: Vec<Chapter>,
     pub metadata: HashMap<String, String>,
+    pub cover_image: Option<String>, // Base64 encoded cover image
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -32,6 +34,9 @@ pub async fn parse_epub(path: &str) -> Result<EpubInfo> {
     metadata.insert("title".to_string(), title.clone());
     metadata.insert("author".to_string(), author.clone());
     metadata.insert("language".to_string(), language.clone());
+    
+    // Extract cover image
+    let cover_image = extract_cover_image(&mut doc);
     
     // Extract chapters
     let mut chapters = Vec::new();
@@ -60,6 +65,7 @@ pub async fn parse_epub(path: &str) -> Result<EpubInfo> {
         language,
         chapters,
         metadata,
+        cover_image,
     })
 }
 
@@ -84,4 +90,26 @@ fn extract_text_from_html(html: &str) -> String {
         .join(" ")
         .trim()
         .to_string()
+}
+
+fn extract_cover_image(doc: &mut EpubDoc<std::io::BufReader<std::fs::File>>) -> Option<String> {
+    // Try to get cover image
+    if let Some((cover_data, _)) = doc.get_cover() {
+        // Convert to base64
+        let base64_image = general_purpose::STANDARD.encode(&cover_data);
+        return Some(format!("data:image/jpeg;base64,{}", base64_image));
+    }
+    
+    // Fallback: try to find any image in the manifest
+    let resources = doc.resources.clone();
+    for (_, (path, mime_type)) in resources.iter() {
+        if mime_type.starts_with("image/") {
+            if let Some((img_data, _)) = doc.get_resource(&path.to_string_lossy()) {
+                let base64_image = general_purpose::STANDARD.encode(&img_data);
+                return Some(format!("data:{};base64,{}", mime_type, base64_image));
+            }
+        }
+    }
+    
+    None
 }

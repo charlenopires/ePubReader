@@ -247,23 +247,58 @@ async function loadSavedBooks() {
         const container = document.getElementById('savedBooks');
         
         if (books.length === 0) {
-            container.innerHTML = '<p style="opacity: 0.6;">No saved books yet</p>';
+            container.innerHTML = '<div class="no-books">Nenhum livro salvo ainda</div>';
             return;
         }
         
-        container.innerHTML = books.map(book => `
-            <div class="book-item" onclick="loadSavedBook('${book.id}')">
-                <div class="book-title">${book.title}</div>
-                <div class="book-author">${book.author}</div>
-                <div style="font-size: 11px; opacity: 0.6;">
-                    ${book.original_language} → ${book.translated_language}
+        container.innerHTML = books.map((book, index) => {
+            const isNew = index < 2; // Mark first 2 books as new
+            const savedDate = new Date(book.saved_date);
+            const isRecent = (Date.now() - savedDate.getTime()) < (7 * 24 * 60 * 60 * 1000); // Less than 7 days
+            
+            return `
+                <div class="book-card" onclick="loadSavedBook('${book.id}')">
+                    ${(isNew || isRecent) ? '<div class="new-badge">New</div>' : ''}
+                    <div class="book-cover">
+                        ${getBookCoverElement(book)}
+                        <div style="position: absolute; bottom: 5px; right: 5px; font-size: 10px; opacity: 0.7;">
+                            ${book.original_language.toUpperCase()}→${book.translated_language.toUpperCase()}
+                        </div>
+                    </div>
+                    <div class="book-info">
+                        <div class="book-title">${book.title}</div>
+                        <div class="book-author">${book.author}</div>
+                        <div class="book-meta">
+                            <span>${formatDate(book.saved_date)}</span>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        `).join('');
+            `;
+        }).join('');
         
     } catch (error) {
         console.error('Failed to load saved books:', error);
     }
+}
+
+function getBookCoverElement(book) {
+    // For now, use the first letter of the title as a placeholder
+    // In a real implementation, you'd extract the cover from the ePub
+    const firstLetter = book.title.charAt(0).toUpperCase();
+    return `<div style="font-size: 28px; font-weight: bold;">${firstLetter}</div>`;
+}
+
+function formatDate(dateString) {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffTime = Math.abs(now - date);
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    if (diffDays === 1) return 'Hoje';
+    if (diffDays === 2) return 'Ontem';
+    if (diffDays < 7) return `${diffDays} dias atrás`;
+    if (diffDays < 30) return `${Math.ceil(diffDays / 7)} sem atrás`;
+    return date.toLocaleDateString('pt-BR');
 }
 
 async function loadSavedBook(bookId) {
