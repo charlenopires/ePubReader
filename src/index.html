@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ePubReader</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+        }
+
+        .sidebar {
+            width: 300px;
+            background: #2c3e50;
+            color: white;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: white;
+        }
+
+        .toolbar {
+            background: #34495e;
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .reading-area {
+            flex: 1;
+            padding: 40px;
+            overflow-y: auto;
+            line-height: 1.6;
+        }
+
+        .btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .btn:hover {
+            background: #2980b9;
+        }
+
+        .btn-success {
+            background: #27ae60;
+        }
+
+        .btn-success:hover {
+            background: #229954;
+        }
+
+        .book-list {
+            margin-top: 20px;
+        }
+
+        .book-item {
+            background: #34495e;
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .book-item:hover {
+            background: #4a6478;
+        }
+
+        .book-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .book-author {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        .settings-panel {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+        }
+
+        .settings-modal {
+            background: white;
+            width: 500px;
+            margin: 50px auto;
+            padding: 30px;
+            border-radius: 10px;
+            color: #333;
+        }
+
+        .form-group {
+            margin: 15px 0;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 50px;
+            font-size: 18px;
+            color: #666;
+        }
+
+        .error {
+            color: #e74c3c;
+            background: #fadbd8;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+
+        .chapter-nav {
+            display: flex;
+            justify-content: space-between;
+            margin: 20px 0;
+        }
+
+        .progress-bar {
+            background: #ecf0f1;
+            height: 4px;
+            border-radius: 2px;
+            margin: 10px 0;
+        }
+
+        .progress-fill {
+            background: #3498db;
+            height: 100%;
+            border-radius: 2px;
+            transition: width 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <h2>ePubReader</h2>
+            <button class="btn" onclick="openFile()">Open ePub File</button>
+            <button class="btn" onclick="showSettings()">Settings</button>
+            
+            <div class="book-list" id="bookList">
+                <h3>Saved Books</h3>
+                <div id="savedBooks"></div>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="toolbar">
+                <div>
+                    <span id="bookTitle">No book loaded</span>
+                    <span id="bookAuthor"></span>
+                </div>
+                <div>
+                    <button class="btn" onclick="previousChapter()" id="prevBtn" disabled>Previous</button>
+                    <span id="chapterInfo">-/-</span>
+                    <button class="btn" onclick="nextChapter()" id="nextBtn" disabled>Next</button>
+                    <button class="btn btn-success" onclick="translateCurrent()" id="translateBtn" disabled>Translate</button>
+                </div>
+            </div>
+            
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+            </div>
+
+            <div class="reading-area" id="readingArea">
+                <div class="loading">
+                    Welcome to ePubReader! Open an ePub file to start reading.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div class="settings-panel" id="settingsPanel">
+        <div class="settings-modal">
+            <h2>Settings</h2>
+            <div class="form-group">
+                <label for="targetLang">Target Language:</label>
+                <select id="targetLang">
+                    <option value="en">English</option>
+                    <option value="es">Spanish</option>
+                    <option value="fr">French</option>
+                    <option value="de">German</option>
+                    <option value="it">Italian</option>
+                    <option value="pt">Portuguese</option>
+                    <option value="ru">Russian</option>
+                    <option value="ja">Japanese</option>
+                    <option value="ko">Korean</option>
+                    <option value="zh">Chinese</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="apiKey">Google Translate API Key:</label>
+                <input type="text" id="apiKey" placeholder="Enter your Google Translate API key">
+            </div>
+            <div class="form-group">
+                <label for="fontSize">Font Size:</label>
+                <input type="range" id="fontSize" min="12" max="24" value="16">
+                <span id="fontSizeValue">16px</span>
+            </div>
+            <div class="form-group">
+                <label for="autoTranslate">
+                    <input type="checkbox" id="autoTranslate" checked>
+                    Auto-translate when opening books
+                </label>
+            </div>
+            <div style="text-align: right; margin-top: 20px;">
+                <button class="btn" onclick="hideSettings()">Cancel</button>
+                <button class="btn btn-success" onclick="saveSettings()">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
