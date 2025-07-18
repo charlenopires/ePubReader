@@ -1,1 +1,0 @@
-RefCell<std::option::Option<VRc<i_slint_core::item_tree::ItemTree_vtable_mod::ItemTreeVTable, InnerComponent_reading_view_128>>>

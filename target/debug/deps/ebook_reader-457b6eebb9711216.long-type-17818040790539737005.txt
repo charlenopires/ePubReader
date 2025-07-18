@@ -1,1 +1,0 @@
-*const i_slint_core::properties::dependency_tracker::DependencyNode<*const i_slint_core::properties::BindingHolder>

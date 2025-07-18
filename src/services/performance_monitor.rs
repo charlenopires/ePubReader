@@ -1,6 +1,6 @@
 use std::collections::VecDeque;
 use std::sync::Arc;
-use std::time::{Duration, Instant};
+use std::time::{Duration, Instant, SystemTime};
 use tokio::sync::RwLock;
 use tokio::time::interval;
 use serde::{Deserialize, Serialize};
@@ -51,11 +51,11 @@ pub struct PerformanceMetrics {
     pub books_per_second: f64,
     
     // Timestamps
-    pub measurement_start: Instant,
-    pub last_update: Instant,
+    pub measurement_start: SystemTime,
+    pub last_update: SystemTime,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PerformanceTargets {
     pub startup_time_ms: u64,
     pub book_open_time_ms: u64,
@@ -78,25 +78,25 @@ impl Default for PerformanceTargets {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MemorySample {
-    pub timestamp: Instant,
+    pub timestamp: SystemTime,
     pub heap_mb: f64,
     pub cache_mb: f64,
     pub total_mb: f64,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PerformanceAlert {
     pub alert_type: AlertType,
     pub message: String,
     pub severity: AlertSeverity,
-    pub timestamp: Instant,
+    pub timestamp: SystemTime,
     pub value: f64,
     pub threshold: f64,
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum AlertType {
     HighMemoryUsage,
     LowFrameRate,
@@ -107,7 +107,7 @@ pub enum AlertType {
     NetworkTimeout,
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum AlertSeverity {
     Info,
     Warning,
@@ -116,7 +116,7 @@ pub enum AlertSeverity {
 
 impl PerformanceMonitor {
     pub fn new(targets: Option<PerformanceTargets>) -> Self {
-        let now = Instant::now();
+        let now = SystemTime::now();
         
         Self {
             metrics: Arc::new(RwLock::new(PerformanceMetrics {
@@ -175,7 +175,7 @@ impl PerformanceMonitor {
                 // Sample memory usage
                 let memory_usage = Self::get_memory_usage().await;
                 let sample = MemorySample {
-                    timestamp: Instant::now(),
+                    timestamp: SystemTime::now(),
                     heap_mb: memory_usage.heap_mb,
                     cache_mb: memory_usage.cache_mb,
                     total_mb: memory_usage.total_mb,
@@ -197,7 +197,7 @@ impl PerformanceMonitor {
                     if memory_usage.total_mb > metrics_guard.peak_memory_mb {
                         metrics_guard.peak_memory_mb = memory_usage.total_mb;
                     }
-                    metrics_guard.last_update = Instant::now();
+                    metrics_guard.last_update = SystemTime::now();
                 }
             }
         });
@@ -250,7 +250,7 @@ impl PerformanceMonitor {
                 metrics.frame_drops += 1;
             }
             
-            metrics.last_update = Instant::now();
+            metrics.last_update = SystemTime::now();
         }
     }
     
@@ -258,28 +258,28 @@ impl PerformanceMonitor {
     pub async fn record_startup_time(&self, startup_time: Duration) {
         let mut metrics = self.metrics.write().await;
         metrics.startup_time_ms = startup_time.as_millis() as u64;
-        metrics.last_update = Instant::now();
+        metrics.last_update = SystemTime::now();
     }
     
     /// Record book open time
     pub async fn record_book_open_time(&self, open_time: Duration) {
         let mut metrics = self.metrics.write().await;
         metrics.book_open_time_ms = open_time.as_millis() as u64;
-        metrics.last_update = Instant::now();
+        metrics.last_update = SystemTime::now();
     }
     
     /// Record search time
     pub async fn record_search_time(&self, search_time: Duration) {
         let mut metrics = self.metrics.write().await;
         metrics.search_time_ms = search_time.as_millis() as u64;
-        metrics.last_update = Instant::now();
+        metrics.last_update = SystemTime::now();
     }
     
     /// Record image load time
     pub async fn record_image_load_time(&self, load_time: Duration) {
         let mut metrics = self.metrics.write().await;
         metrics.image_load_time_ms = load_time.as_millis() as u64;
-        metrics.last_update = Instant::now();
+        metrics.last_update = SystemTime::now();
     }
     
     /// Update cache statistics
@@ -287,7 +287,7 @@ impl PerformanceMonitor {
         let mut metrics = self.metrics.write().await;
         metrics.cache_hit_rate = hit_rate;
         metrics.cache_memory_mb = cache_memory_mb;
-        metrics.last_update = Instant::now();
+        metrics.last_update = SystemTime::now();
     }
     
     /// Update network statistics
@@ -296,7 +296,7 @@ impl PerformanceMonitor {
         metrics.network_requests = requests;
         metrics.network_errors = errors;
         metrics.avg_download_speed_mbps = avg_speed_mbps;
-        metrics.last_update = Instant::now();
+        metrics.last_update = SystemTime::now();
     }
     
     /// Update library statistics
@@ -306,33 +306,34 @@ impl PerformanceMonitor {
         metrics.visible_books = visible_books;
         
         // Calculate books per second (rendering rate)
-        let elapsed = metrics.last_update.elapsed();
-        if elapsed.as_secs_f64() > 0.0 {
-            metrics.books_per_second = visible_books as f64 / elapsed.as_secs_f64();
+        if let Ok(elapsed) = metrics.last_update.elapsed() {
+            if elapsed.as_secs_f64() > 0.0 {
+                metrics.books_per_second = visible_books as f64 / elapsed.as_secs_f64();
+            }
         }
         
-        metrics.last_update = Instant::now();
+        metrics.last_update = SystemTime::now();
     }
     
     /// Update input lag
     pub async fn update_input_lag(&self, lag: Duration) {
         let mut metrics = self.metrics.write().await;
         metrics.input_lag_ms = lag.as_millis() as u64;
-        metrics.last_update = Instant::now();
+        metrics.last_update = SystemTime::now();
     }
     
     /// Update scroll performance
     pub async fn update_scroll_performance(&self, performance: f64) {
         let mut metrics = self.metrics.write().await;
         metrics.scroll_performance = performance;
-        metrics.last_update = Instant::now();
+        metrics.last_update = SystemTime::now();
     }
     
     /// Update animation smoothness
     pub async fn update_animation_smoothness(&self, smoothness: f64) {
         let mut metrics = self.metrics.write().await;
         metrics.animation_smoothness = smoothness;
-        metrics.last_update = Instant::now();
+        metrics.last_update = SystemTime::now();
     }
     
     /// Get current metrics
@@ -353,7 +354,7 @@ impl PerformanceMonitor {
                 message: format!("Startup time {}ms exceeds target {}ms", 
                                metrics.startup_time_ms, self.targets.startup_time_ms),
                 severity: AlertSeverity::Warning,
-                timestamp: Instant::now(),
+                timestamp: SystemTime::now(),
                 value: metrics.startup_time_ms as f64,
                 threshold: self.targets.startup_time_ms as f64,
             });
@@ -366,7 +367,7 @@ impl PerformanceMonitor {
                 message: format!("Book open time {}ms exceeds target {}ms", 
                                metrics.book_open_time_ms, self.targets.book_open_time_ms),
                 severity: AlertSeverity::Warning,
-                timestamp: Instant::now(),
+                timestamp: SystemTime::now(),
                 value: metrics.book_open_time_ms as f64,
                 threshold: self.targets.book_open_time_ms as f64,
             });
@@ -379,7 +380,7 @@ impl PerformanceMonitor {
                 message: format!("Search time {}ms exceeds target {}ms", 
                                metrics.search_time_ms, self.targets.search_time_ms),
                 severity: AlertSeverity::Warning,
-                timestamp: Instant::now(),
+                timestamp: SystemTime::now(),
                 value: metrics.search_time_ms as f64,
                 threshold: self.targets.search_time_ms as f64,
             });
@@ -398,7 +399,7 @@ impl PerformanceMonitor {
                 message: format!("Frame rate {:.1} FPS below target {:.1} FPS", 
                                metrics.current_fps, self.targets.target_fps),
                 severity,
-                timestamp: Instant::now(),
+                timestamp: SystemTime::now(),
                 value: metrics.current_fps,
                 threshold: self.targets.target_fps,
             });
@@ -417,7 +418,7 @@ impl PerformanceMonitor {
                 message: format!("Memory usage {:.1}MB exceeds target {:.1}MB", 
                                metrics.memory_usage_mb, self.targets.max_memory_mb),
                 severity,
-                timestamp: Instant::now(),
+                timestamp: SystemTime::now(),
                 value: metrics.memory_usage_mb,
                 threshold: self.targets.max_memory_mb,
             });
@@ -430,7 +431,7 @@ impl PerformanceMonitor {
                 message: format!("Cache hit rate {:.1}% below target {:.1}%", 
                                metrics.cache_hit_rate * 100.0, self.targets.min_cache_hit_rate * 100.0),
                 severity: AlertSeverity::Info,
-                timestamp: Instant::now(),
+                timestamp: SystemTime::now(),
                 value: metrics.cache_hit_rate,
                 threshold: self.targets.min_cache_hit_rate,
             });
@@ -452,13 +453,13 @@ impl PerformanceMonitor {
             alerts,
             overall_score,
             recommendations,
-            generated_at: Instant::now(),
+            generated_at: SystemTime::now(),
         }
     }
     
     /// Calculate overall performance score (0-100)
     async fn calculate_performance_score(&self, metrics: &PerformanceMetrics) -> f64 {
-        let mut score = 100.0;
+        let mut score: f64 = 100.0;
         
         // Deduct points for performance issues
         if metrics.startup_time_ms > self.targets.startup_time_ms {
@@ -554,13 +555,13 @@ impl PerformanceMonitor {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PerformanceReport {
     pub metrics: PerformanceMetrics,
     pub alerts: Vec<PerformanceAlert>,
     pub overall_score: f64,
     pub recommendations: Vec<String>,
-    pub generated_at: Instant,
+    pub generated_at: SystemTime,
 }
 
 #[derive(Debug, Clone)]
@@ -636,7 +637,7 @@ mod tests {
             alert_type: AlertType::HighMemoryUsage,
             message: "High memory usage".to_string(),
             severity: AlertSeverity::Critical,
-            timestamp: Instant::now(),
+            timestamp: SystemTime::now(),
             value: 800.0,
             threshold: 500.0,
         };

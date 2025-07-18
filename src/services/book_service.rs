@@ -315,7 +315,7 @@ impl BookService {
             "Unknown Author".to_string(),
             file_path.to_path_buf(),
             file_size,
-            format,
+            format.clone(),
         );
 
         // Parse metadata based on format

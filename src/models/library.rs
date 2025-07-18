@@ -1,6 +1,7 @@
 use serde::{Deserialize, Serialize};
 use chrono::{DateTime, Utc};
 use std::collections::HashMap;
+use anyhow::Result;
 
 /// Reading status for books
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
@@ -236,39 +237,40 @@ pub struct Tag {
 }
 
 /// Library organization service trait
+#[async_trait::async_trait]
 pub trait LibraryOrganizer {
     /// Collections
-    async fn create_collection(&self, name: String, icon: String, color: String) -> Result<Collection, Box<dyn std::error::Error>>;
-    async fn update_collection(&self, collection: &Collection) -> Result<(), Box<dyn std::error::Error>>;
-    async fn delete_collection(&self, collection_id: &str) -> Result<(), Box<dyn std::error::Error>>;
-    async fn get_collection(&self, collection_id: &str) -> Result<Option<Collection>, Box<dyn std::error::Error>>;
-    async fn get_all_collections(&self) -> Result<Vec<Collection>, Box<dyn std::error::Error>>;
+    async fn create_collection(&self, name: String, icon: String, color: String) -> anyhow::Result<Collection>;
+    async fn update_collection(&self, collection: &Collection) -> anyhow::Result<()>;
+    async fn delete_collection(&self, collection_id: &str) -> anyhow::Result<()>;
+    async fn get_collection(&self, collection_id: &str) -> anyhow::Result<Option<Collection>>;
+    async fn get_all_collections(&self) -> anyhow::Result<Vec<Collection>>;
     
     /// Collection management
-    async fn add_to_collection(&self, book_id: String, collection_id: String) -> Result<(), Box<dyn std::error::Error>>;
-    async fn remove_from_collection(&self, book_id: String, collection_id: String) -> Result<(), Box<dyn std::error::Error>>;
-    async fn get_books_by_category(&self, category: Category) -> Result<Vec<String>, Box<dyn std::error::Error>>;
+    async fn add_to_collection(&self, book_id: String, collection_id: String) -> anyhow::Result<()>;
+    async fn remove_from_collection(&self, book_id: String, collection_id: String) -> anyhow::Result<()>;
+    async fn get_books_by_category(&self, category: Category) -> anyhow::Result<Vec<String>>;
     
     /// Smart collections
-    async fn create_smart_collection(&self, name: String, rules: SmartCollectionRules) -> Result<Collection, Box<dyn std::error::Error>>;
-    async fn get_smart_collections(&self) -> Result<Vec<Collection>, Box<dyn std::error::Error>>;
-    async fn update_smart_collection_books(&self, collection_id: &str) -> Result<(), Box<dyn std::error::Error>>;
+    async fn create_smart_collection(&self, name: String, rules: SmartCollectionRules) -> anyhow::Result<Collection>;
+    async fn get_smart_collections(&self) -> anyhow::Result<Vec<Collection>>;
+    async fn update_smart_collection_books(&self, collection_id: &str) -> anyhow::Result<()>;
     
     /// Library statistics
-    async fn get_library_stats(&self) -> Result<LibraryStats, Box<dyn std::error::Error>>;
+    async fn get_library_stats(&self) -> anyhow::Result<LibraryStats>;
     
     /// Reading status
-    async fn update_reading_status(&self, book_id: &str, status: ReadingStatus) -> Result<(), Box<dyn std::error::Error>>;
-    async fn get_reading_status(&self, book_id: &str) -> Result<Option<ReadingStatus>, Box<dyn std::error::Error>>;
+    async fn update_reading_status(&self, book_id: &str, status: ReadingStatus) -> anyhow::Result<()>;
+    async fn get_reading_status(&self, book_id: &str) -> anyhow::Result<Option<ReadingStatus>>;
     
     /// Authors, genres, tags
-    async fn get_all_authors(&self) -> Result<Vec<Author>, Box<dyn std::error::Error>>;
-    async fn get_all_genres(&self) -> Result<Vec<Genre>, Box<dyn std::error::Error>>;
-    async fn get_all_tags(&self) -> Result<Vec<Tag>, Box<dyn std::error::Error>>;
+    async fn get_all_authors(&self) -> anyhow::Result<Vec<Author>>;
+    async fn get_all_genres(&self) -> anyhow::Result<Vec<Genre>>;
+    async fn get_all_tags(&self) -> anyhow::Result<Vec<Tag>>;
     
     /// Filtering and sorting
-    async fn filter_books(&self, filter: &LibraryFilter) -> Result<Vec<String>, Box<dyn std::error::Error>>;
-    async fn sort_books(&self, book_ids: &[String], sort_by: LibrarySortBy, direction: SortDirection) -> Result<Vec<String>, Box<dyn std::error::Error>>;
+    async fn filter_books(&self, filter: &LibraryFilter) -> anyhow::Result<Vec<String>>;
+    async fn sort_books(&self, book_ids: &[String], sort_by: LibrarySortBy, direction: SortDirection) -> anyhow::Result<Vec<String>>;
 }
 
 impl Collection {

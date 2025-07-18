@@ -1,1 +1,0 @@
-(dyn for<'a, 'b> FnMut(&'a (slint_generatedAppWindow::BookViewModel,), &'b mut ()) + 'static)

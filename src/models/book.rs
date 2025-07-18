@@ -243,7 +243,7 @@ impl Book {
     
     /// Check if book is currently being read
     pub fn is_reading(&self) -> bool {
-        matches!(self.reading_status, ReadingStatus::Reading)
+        matches!(self.reading_status, ReadingStatus::CurrentlyReading)
     }
     
     /// Check if book is finished

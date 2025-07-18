@@ -27,17 +27,39 @@ impl EbookReaderApp {
     pub fn new() -> Result<Self> {
         let rt = Runtime::new()?;
         
-        // Initialize services
-        let app_dir = dirs::config_dir()
-            .unwrap_or_else(|| dirs::home_dir().unwrap_or_default())
-            .join("ebook-reader");
+        // Initialize services with improved error handling
+        let database = Arc::new(rt.block_on(async {
+            match DatabaseService::new().await {
+                Ok(db) => {
+                    println!("✅ Database initialized successfully");
+                    Ok(db)
+                }
+                Err(e) => {
+                    eprintln!("❌ Database initialization failed: {}", e);
+                    eprintln!("💡 This might be due to:");
+                    eprintln!("   - Insufficient permissions in the app data directory");
+                    eprintln!("   - Corrupted database file");
+                    eprintln!("   - Another instance of the app running");
+                    eprintln!("\n🔧 Trying fallback initialization...");
+                    
+                    // Try with a temporary database as last resort
+                    match PathResolver::get_temp_directory() {
+                        Ok(temp_dir) => {
+                            let temp_db_path = temp_dir.join("library.db");
+                            eprintln!("📁 Using temporary database: {}", temp_db_path.display());
+                            DatabaseService::new_with_path(Some(temp_db_path)).await
+                        }
+                        Err(temp_err) => {
+                            eprintln!("❌ Fallback also failed: {}", temp_err);
+                            Err(e)
+                        }
+                    }
+                }
+            }
+        })?);
         
-        std::fs::create_dir_all(&app_dir)?;
-        
-        let database_path = app_dir.join("library.db");
-        let cache_dir = app_dir.join("cache");
-        
-        let database = Arc::new(rt.block_on(DatabaseService::new(&database_path))?);
+        let cache_dir = PathResolver::get_cache_directory()
+            .unwrap_or_else(|_| std::env::temp_dir().join("ebook-reader-cache"));
         let image_cache = Arc::new(ImageCache::new(cache_dir)?);
         let book_service = Arc::new(BookService::new(database.clone(), image_cache.clone()));
         

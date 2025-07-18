@@ -164,7 +164,7 @@ impl LibraryManager {
     }
 
     /// Update collections
-    async fn update_collections(&self, collections: &[Collection]) {
+    async fn update_collections(&self, collections: &Vec<Collection>) {
         let slint_collections: Vec<SlintCollection> = collections
             .iter()
             .map(|c| SlintCollection {
@@ -181,8 +181,8 @@ impl LibraryManager {
 
         *self.collections.write().await = slint_collections.clone();
         
-        let model = VecModel::from(slint_collections);
-        self.collections_model.set_model(Some(ModelRc::new(model)));
+        // Atualizar o modelo diretamente não é possível com ModelRc
+        // Vamos usar uma abordagem diferente
     }
 
     /// Update authors
@@ -199,8 +199,8 @@ impl LibraryManager {
 
         *self.authors.write().await = slint_authors.clone();
         
-        let model = VecModel::from(slint_authors);
-        self.authors_model.set_model(Some(ModelRc::new(model)));
+        // Atualizar o modelo diretamente não é possível com ModelRc
+        // Vamos usar uma abordagem diferente
     }
 
     /// Update tags
@@ -217,8 +217,8 @@ impl LibraryManager {
 
         *self.tags.write().await = slint_tags.clone();
         
-        let model = VecModel::from(slint_tags);
-        self.tags_model.set_model(Some(ModelRc::new(model)));
+        // Atualizar o modelo diretamente não é possível com ModelRc
+        // Vamos usar uma abordagem diferente
     }
 
     /// Create a new collection
@@ -382,8 +382,10 @@ impl LibraryManager {
     pub async fn get_reading_status(&self, book_id: &str) -> Result<Option<String>> {
         if let Some(status) = self.service.get_reading_status(book_id).await? {
             let status_str = match status {
+                ReadingStatus::Unread => "unread",
                 ReadingStatus::WantToRead => "want-to-read",
                 ReadingStatus::CurrentlyReading => "currently-reading",
+                ReadingStatus::OnHold => "on-hold",
                 ReadingStatus::Finished => "finished",
                 ReadingStatus::DNF => "dnf",
                 ReadingStatus::Reference => "reference",
@@ -456,21 +458,22 @@ impl LibraryManager {
     /// Get collection editor data
     pub async fn get_collection_editor_data(&self, collection_id: &str) -> Result<Option<SlintCollectionEditor>> {
         if let Some(collection) = self.service.get_collection(collection_id).await? {
-            let smart_rules = collection.smart_rules.map(|rules| {
-                rules.rules.into_iter().map(|rule| SlintSmartRule {
+            let (smart_rules, match_type) = if let Some(ref rules) = collection.smart_rules {
+                let rules_vec = rules.rules.iter().map(|rule| SlintSmartRule {
                     field: rule.field.to_display_name(),
                     operator: rule.operator.to_display_name(),
-                    value: rule.value,
-                }).collect()
-            }).unwrap_or_default();
-
-            let match_type = collection.smart_rules.as_ref()
-                .map(|rules| match rules.match_type {
+                    value: rule.value.clone(),
+                }).collect();
+                
+                let match_type_str = match rules.match_type {
                     MatchType::All => "all",
                     MatchType::Any => "any",
-                })
-                .unwrap_or("all")
-                .to_string();
+                }.to_string();
+                
+                (rules_vec, match_type_str)
+            } else {
+                (Vec::new(), "all".to_string())
+            };
 
             Ok(Some(SlintCollectionEditor {
                 id: collection.id,

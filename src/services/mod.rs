@@ -1,5 +1,7 @@
 pub mod book_service;
 pub mod database;
+pub mod database_initializer;
+pub mod path_resolver;
 pub mod reading_service;
 pub mod annotation_service;
 pub mod annotation_manager;
@@ -15,6 +17,8 @@ pub mod optimized_virtual_grid;
 
 pub use book_service::*;
 pub use database::*;
+pub use database_initializer::*;
+pub use path_resolver::*;
 pub use reading_service::*;
 pub use annotation_service::*;
 pub use annotation_manager::*;

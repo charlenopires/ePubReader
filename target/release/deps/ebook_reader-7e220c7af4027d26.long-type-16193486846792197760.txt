@@ -1,1 +1,0 @@
-i_slint_core::properties::single_linked_list_pin::SingleLinkedListPinNode<i_slint_core::properties::dependency_tracker::DependencyNode<*const i_slint_core::properties::BindingHolder>>

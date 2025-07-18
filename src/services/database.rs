@@ -1,11 +1,14 @@
 use sqlx::{SqlitePool, Row};
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use anyhow::Result;
 use chrono::{DateTime, Utc};
+use tracing::{info, error};
 
 use crate::models::{Book, BookCollection, BookFormat};
 use crate::models::library::ReadingStatus;
 use crate::services::book_service::{BookFilter, BookSort, SortField, SortOrder};
+use crate::services::database_initializer::{DatabaseInitializer, DatabaseInitError};
+use crate::services::path_resolver::PathResolver;
 
 /// Database service for managing SQLite operations
 pub struct DatabaseService {
@@ -13,14 +16,53 @@ pub struct DatabaseService {
 }
 
 impl DatabaseService {
-    /// Create a new database service instance
-    pub async fn new(database_path: &Path) -> Result<Self> {
-        let database_url = format!("sqlite://{}", database_path.display());
-        let pool = SqlitePool::connect(&database_url).await?;
+    /// Create a new database service instance with automatic initialization
+    pub async fn new() -> Result<Self> {
+        Self::new_with_path(None).await
+    }
+    
+    /// Create a new database service instance with custom path
+    pub async fn new_with_path(custom_path: Option<PathBuf>) -> Result<Self> {
+        info!("Initializing database service");
+        
+        // Determine database path
+        let database_path = match custom_path {
+            Some(path) => {
+                info!("Using custom database path: {}", path.display());
+                path
+            }
+            None => {
+                PathResolver::resolve_database_path_with_fallback()
+                    .map_err(|e| anyhow::anyhow!("Failed to resolve database path: {}", e))?
+            }
+        };
+        
+        // Initialize database
+        let initializer = DatabaseInitializer::new(database_path.clone());
+        let validated_path = initializer.ensure_database_ready().await
+            .map_err(|e| anyhow::anyhow!("Database initialization failed: {}", e))?;
+        
+        // Connect to database
+        let database_url = format!("sqlite://{}?mode=rwc", validated_path.display());
+        let pool = SqlitePool::connect(&database_url).await
+            .map_err(|e| anyhow::anyhow!("Failed to connect to database: {}", e))?;
         
         let service = Self { pool };
-        service.initialize_schema().await?;
         
+        // Initialize schema
+        service.initialize_schema().await
+            .map_err(|e| anyhow::anyhow!("Failed to initialize database schema: {}", e))?;
+        
+        info!("Database service initialized successfully");
+        Ok(service)
+    }
+    
+    /// Create database service for testing with in-memory database
+    #[cfg(test)]
+    pub async fn new_in_memory() -> Result<Self> {
+        let pool = SqlitePool::connect("sqlite::memory:").await?;
+        let service = Self { pool };
+        service.initialize_schema().await?;
         Ok(service)
     }
 
@@ -42,6 +84,7 @@ impl DatabaseService {
                 file_size INTEGER NOT NULL,
                 file_format TEXT NOT NULL,
                 cover_path TEXT,
+                cover_url TEXT,
                 page_count INTEGER,
                 word_count INTEGER,
                 reading_progress REAL DEFAULT 0.0,
@@ -129,6 +172,11 @@ impl DatabaseService {
         .execute(&self.pool)
         .await?;
 
+        // Add missing columns for existing databases (simple migration)
+        let _ = sqlx::query("ALTER TABLE books ADD COLUMN cover_url TEXT")
+            .execute(&self.pool)
+            .await; // Ignore error if column already exists
+
         // Create indexes for better query performance
         sqlx::query("CREATE INDEX IF NOT EXISTS idx_books_title ON books(title)")
             .execute(&self.pool)
@@ -157,10 +205,10 @@ impl DatabaseService {
             r#"
             INSERT INTO books (
                 id, title, author, isbn, genre, description, publication_date, language,
-                file_path, file_size, file_format, cover_path, page_count, word_count,
+                file_path, file_size, file_format, cover_path, cover_url, page_count, word_count,
                 reading_progress, reading_status, added_date, last_opened, is_favorite,
                 rating, notes, tags
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             "#,
         )
         .bind(&book.id)
@@ -175,7 +223,7 @@ impl DatabaseService {
         .bind(book.file_size as i64)
         .bind(book.file_format.to_extension())
         .bind(book.cover_path.as_ref().map(|p| p.to_string_lossy().to_string()))
-        .bind(book.page_count.map(|p| p as i64))
+        .bind(&book.cover_url)        .bind(book.page_count.map(|p| p as i64))
         .bind(book.word_count.map(|w| w as i64))
         .bind(book.reading_progress)
         .bind(book.reading_status.to_string())
@@ -200,7 +248,7 @@ impl DatabaseService {
             UPDATE books SET
                 title = ?, author = ?, isbn = ?, genre = ?, description = ?,
                 publication_date = ?, language = ?, file_path = ?, file_size = ?,
-                file_format = ?, cover_path = ?, page_count = ?, word_count = ?,
+                file_format = ?, cover_path = ?, cover_url = ?, page_count = ?, word_count = ?,
                 reading_progress = ?, reading_status = ?, last_opened = ?,
                 is_favorite = ?, rating = ?, notes = ?, tags = ?
             WHERE id = ?
@@ -217,7 +265,7 @@ impl DatabaseService {
         .bind(book.file_size as i64)
         .bind(book.file_format.to_extension())
         .bind(book.cover_path.as_ref().map(|p| p.to_string_lossy().to_string()))
-        .bind(book.page_count.map(|p| p as i64))
+        .bind(&book.cover_url)        .bind(book.page_count.map(|p| p as i64))
         .bind(book.word_count.map(|w| w as i64))
         .bind(book.reading_progress)
         .bind(book.reading_status.to_string())
@@ -507,7 +555,7 @@ impl DatabaseService {
             .unwrap_or(BookFormat::Epub);
 
         let reading_status = ReadingStatus::from_string(&row.get::<String, _>("reading_status"))
-            .unwrap_or(ReadingStatus::New);
+            .unwrap_or(ReadingStatus::Unread);
 
         Ok(Book {
             id: row.get("id"),
@@ -522,6 +570,7 @@ impl DatabaseService {
             file_size: row.get::<i64, _>("file_size") as u64,
             file_format,
             cover_path: row.get::<Option<String>, _>("cover_path").map(|p| p.into()),
+            cover_url: row.get::<Option<String>, _>("cover_url"),
             page_count: row.get::<Option<i64>, _>("page_count").map(|p| p as u32),
             word_count: row.get::<Option<i64>, _>("word_count").map(|w| w as u32),
             reading_progress: row.get("reading_progress"),

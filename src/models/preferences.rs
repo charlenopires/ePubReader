@@ -301,7 +301,7 @@ impl SyncProvider {
             SyncProvider::GoogleDrive => "google_drive".to_string(),
             SyncProvider::Dropbox => "dropbox".to_string(),
             SyncProvider::OneDrive => "onedrive".to_string(),
-            SyncProvider::iCloud => "icloud".to_string(),
+            SyncProvider::ICloud => "icloud".to_string(),
             SyncProvider::Custom(name) => format!("custom_{}", name),
         }
     }
@@ -312,7 +312,7 @@ impl SyncProvider {
             SyncProvider::GoogleDrive => "Google Drive".to_string(),
             SyncProvider::Dropbox => "Dropbox".to_string(),
             SyncProvider::OneDrive => "OneDrive".to_string(),
-            SyncProvider::iCloud => "iCloud".to_string(),
+            SyncProvider::ICloud => "iCloud".to_string(),
             SyncProvider::Custom(name) => name.clone(),
         }
     }

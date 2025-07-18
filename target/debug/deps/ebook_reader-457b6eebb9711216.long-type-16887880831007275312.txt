@@ -1,1 +1,0 @@
-UnsafeCell<std::option::Option<VWeakMapped<i_slint_core::item_tree::ItemTree_vtable_mod::ItemTreeVTable, InnerComponent_empty_10>>>

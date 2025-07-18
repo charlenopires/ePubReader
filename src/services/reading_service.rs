@@ -160,20 +160,22 @@ impl ReadingService {
         let spine = doc.spine.clone();
         
         for (order, spine_item) in spine.iter().enumerate() {
-            if let Ok(content) = doc.get_resource_str(spine_item) {
-                let cleaned_content = self.clean_html_content(&content);
-                let word_count = self.count_words(&cleaned_content);
-                
-                let chapter = Chapter {
-                    id: spine_item.clone(),
+            if let Some(id) = &spine_item.id {
+                if let Some((content, _)) = doc.get_resource_str(id) {
+                    let cleaned_content = self.clean_html_content(&content);
+                    let word_count = self.count_words(&cleaned_content);
+                    
+                    let chapter = Chapter {
+                        id: id.clone(),
                     title: format!("Chapter {}", order + 1),
                     content: cleaned_content,
                     word_count,
                     order,
                 };
                 
-                total_word_count += word_count;
-                chapters.push(chapter);
+                    total_word_count += word_count;
+                    chapters.push(chapter);
+                }
             }
         }
 

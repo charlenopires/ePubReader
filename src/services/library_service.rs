@@ -598,7 +598,7 @@ impl LibraryService {
 
 #[async_trait::async_trait]
 impl LibraryOrganizer for LibraryService {
-    async fn create_collection(&self, name: String, icon: String, color: String) -> Result<Collection, Box<dyn std::error::Error>> {
+    async fn create_collection(&self, name: String, icon: String, color: String) -> Result<Collection> {
         let collection = Collection::new(name, icon, color);
         
         sqlx::query(
@@ -623,7 +623,7 @@ impl LibraryOrganizer for LibraryService {
         Ok(collection)
     }
 
-    async fn update_collection(&self, collection: &Collection) -> Result<(), Box<dyn std::error::Error>> {
+    async fn update_collection(&self, collection: &Collection) -> Result<()> {
         let smart_rules_json = collection.smart_rules.as_ref()
             .map(|rules| serde_json::to_string(rules))
             .transpose()?;
@@ -652,7 +652,7 @@ impl LibraryOrganizer for LibraryService {
         Ok(())
     }
 
-    async fn delete_collection(&self, collection_id: &str) -> Result<(), Box<dyn std::error::Error>> {
+    async fn delete_collection(&self, collection_id: &str) -> Result<()> {
         sqlx::query("DELETE FROM collections WHERE id = ?")
             .bind(collection_id)
             .execute(&self.pool)
@@ -677,7 +677,7 @@ impl LibraryOrganizer for LibraryService {
         }
     }
 
-    async fn get_all_collections(&self) -> Result<Vec<Collection>, Box<dyn std::error::Error>> {
+    async fn get_all_collections(&self) -> Result<Vec<Collection>> {
         let rows = sqlx::query("SELECT * FROM collections ORDER BY sort_order, name")
             .fetch_all(&self.pool)
             .await?;
@@ -692,7 +692,7 @@ impl LibraryOrganizer for LibraryService {
         Ok(collections)
     }
 
-    async fn add_to_collection(&self, book_id: String, collection_id: String) -> Result<(), Box<dyn std::error::Error>> {
+    async fn add_to_collection(&self, book_id: String, collection_id: String) -> Result<()> {
         sqlx::query(
             "INSERT OR IGNORE INTO collection_books (collection_id, book_id, added_at) VALUES (?, ?, ?)"
         )
@@ -705,7 +705,7 @@ impl LibraryOrganizer for LibraryService {
         Ok(())
     }
 
-    async fn remove_from_collection(&self, book_id: String, collection_id: String) -> Result<(), Box<dyn std::error::Error>> {
+    async fn remove_from_collection(&self, book_id: String, collection_id: String) -> Result<()> {
         sqlx::query("DELETE FROM collection_books WHERE collection_id = ? AND book_id = ?")
             .bind(&collection_id)
             .bind(&book_id)
@@ -715,7 +715,7 @@ impl LibraryOrganizer for LibraryService {
         Ok(())
     }
 
-    async fn get_books_by_category(&self, category: Category) -> Result<Vec<String>, Box<dyn std::error::Error>> {
+    async fn get_books_by_category(&self, category: Category) -> Result<Vec<String>> {
         match category {
             Category::All => {
                 let rows = sqlx::query("SELECT id FROM books ORDER BY title")
@@ -814,7 +814,7 @@ impl LibraryOrganizer for LibraryService {
         }
     }
 
-    async fn create_smart_collection(&self, name: String, rules: SmartCollectionRules) -> Result<Collection, Box<dyn std::error::Error>> {
+    async fn create_smart_collection(&self, name: String, rules: SmartCollectionRules) -> Result<Collection> {
         let collection = Collection::new_smart(name, "⚡".to_string(), "#007AFF".to_string(), rules);
         
         let smart_rules_json = serde_json::to_string(&collection.smart_rules)?;
@@ -842,7 +842,7 @@ impl LibraryOrganizer for LibraryService {
         Ok(collection)
     }
 
-    async fn get_smart_collections(&self) -> Result<Vec<Collection>, Box<dyn std::error::Error>> {
+    async fn get_smart_collections(&self) -> Result<Vec<Collection>> {
         let rows = sqlx::query("SELECT * FROM collections WHERE is_smart = 1 ORDER BY sort_order, name")
             .fetch_all(&self.pool)
             .await?;
@@ -857,16 +857,16 @@ impl LibraryOrganizer for LibraryService {
         Ok(collections)
     }
 
-    async fn update_smart_collection_books(&self, collection_id: &str) -> Result<(), Box<dyn std::error::Error>> {
+    async fn update_smart_collection_books(&self, collection_id: &str) -> Result<()> {
         // Smart collections don't store books directly - they're calculated on-demand
         Ok(())
     }
 
-    async fn get_library_stats(&self) -> Result<LibraryStats, Box<dyn std::error::Error>> {
+    async fn get_library_stats(&self) -> Result<LibraryStats> {
         Ok(LibraryService::get_library_stats(self).await?)
     }
 
-    async fn update_reading_status(&self, book_id: &str, status: ReadingStatus) -> Result<(), Box<dyn std::error::Error>> {
+    async fn update_reading_status(&self, book_id: &str, status: ReadingStatus) -> Result<()> {
         let now = Utc::now();
         
         sqlx::query(
@@ -917,7 +917,7 @@ impl LibraryOrganizer for LibraryService {
         }
     }
 
-    async fn get_all_authors(&self) -> Result<Vec<Author>, Box<dyn std::error::Error>> {
+    async fn get_all_authors(&self) -> Result<Vec<Author>> {
         let rows = sqlx::query("SELECT * FROM authors ORDER BY name")
             .fetch_all(&self.pool)
             .await?;
@@ -949,7 +949,7 @@ impl LibraryOrganizer for LibraryService {
         Ok(authors)
     }
 
-    async fn get_all_genres(&self) -> Result<Vec<Genre>, Box<dyn std::error::Error>> {
+    async fn get_all_genres(&self) -> Result<Vec<Genre>> {
         let rows = sqlx::query("SELECT * FROM genres ORDER BY name")
             .fetch_all(&self.pool)
             .await?;
@@ -973,7 +973,7 @@ impl LibraryOrganizer for LibraryService {
         Ok(genres)
     }
 
-    async fn get_all_tags(&self) -> Result<Vec<Tag>, Box<dyn std::error::Error>> {
+    async fn get_all_tags(&self) -> Result<Vec<Tag>> {
         let rows = sqlx::query("SELECT * FROM tags ORDER BY name")
             .fetch_all(&self.pool)
             .await?;
@@ -995,7 +995,7 @@ impl LibraryOrganizer for LibraryService {
         Ok(tags)
     }
 
-    async fn filter_books(&self, filter: &LibraryFilter) -> Result<Vec<String>, Box<dyn std::error::Error>> {
+    async fn filter_books(&self, filter: &LibraryFilter) -> Result<Vec<String>> {
         let mut query = String::from("SELECT DISTINCT b.id FROM books b");
         let mut joins = Vec::new();
         let mut conditions = Vec::new();
@@ -1100,7 +1100,7 @@ impl LibraryOrganizer for LibraryService {
         Ok(rows.into_iter().map(|row| row.get(0)).collect())
     }
 
-    async fn sort_books(&self, book_ids: &[String], sort_by: LibrarySortBy, direction: SortDirection) -> Result<Vec<String>, Box<dyn std::error::Error>> {
+    async fn sort_books(&self, book_ids: &[String], sort_by: LibrarySortBy, direction: SortDirection) -> Result<Vec<String>> {
         if book_ids.is_empty() {
             return Ok(Vec::new());
         }

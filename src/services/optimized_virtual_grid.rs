@@ -253,7 +253,7 @@ impl OptimizedImageCache {
         let capacity = (max_memory_mb * 1024 * 1024) / 100000; // ~100KB por imagem
         
         Self {
-            cache: LruCache::new(capacity.try_into().unwrap_or(1000)),
+            cache: LruCache::new(std::num::NonZero::new(capacity.try_into().unwrap_or(1000)).unwrap()),
             max_memory_mb,
             current_memory_mb: 0,
             cache_hits: 0,
@@ -709,7 +709,7 @@ impl OptimizedLibraryService {
                 
                 // Filtro de status
                 let matches_status = status_filter.is_none() || 
-                    book.status == status_filter.unwrap();
+                    book.reading_status == *status_filter.as_ref().unwrap();
                 
                 matches_query && matches_status
             })
@@ -731,7 +731,8 @@ impl OptimizedLibraryService {
                 let filtered_guard = self.filtered_books.read().await;
                 filtered_guard.len()
             };
-            grid.update_visible_range(grid.scroll_offset);
+            let scroll_offset = grid.scroll_offset;
+            grid.update_visible_range(scroll_offset);
         }
         
         // Atualiza métricas

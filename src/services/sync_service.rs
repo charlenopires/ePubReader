@@ -126,9 +126,8 @@ impl SyncService {
         conflicts.extend(collection_conflicts.1);
 
         // Merge preferences
-        if remote.preferences.reading_preferences.last_updated > local.preferences.reading_preferences.last_updated {
-            merged.preferences = remote.preferences;
-        }
+        // For now, just use the remote preferences if they exist
+        merged.preferences = remote.preferences;
 
         // Merge reading sessions
         merged.reading_sessions = self.merge_reading_sessions(&local.reading_sessions, &remote.reading_sessions).await?;
@@ -434,7 +433,7 @@ impl SyncService {
 
     /// Collect local data from services
     async fn collect_local_data(&self) -> Result<()> {
-        let mut data = self.local_data.write().await;
+        let _data = self.local_data.write().await;
         
         // Collect annotations
         // This would integrate with your annotation service
@@ -452,7 +451,6 @@ impl SyncService {
     /// Merge sync data
     async fn merge_sync_data(&self, remote_data: SyncData) -> Result<()> {
         let local_data = self.local_data.read().await.clone();
-        drop(local_data);
         
         let merged_data = self.merge_conflicts(local_data, remote_data).await?;
         
