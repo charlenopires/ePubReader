@@ -12,10 +12,12 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f5f5f5;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+            background: #fafafa;
             height: 100vh;
             overflow: hidden;
+            margin: 0;
+            color: #2c3e50;
         }
 
         .container {
@@ -35,23 +37,183 @@
             flex: 1;
             display: flex;
             flex-direction: column;
-            background: white;
+            background: #ffffff;
+            position: relative;
         }
 
-        .toolbar {
-            background: #34495e;
-            color: white;
-            padding: 15px 20px;
+        .reading-header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(0,0,0,0.06);
+            padding: 16px 24px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .book-header-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .book-header-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1a202c;
+            margin: 0;
+        }
+
+        .book-header-meta {
+            font-size: 13px;
+            color: #718096;
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .reading-controls {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .control-btn {
+            background: rgba(74, 85, 104, 0.1);
+            border: none;
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 13px;
+            font-weight: 500;
+            color: #4a5568;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .control-btn:hover {
+            background: rgba(74, 85, 104, 0.15);
+            color: #2d3748;
+        }
+
+        .control-btn.primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .control-btn.primary:hover {
+            background: #5a67d8;
         }
 
         .reading-area {
             flex: 1;
-            padding: 40px;
             overflow-y: auto;
-            line-height: 1.6;
+            position: relative;
+        }
+
+        .reading-content {
+            max-width: 680px;
+            margin: 0 auto;
+            padding: 48px 32px 80px;
+            line-height: 1.75;
+            font-size: 18px;
+            color: #2d3748;
+        }
+
+        .chapter-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1a202c;
+            margin: 0 0 32px 0;
+            line-height: 1.3;
+            letter-spacing: -0.025em;
+        }
+
+        .chapter-content {
+            font-family: 'Georgia', 'Times New Roman', serif;
+            font-size: 18px;
+            line-height: 1.8;
+            color: #2d3748;
+        }
+
+        .chapter-content p {
+            margin: 0 0 24px 0;
+            text-align: justify;
+        }
+
+        .chapter-content p:last-child {
+            margin-bottom: 0;
+        }
+
+        .reading-progress {
+            position: fixed;
+            bottom: 0;
+            left: 320px;
+            right: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-top: 1px solid rgba(0,0,0,0.06);
+            padding: 16px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .progress-info {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            font-size: 13px;
+            color: #718096;
+        }
+
+        .progress-bar-container {
+            flex: 1;
+            margin: 0 24px;
+            background: rgba(0,0,0,0.06);
+            height: 4px;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            height: 100%;
+            border-radius: 2px;
+            transition: width 0.3s ease;
+        }
+
+        .chapter-navigation {
+            display: flex;
+            gap: 8px;
+        }
+
+        .nav-btn {
+            background: rgba(74, 85, 104, 0.1);
+            border: none;
+            border-radius: 6px;
+            padding: 6px 12px;
+            font-size: 12px;
+            font-weight: 500;
+            color: #4a5568;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .nav-btn:hover:not(:disabled) {
+            background: rgba(74, 85, 104, 0.15);
+            color: #2d3748;
+        }
+
+        .nav-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
         }
 
         .btn {
@@ -217,38 +379,77 @@
         }
 
         .loading {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
             text-align: center;
-            padding: 50px;
-            font-size: 18px;
-            color: #666;
+            color: #718096;
+            font-size: 16px;
+        }
+
+        .loading-spinner {
+            width: 24px;
+            height: 24px;
+            border: 2px solid rgba(103, 126, 234, 0.2);
+            border-top: 2px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 16px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
         .error {
-            color: #e74c3c;
-            background: #fadbd8;
-            padding: 15px;
-            border-radius: 5px;
-            margin: 10px 0;
+            background: rgba(245, 101, 101, 0.1);
+            color: #e53e3e;
+            padding: 16px 20px;
+            border-radius: 8px;
+            margin: 16px 32px;
+            border-left: 4px solid #e53e3e;
+            font-size: 14px;
         }
 
-        .chapter-nav {
+        .welcome-state {
             display: flex;
-            justify-content: space-between;
-            margin: 20px 0;
-        }
-
-        .progress-bar {
-            background: #ecf0f1;
-            height: 4px;
-            border-radius: 2px;
-            margin: 10px 0;
-        }
-
-        .progress-fill {
-            background: #3498db;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
             height: 100%;
-            border-radius: 2px;
-            transition: width 0.3s ease;
+            text-align: center;
+            padding: 48px 32px;
+        }
+
+        .welcome-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            color: white;
+            margin-bottom: 24px;
+        }
+
+        .welcome-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1a202c;
+            margin: 0 0 8px 0;
+        }
+
+        .welcome-subtitle {
+            font-size: 16px;
+            color: #718096;
+            margin: 0 0 32px 0;
+            max-width: 400px;
+            line-height: 1.5;
         }
     </style>
 </head>
@@ -266,26 +467,47 @@
         </div>
 
         <div class="main-content">
-            <div class="toolbar">
-                <div>
-                    <span id="bookTitle">No book loaded</span>
-                    <span id="bookAuthor"></span>
+            <div class="reading-header" id="readingHeader" style="display: none;">
+                <div class="book-header-info">
+                    <h1 class="book-header-title" id="bookTitle">No book loaded</h1>
+                    <div class="book-header-meta">
+                        <span id="bookAuthor"></span>
+                        <span>•</span>
+                        <span id="chapterInfo">-/-</span>
+                    </div>
                 </div>
-                <div>
-                    <button class="btn" onclick="previousChapter()" id="prevBtn" disabled>Previous</button>
-                    <span id="chapterInfo">-/-</span>
-                    <button class="btn" onclick="nextChapter()" id="nextBtn" disabled>Next</button>
-                    <button class="btn btn-success" onclick="translateCurrent()" id="translateBtn" disabled>Translate</button>
+                <div class="reading-controls">
+                    <button class="control-btn" onclick="showSettings()">
+                        ⚙️ Settings
+                    </button>
+                    <button class="control-btn primary" onclick="translateCurrent()" id="translateBtn" disabled>
+                        🌍 Translate
+                    </button>
                 </div>
-            </div>
-            
-            <div class="progress-bar">
-                <div class="progress-fill" id="progressFill" style="width: 0%"></div>
             </div>
 
             <div class="reading-area" id="readingArea">
-                <div class="loading">
-                    Welcome to ePubReader! Open an ePub file to start reading.
+                <div class="welcome-state">
+                    <div class="welcome-icon">📚</div>
+                    <h2 class="welcome-title">Welcome to ePubReader</h2>
+                    <p class="welcome-subtitle">
+                        Select an ePub file from the sidebar to start reading with automatic translation capabilities.
+                    </p>
+                </div>
+            </div>
+
+            <div class="reading-progress" id="readingProgress" style="display: none;">
+                <div class="progress-info">
+                    <span id="readingTime">0 min read</span>
+                    <span>•</span>
+                    <span id="wordsCount">0 words</span>
+                </div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar-fill" id="progressFill" style="width: 0%"></div>
+                </div>
+                <div class="chapter-navigation">
+                    <button class="nav-btn" onclick="previousChapter()" id="prevBtn" disabled>← Previous</button>
+                    <button class="nav-btn" onclick="nextChapter()" id="nextBtn" disabled>Next →</button>
                 </div>
             </div>
         </div>

@@ -55,16 +55,23 @@ async function loadEpub(path) {
 // Display functions
 function updateBookInfo() {
     document.getElementById('bookTitle').textContent = currentBook.title;
-    document.getElementById('bookAuthor').textContent = `by ${currentBook.author}`;
-    document.getElementById('chapterInfo').textContent = `${currentChapter + 1}/${currentBook.chapters.length}`;
+    document.getElementById('bookAuthor').textContent = currentBook.author;
+    document.getElementById('chapterInfo').textContent = `Chapter ${currentChapter + 1} of ${currentBook.chapters.length}`;
     
     const progress = ((currentChapter + 1) / currentBook.chapters.length) * 100;
     document.getElementById('progressFill').style.width = progress + '%';
+    
+    // Show reading interface
+    document.getElementById('readingHeader').style.display = 'flex';
+    document.getElementById('readingProgress').style.display = 'flex';
     
     // Enable/disable navigation buttons
     document.getElementById('prevBtn').disabled = currentChapter === 0;
     document.getElementById('nextBtn').disabled = currentChapter === currentBook.chapters.length - 1;
     document.getElementById('translateBtn').disabled = false;
+    
+    // Update reading stats
+    updateReadingStats();
 }
 
 function displayCurrentChapter() {
@@ -78,23 +85,56 @@ function displayCurrentChapter() {
     // Use translated content if available, otherwise original
     const content = translatedContent[chapter.id] || chapter.content;
     
+    // Format content as paragraphs
+    const paragraphs = content.split('\n\n').filter(p => p.trim().length > 0);
+    const formattedContent = paragraphs.map(p => `<p>${p.trim()}</p>`).join('');
+    
     readingArea.innerHTML = `
-        <h2>${chapter.title}</h2>
-        <div style="margin-top: 20px; white-space: pre-wrap;">${content}</div>
+        <div class="reading-content">
+            <h1 class="chapter-title">${chapter.title}</h1>
+            <div class="chapter-content">
+                ${formattedContent}
+            </div>
+        </div>
     `;
+    
+    // Scroll to top
+    readingArea.scrollTop = 0;
 }
 
 function showLoading(message) {
     document.getElementById('readingArea').innerHTML = `
-        <div class="loading">${message}</div>
+        <div class="loading">
+            <div class="loading-spinner"></div>
+            ${message}
+        </div>
     `;
 }
 
 function showError(message) {
     const readingArea = document.getElementById('readingArea');
     readingArea.innerHTML = `
-        <div class="error">${message}</div>
+        <div class="reading-content">
+            <div class="error">${message}</div>
+        </div>
     `;
+}
+
+function updateReadingStats() {
+    if (!currentBook || !currentBook.chapters[currentChapter]) {
+        return;
+    }
+    
+    const chapter = currentBook.chapters[currentChapter];
+    const content = translatedContent[chapter.id] || chapter.content;
+    
+    // Calculate word count
+    const words = content.split(/\s+/).filter(word => word.length > 0).length;
+    document.getElementById('wordsCount').textContent = `${words.toLocaleString()} words`;
+    
+    // Estimate reading time (average 200 words per minute)
+    const readingTime = Math.ceil(words / 200);
+    document.getElementById('readingTime').textContent = `${readingTime} min read`;
 }
 
 // Navigation
