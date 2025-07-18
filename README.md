@@ -46,13 +46,22 @@ Before building and running ePubReader, ensure you have:
    cd ePubReader
    ```
 
-2. **Build the release executable**
+2. **Configure Environment Variables (Optional)**
+   ```bash
+   # Copy the example environment file
+   cp .env.example .env
+   
+   # Edit .env and add your Google Translate API key
+   # GOOGLE_TRANSLATE_API_KEY=your_api_key_here
+   ```
+
+3. **Build the release executable**
    ```bash
    cd src-tauri
    cargo build --release
    ```
 
-3. **The executable will be created at:**
+4. **The executable will be created at:**
    ```
    src-tauri/target/release/epubreader
    ```
@@ -79,9 +88,17 @@ cargo tauri build
 1. **Launch the application**
    - Run the executable using one of the methods above
 
-2. **Configure Settings**
+2. **Configure Google Translate API**
+   
+   You can configure the Google Translate API key in two ways:
+   
+   **Method A: Environment Variable (Recommended)**
+   - Set `GOOGLE_TRANSLATE_API_KEY` in your `.env` file
+   - The application will automatically use this key
+   
+   **Method B: Application Settings**
    - Click the "Settings" button in the sidebar
-   - Enter your Google Translate API key
+   - Enter your Google Translate API key manually
    - Select your preferred target language
    - Save the settings
 
@@ -98,6 +115,30 @@ cargo tauri build
 5. **Access Saved Books**
    - Previously translated books appear in the "Saved Books" section
    - Click any saved book to reload it instantly
+
+## Environment Variables
+
+The application supports the following environment variables:
+
+| Variable | Description | Required | Default |
+|----------|-------------|----------|---------|
+| `GOOGLE_TRANSLATE_API_KEY` | Google Translate API key for automatic translation | Yes (for translation) | None |
+| `RUST_LOG` | Controls logging verbosity | No | `info,epubreader=debug` |
+
+### Environment Variable Setup
+
+1. Copy the example file:
+   ```bash
+   cp .env.example .env
+   ```
+
+2. Edit `.env` and add your API key:
+   ```bash
+   GOOGLE_TRANSLATE_API_KEY=your_actual_api_key_here
+   RUST_LOG=info,epubreader=debug
+   ```
+
+3. The application will automatically load these variables on startup
 
 ## Project Structure
 
@@ -127,6 +168,10 @@ ePubReader/
 - `uuid` - Unique identifiers
 - `dirs` - Directory management
 - `anyhow` - Error handling
+- `dotenvy` - Environment variable loading
+- `tracing` - Structured logging
+- `tracing-subscriber` - Logging configuration
+- `tracing-appender` - File logging with rotation
 
 ## Troubleshooting
 

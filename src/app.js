@@ -1,5 +1,62 @@
-const { invoke } = window.__TAURI__.tauri;
-const { open } = window.__TAURI__.dialog;
+// Tauri API imports - with proper error handling
+let invoke, open;
+let isTauriEnvironment = false;
+
+async function initTauriAPIs() {
+    try {
+        // Check if we're in a Tauri environment multiple ways
+        let attempts = 0;
+        const maxAttempts = 10;
+        
+        while (attempts < maxAttempts) {
+            console.log(`Attempt ${attempts + 1}: Checking for Tauri environment...`);
+            
+            // Check for Tauri global object
+            if (window.__TAURI__) {
+                console.log('window.__TAURI__ found!');
+                console.log('Available APIs:', Object.keys(window.__TAURI__));
+                
+                // Check for required APIs
+                if (window.__TAURI__.tauri && window.__TAURI__.dialog) {
+                    invoke = window.__TAURI__.tauri.invoke;
+                    open = window.__TAURI__.dialog.open;
+                    isTauriEnvironment = true;
+                    console.log('✅ Tauri environment detected and initialized successfully');
+                    return;
+                } else {
+                    console.log('Tauri APIs not fully loaded yet...');
+                }
+            } else {
+                console.log('window.__TAURI__ not found yet...');
+            }
+            
+            attempts++;
+            await new Promise(resolve => setTimeout(resolve, 200));
+        }
+        
+        // Final check - maybe the APIs are available under different names
+        if (window.tauri || window.__TAURI_INVOKE__) {
+            console.log('Alternative Tauri APIs found');
+            if (window.tauri) {
+                invoke = window.tauri.invoke;
+                open = window.tauri.dialog?.open;
+            }
+            
+            if (invoke && open) {
+                isTauriEnvironment = true;
+                console.log('✅ Alternative Tauri APIs initialized successfully');
+                return;
+            }
+        }
+        
+        console.warn('⚠️ Tauri APIs not available after all attempts - running in browser mode');
+        isTauriEnvironment = false;
+        
+    } catch (error) {
+        console.error('❌ Failed to initialize Tauri APIs:', error);
+        isTauriEnvironment = false;
+    }
+}
 
 let currentBook = null;
 let currentChapter = 0;
@@ -8,15 +65,53 @@ let settings = {};
 
 // Initialize app
 document.addEventListener('DOMContentLoaded', async () => {
+    await initTauriAPIs();
     await loadSettings();
     await loadSavedBooks();
     loadReadingStyle();
     updateFontSize();
+    updateWelcomeMessage();
 });
+
+function updateWelcomeMessage() {
+    const welcomeElement = document.getElementById('welcomeMessage');
+    if (welcomeElement) {
+        if (isTauriEnvironment) {
+            welcomeElement.textContent = 'Select an ePub file from the sidebar to start reading with automatic translation capabilities.';
+        } else {
+            welcomeElement.innerHTML = `
+                This is a preview of ePubReader running in your browser.<br>
+                For full functionality including file opening and translation, please use the desktop application:<br>
+                <code style="background: rgba(0,0,0,0.1); padding: 4px 8px; border-radius: 4px; margin-top: 8px; display: inline-block;">
+                ./src-tauri/target/release/epubreader
+                </code>
+            `;
+        }
+    }
+}
 
 // File operations
 async function openFile() {
     try {
+        // Re-check Tauri environment if not detected initially
+        if (!isTauriEnvironment) {
+            console.log('Re-checking Tauri environment...');
+            await initTauriAPIs();
+        }
+        
+        if (!isTauriEnvironment) {
+            showError('File opening is only available in the desktop application. Please execute: ./src-tauri/target/release/epubreader');
+            return;
+        }
+        
+        if (!open) {
+            // Try to reinitialize APIs
+            await initTauriAPIs();
+            if (!open) {
+                throw new Error('Tauri dialog API not initialized');
+            }
+        }
+        
         const selected = await open({
             multiple: false,
             filters: [{
@@ -29,12 +124,23 @@ async function openFile() {
             await loadEpub(selected);
         }
     } catch (error) {
-        showError('Failed to open file: ' + error);
+        console.error('Open file error:', error);
+        
+        // Provide more specific error message
+        if (error.message.includes('tauri') || error.message.includes('invoke')) {
+            showError('Desktop application not detected. Please run: ./src-tauri/target/release/epubreader');
+        } else {
+            showError('Failed to open file: ' + error.message);
+        }
     }
 }
 
 async function loadEpub(path) {
     try {
+        if (!invoke) {
+            throw new Error('Tauri invoke API not initialized');
+        }
+        
         showLoading('Loading ePub file...');
         
         currentBook = await invoke('open_epub', { path });
@@ -44,12 +150,15 @@ async function loadEpub(path) {
         updateBookInfo();
         displayCurrentChapter();
         
-        if (settings.auto_translate && settings.google_api_key) {
-            await translateBook();
+        // Automatically translate if book is in English and we have API key
+        if (currentBook.language === 'en' && settings.google_api_key) {
+            showLoading('Translating book from English to Portuguese...');
+            await translateBookToBrazilianPortuguese();
         }
         
     } catch (error) {
-        showError('Failed to load ePub: ' + error);
+        console.error('Load ePub error:', error);
+        showError('Failed to load ePub: ' + error.message);
     }
 }
 
@@ -69,7 +178,6 @@ function updateBookInfo() {
     // Enable/disable navigation buttons
     document.getElementById('prevBtn').disabled = currentChapter === 0;
     document.getElementById('nextBtn').disabled = currentChapter === currentBook.chapters.length - 1;
-    document.getElementById('translateBtn').disabled = false;
     
     // Update reading stats
     updateReadingStats();
@@ -162,6 +270,11 @@ async function translateCurrent() {
         return;
     }
     
+    if (!invoke) {
+        showError('Translation service not available');
+        return;
+    }
+    
     try {
         const chapter = currentBook.chapters[currentChapter];
         
@@ -182,12 +295,13 @@ async function translateCurrent() {
         displayCurrentChapter();
         
     } catch (error) {
-        showError('Translation failed: ' + error);
+        console.error('Translation error:', error);
+        showError('Translation failed: ' + error.message);
     }
 }
 
 async function translateBook() {
-    if (!currentBook || !settings.google_api_key) {
+    if (!currentBook || !settings.google_api_key || !invoke) {
         return;
     }
     
@@ -220,20 +334,94 @@ async function translateBook() {
         displayCurrentChapter();
         
     } catch (error) {
-        showError('Translation failed: ' + error);
+        console.error('Book translation error:', error);
+        showError('Translation failed: ' + error.message);
+    }
+}
+
+async function translateBookToBrazilianPortuguese() {
+    if (!currentBook || !settings.google_api_key || !invoke) {
+        showError('Translation service not available');
+        return;
+    }
+    
+    if (currentBook.chapters.length === 0) {
+        showError('No chapters found to translate');
+        return;
+    }
+    
+    try {
+        showLoading('Starting automatic translation to Portuguese...');
+        
+        // Translate all chapters
+        for (let i = 0; i < currentBook.chapters.length; i++) {
+            const chapter = currentBook.chapters[i];
+            
+            showLoading(`Translating chapter ${i + 1} of ${currentBook.chapters.length}...`);
+            
+            if (chapter.content && chapter.content.trim().length > 0) {
+                const translated = await invoke('translate_text', {
+                    text: chapter.content,
+                    targetLang: 'pt-BR',
+                    apiKey: settings.google_api_key
+                });
+                
+                translatedContent[chapter.id] = translated;
+            }
+            
+            // Update progress display
+            const progress = Math.round(((i + 1) / currentBook.chapters.length) * 100);
+            showLoading(`Translation progress: ${progress}% (${i + 1}/${currentBook.chapters.length} chapters)`);
+        }
+        
+        showLoading('Saving translated book...');
+        
+        // Save translated book automatically
+        const bookId = await invoke('save_translated_epub', {
+            epubInfo: currentBook,
+            translatedContent: translatedContent
+        });
+        
+        showLoading('Loading translated content...');
+        
+        // Reload saved books list
+        await loadSavedBooks();
+        
+        // Display the translated content
+        displayCurrentChapter();
+        
+        // Show success message briefly then display content
+        showLoading('Translation completed successfully!');
+        setTimeout(() => {
+            displayCurrentChapter();
+        }, 2000);
+        
+        console.log('Book translated and saved successfully with ID:', bookId);
+        
+    } catch (error) {
+        console.error('Automatic translation error:', error);
+        showError('Automatic translation failed: ' + error.message);
     }
 }
 
 // Settings
 async function loadSettings() {
     try {
-        settings = await invoke('get_settings');
-        
-        document.getElementById('targetLang').value = settings.target_language;
-        document.getElementById('apiKey').value = settings.google_api_key;
-        document.getElementById('fontSize').value = settings.font_size;
-        document.getElementById('fontSizeValue').textContent = settings.font_size + 'px';
-        document.getElementById('autoTranslate').checked = settings.auto_translate;
+        if (isTauriEnvironment && invoke) {
+            settings = await invoke('get_settings');
+            
+            document.getElementById('targetLang').value = settings.target_language;
+            document.getElementById('apiKey').value = settings.google_api_key;
+            document.getElementById('autoTranslate').checked = settings.auto_translate;
+        } else {
+            // Load from localStorage in browser mode
+            const savedSettings = localStorage.getItem('epubReader_settings');
+            if (savedSettings) {
+                settings = JSON.parse(savedSettings);
+            } else {
+                throw new Error('Settings service not available');
+            }
+        }
         
     } catch (error) {
         console.error('Failed to load settings:', error);
@@ -244,6 +432,13 @@ async function loadSettings() {
             font_size: 16,
             theme: 'light'
         };
+        
+        // Update UI with default settings
+        if (document.getElementById('targetLang')) {
+            document.getElementById('targetLang').value = settings.target_language;
+            document.getElementById('apiKey').value = settings.google_api_key;
+            document.getElementById('autoTranslate').checked = settings.auto_translate;
+        }
     }
 }
 
@@ -259,15 +454,20 @@ async function saveSettings() {
     try {
         settings.target_language = document.getElementById('targetLang').value;
         settings.google_api_key = document.getElementById('apiKey').value;
-        settings.font_size = parseInt(document.getElementById('fontSize').value);
         settings.auto_translate = document.getElementById('autoTranslate').checked;
         
-        await invoke('save_settings', { settings });
-        updateFontSize();
+        if (isTauriEnvironment && invoke) {
+            await invoke('save_settings', { settings });
+        } else {
+            // Save to localStorage in browser mode
+            localStorage.setItem('epubReader_settings', JSON.stringify(settings));
+        }
+        
         hideSettings();
         
     } catch (error) {
-        showError('Failed to save settings: ' + error);
+        console.error('Save settings error:', error);
+        showError('Failed to save settings: ' + error.message);
     }
 }
 
@@ -438,8 +638,14 @@ function loadReadingStyle() {
 // Saved books
 async function loadSavedBooks() {
     try {
-        const books = await invoke('get_saved_books');
         const container = document.getElementById('savedBooks');
+        
+        if (!isTauriEnvironment || !invoke) {
+            container.innerHTML = '<div class="no-books">Saved books available only in desktop app</div>';
+            return;
+        }
+        
+        const books = await invoke('get_saved_books');
         
         if (books.length === 0) {
             container.innerHTML = '<div class="no-books">Nenhum livro salvo ainda</div>';
@@ -498,6 +704,10 @@ function formatDate(dateString) {
 
 async function loadSavedBook(bookId) {
     try {
+        if (!invoke) {
+            throw new Error('Book loading service not available');
+        }
+        
         showLoading('Loading saved book...');
         
         const savedBook = await invoke('load_saved_book', { bookId });
@@ -510,7 +720,8 @@ async function loadSavedBook(bookId) {
         displayCurrentChapter();
         
     } catch (error) {
-        showError('Failed to load saved book: ' + error);
+        console.error('Load saved book error:', error);
+        showError('Failed to load saved book: ' + error.message);
     }
 }
 
