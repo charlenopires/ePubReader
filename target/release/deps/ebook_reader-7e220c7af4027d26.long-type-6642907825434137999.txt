@@ -1,0 +1,1 @@
+Cell<i_slint_core::properties::single_linked_list_pin::SingleLinkedListPinHead<i_slint_core::properties::dependency_tracker::DependencyNode<*const i_slint_core::properties::BindingHolder>>>

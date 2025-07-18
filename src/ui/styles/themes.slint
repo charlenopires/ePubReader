@@ -1,0 +1,214 @@
+// Theme system for the ebook reader application
+
+export global Theme {
+    // Base colors
+    out property <color> background: #FFFFFF;
+    out property <color> surface: #F8F9FA;
+    out property <color> primary: #007AFF;
+    out property <color> secondary: #5856D6;
+    out property <color> accent: #FF3B30;
+    
+    // Card styling
+    out property <color> card-background: #FFFFFF;
+    out property <color> card-border: #E5E5E7;
+    out property <color> hover-background: #F2F2F7;
+    
+    // Text colors
+    out property <color> text-primary: #000000;
+    out property <color> text-secondary: #6D6D70;
+    out property <color> text-tertiary: #8E8E93;
+    out property <color> text-quaternary: #C7C7CC;
+    
+    // Status colors
+    out property <color> status-new: #34C759;
+    out property <color> status-reading: #FF9500;
+    out property <color> status-finished: #007AFF;
+    
+    // Progress colors
+    out property <color> progress-background: #E5E5E7;
+    out property <color> progress-foreground: #007AFF;
+    
+    // Placeholder colors
+    out property <color> placeholder_background: #F2F2F7;
+    out property <color> placeholder_icon: #C7C7CC;
+    out property <color> placeholder_text: #8E8E93;
+    
+    // Loading colors
+    out property <color> loading-overlay: #FFFFFF80;
+    out property <color> loading_spinner: #007AFF;
+    
+    // Shadow colors
+    out property <color> shadow-light: #00000010;
+    out property <color> shadow-medium: #00000020;
+    out property <color> shadow-strong: #00000030;
+    
+    // Current theme mode
+    in-out property <string> current-theme: "light";
+    
+    // Theme switching callback
+    callback switch-theme(string);
+    
+    // Switch theme implementation
+    switch-theme(theme-name) => {
+        current-theme = theme-name;
+        
+        if (theme-name == "light") {
+            background = #FFFFFF;
+            surface = #F8F9FA;
+            card-background = #FFFFFF;
+            card-border = #E5E5E7;
+            hover-background = #F2F2F7;
+            text-primary = #000000;
+            text-secondary = #6D6D70;
+            text-tertiary = #8E8E93;
+            text-quaternary = #C7C7CC;
+            placeholder_background = #F2F2F7;
+            placeholder_icon = #C7C7CC;
+            placeholder_text = #8E8E93;
+            progress-background = #E5E5E7;
+            loading-overlay = #FFFFFF80;
+        } else if (theme-name == "dark") {
+            background = #000000;
+            surface = #1C1C1E;
+            card-background = #1C1C1E;
+            card-border = #38383A;
+            hover-background = #2C2C2E;
+            text-primary = #FFFFFF;
+            text-secondary = #EBEBF5;
+            text-tertiary = #EBEBF599;
+            text-quaternary = #EBEBF54D;
+            placeholder_background = #2C2C2E;
+            placeholder_icon = #48484A;
+            placeholder_text = #EBEBF599;
+            progress-background = #38383A;
+            loading-overlay = #00000080;
+        } else if (theme-name == "sepia") {
+            background = #F7F3E9;
+            surface = #F0EBD8;
+            card-background = #F7F3E9;
+            card-border = #E0D7C1;
+            hover-background = #EDE4D1;
+            text-primary = #2F2F2F;
+            text-secondary = #5A5A5A;
+            text-tertiary = #8A8A8A;
+            text-quaternary = #AAAAAA;
+            placeholder_background = #EDE4D1;
+            placeholder_icon = #C7B299;
+            placeholder_text = #8A8A8A;
+            progress-background = #E0D7C1;
+            loading-overlay = #F7F3E980;
+        }
+    }
+}
+
+// Additional theme utilities
+export component ThemeProvider inherits Rectangle {
+    in property <string> theme-name: "light";
+    
+    init => {
+        Theme.switch-theme(theme-name);
+    }
+}
+
+// Theme-aware button component
+export component ThemedButton inherits Rectangle {
+    in property <string> text;
+    in property <bool> primary: false;
+    in property <bool> disabled: false;
+    
+    callback clicked;
+    
+    property <bool> hovered: touch-area.has-hover;
+    property <bool> pressed: touch-area.pressed;
+    
+    width: max(100px, text-element.preferred-width + 32px);
+    height: 44px;
+    
+    background: disabled ? Theme.text-quaternary :
+                primary ? (pressed ? Theme.primary.darker(0.1) : 
+                          hovered ? Theme.primary.brighter(0.1) : Theme.primary) :
+                (pressed ? Theme.hover-background.darker(0.1) : 
+                 hovered ? Theme.hover-background : transparent);
+    
+    border-width: primary ? 0 : 1px;
+    border-color: Theme.card-border;
+    border-radius: 8px;
+    
+    animate background {
+        duration: 150ms;
+        easing: ease-out;
+    }
+    
+    text-element := Text {
+        text: root.text;
+        color: disabled ? Theme.text-quaternary :
+               primary ? #FFFFFF : Theme.text-primary;
+        font-size: 16px;
+        font-weight: primary ? 600 : 500;
+        horizontal-alignment: center;
+        vertical-alignment: center;
+    }
+    
+    touch-area := TouchArea {
+        enabled: !disabled;
+        clicked => {
+            root.clicked();
+        }
+        mouse-cursor: disabled ? default : pointer;
+    }
+}
+
+// Theme-aware text input component
+export component ThemedTextInput inherits Rectangle {
+    in-out property <string> text;
+    in property <string> placeholder_text;
+    in property <bool> focused: text-input.has-focus;
+    
+    callback accepted(string);
+    callback edited(string);
+    
+    height: 44px;
+    background: Theme.surface;
+    border-width: 1px;
+    border-color: focused ? Theme.primary : Theme.card-border;
+    border-radius: 8px;
+    
+    animate border-color {
+        duration: 150ms;
+        easing: ease-out;
+    }
+    
+    Rectangle {
+        HorizontalLayout {
+            padding: 12px;
+            
+            text-input := TextInput {
+                text: root.text;
+                color: Theme.text-primary;
+                font-size: 16px;
+                
+                accepted => {
+                    root.accepted(self.text);
+                }
+                
+                edited => {
+                    root.text = self.text;
+                    root.edited(self.text);
+                }
+            }
+        }
+        
+        // Placeholder text overlay
+        if root.text == "": placeholder-overlay := Text {
+            text: root.placeholder_text;
+            color: Theme.placeholder_text;
+            font-size: 16px;
+            vertical-alignment: center;
+            horizontal-alignment: left;
+            x: 12px;
+            y: 0px;
+            width: parent.width - 24px;
+            height: parent.height;
+        }
+    }
+}

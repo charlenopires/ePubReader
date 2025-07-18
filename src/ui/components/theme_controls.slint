@@ -1,0 +1,691 @@
+import { ReadingThemes, ThemePreset } from "../styles/reading_themes.slint";
+import { ThemedButton } from "../styles/themes.slint";
+
+export component ThemeControls inherits Rectangle {
+    in-out property <string> current-theme: "original";
+    in-out property <int> font-size: 16;
+    in-out property <float> brightness: 1.0;
+    in-out property <float> line-height: 1.5;
+    in-out property <string> font-family: "Default";
+    in-out property <float> contrast: 1.0;
+    in-out property <int> margin-horizontal: 40;
+    in-out property <int> margin-vertical: 40;
+    in-out property <int> reading-width: 700;
+    in-out property <bool> two-column-mode: false;
+    in-out property <bool> expanded: false;
+    
+    // Callbacks
+    callback theme-changed(string);
+    callback font-size-changed(int);
+    callback brightness-changed(float);
+    callback line-height-changed(float);
+    callback contrast-changed(float);
+    callback font-family-changed(string);
+    callback margins-changed(int, int);
+    callback reading-width-changed(int);
+    callback two-column-toggled(bool);
+    callback reset-to-defaults();
+    
+    // Control panel dimensions
+    width: expanded ? 350px : 60px;
+    height: parent.height;
+    
+    // Background with theme colors
+    background: ReadingThemes.header-color;
+    border-width: 0px 1px 0px 0px;
+    border-color: ReadingThemes.border-color;
+    
+    // Smooth expand/collapse animation
+    animate width {
+        duration: 300ms;
+        easing: ease-in-out;
+    }
+    
+    HorizontalLayout {
+        // Toggle button
+        toggle-button := Rectangle {
+            width: 60px;
+            height: 60px;
+            background: expanded ? ReadingThemes.accent-color : transparent;
+            
+            // Toggle icon
+            Text {
+                text: expanded ? "←" : "⚙";
+                font-size: 20px;
+                color: expanded ? #FFFFFF : ReadingThemes.text-color;
+                horizontal-alignment: center;
+                vertical-alignment: center;
+            }
+            
+            TouchArea {
+                clicked => {
+                    root.expanded = !root.expanded;
+                }
+                mouse-cursor: pointer;
+            }
+            
+            animate background {
+                duration: 200ms;
+                easing: ease-out;
+            }
+        }
+        
+        // Controls panel (only visible when expanded)
+        if expanded: controls-panel := ScrollView {
+            width: 290px;
+            
+            VerticalLayout {
+                padding: 20px;
+                spacing: 24px;
+                
+                // Header
+                Text {
+                    text: "Reading Settings";
+                    font-size: 18px;
+                    font-weight: 700;
+                    color: ReadingThemes.text-color;
+                }
+                
+                // Theme Selection
+                theme-section := VerticalLayout {
+                    spacing: 12px;
+                    
+                    Text {
+                        text: "Theme";
+                        font-size: 14px;
+                        font-weight: 600;
+                        color: ReadingThemes.text-color;
+                    }
+                    
+                    // Theme presets grid
+                    GridLayout {
+                        spacing: 8px;
+                        
+                        ThemePreset {
+                            row: 0;
+                            col: 0;
+                            theme-name: "original";
+                            theme-display-name: "Original";
+                            preview-bg: #FFFFFF;
+                            preview-text: #000000;
+                            selected: current-theme == "original";
+                            
+                            theme-selected(name) => {
+                                root.current-theme = name;
+                                ReadingThemes.switch-theme(name);
+                                root.theme-changed(name);
+                            }
+                        }
+                        
+                        ThemePreset {
+                            row: 0;
+                            col: 1;
+                            theme-name: "quiet";
+                            theme-display-name: "Quiet";
+                            preview-bg: #F8F8F8;
+                            preview-text: #444444;
+                            selected: current-theme == "quiet";
+                            
+                            theme-selected(name) => {
+                                root.current-theme = name;
+                                ReadingThemes.switch-theme(name);
+                                root.theme-changed(name);
+                            }
+                        }
+                        
+                        ThemePreset {
+                            row: 1;
+                            col: 0;
+                            theme-name: "paper";
+                            theme-display-name: "Paper";
+                            preview-bg: #F7F3E9;
+                            preview-text: #2F2920;
+                            selected: current-theme == "paper";
+                            
+                            theme-selected(name) => {
+                                root.current-theme = name;
+                                ReadingThemes.switch-theme(name);
+                                root.theme-changed(name);
+                            }
+                        }
+                        
+                        ThemePreset {
+                            row: 1;
+                            col: 1;
+                            theme-name: "bold";
+                            theme-display-name: "Bold";
+                            preview-bg: #FFFFFF;
+                            preview-text: #000000;
+                            selected: current-theme == "bold";
+                            
+                            theme-selected(name) => {
+                                root.current-theme = name;
+                                ReadingThemes.switch-theme(name);
+                                root.theme-changed(name);
+                            }
+                        }
+                        
+                        ThemePreset {
+                            row: 2;
+                            col: 0;
+                            theme-name: "calm";
+                            theme-display-name: "Calm";
+                            preview-bg: #F0F8FF;
+                            preview-text: #1E3A8A;
+                            selected: current-theme == "calm";
+                            
+                            theme-selected(name) => {
+                                root.current-theme = name;
+                                ReadingThemes.switch-theme(name);
+                                root.theme-changed(name);
+                            }
+                        }
+                        
+                        ThemePreset {
+                            row: 2;
+                            col: 1;
+                            theme-name: "focus";
+                            theme-display-name: "Focus";
+                            preview-bg: #000000;
+                            preview-text: #FFFFFF;
+                            selected: current-theme == "focus";
+                            
+                            theme-selected(name) => {
+                                root.current-theme = name;
+                                ReadingThemes.switch-theme(name);
+                                root.theme-changed(name);
+                            }
+                        }
+                    }
+                }
+                
+                // Separator
+                Rectangle {
+                    height: 1px;
+                    background: ReadingThemes.border-color;
+                }
+                
+                // Typography Controls
+                typography-section := VerticalLayout {
+                    spacing: 16px;
+                    
+                    Text {
+                        text: "Typography";
+                        font-size: 14px;
+                        font-weight: 600;
+                        color: ReadingThemes.text-color;
+                    }
+                    
+                    // Font Family
+                    font-family-control := VerticalLayout {
+                        spacing: 8px;
+                        
+                        Text {
+                            text: "Font Family";
+                            font-size: 12px;
+                            color: ReadingThemes.text-color;
+                        }
+                        
+                        HorizontalLayout {
+                            spacing: 6px;
+                            
+                            ThemedButton {
+                                text: "Default";
+                                primary: font-family == "Default";
+                                
+                                clicked => {
+                                    root.font-family = "Default";
+                                    ReadingThemes.change-font-family("Default");
+                                    root.font-family-changed("Default");
+                                }
+                            }
+                            
+                            ThemedButton {
+                                text: "Serif";
+                                primary: font-family == "Serif";
+                                
+                                clicked => {
+                                    root.font-family = "Serif";
+                                    ReadingThemes.change-font-family("Serif");
+                                    root.font-family-changed("Serif");
+                                }
+                            }
+                            
+                            ThemedButton {
+                                text: "Sans";
+                                primary: font-family == "Sans-Serif";
+                                
+                                clicked => {
+                                    root.font-family = "Sans-Serif";
+                                    ReadingThemes.change-font-family("Sans-Serif");
+                                    root.font-family-changed("Sans-Serif");
+                                }
+                            }
+                        }
+                    }
+                    
+                    // Font Size
+                    font-size-control := VerticalLayout {
+                        spacing: 8px;
+                        
+                        HorizontalLayout {
+                            Text {
+                                text: "Font Size";
+                                font-size: 12px;
+                                color: ReadingThemes.text-color;
+                            }
+                            
+                            Rectangle {
+                                horizontal-stretch: 1;
+                            }
+                            
+                            Text {
+                                text: font-size + "px";
+                                font-size: 12px;
+                                color: ReadingThemes.text-color;
+                            }
+                        }
+                        
+                        HorizontalLayout {
+                            spacing: 8px;
+                            
+                            ThemedButton {
+                                text: "A-";
+                                
+                                clicked => {
+                                    root.font-size = max(12, root.font-size - 2);
+                                    ReadingThemes.adjust-font-size(root.font-size);
+                                    root.font-size-changed(root.font-size);
+                                }
+                            }
+                            
+                            Rectangle {
+                                horizontal-stretch: 1;
+                                height: 32px;
+                                background: ReadingThemes.border-color;
+                                border-radius: 4px;
+                                
+                                Rectangle {
+                                    width: (root.font-size - 12) * (parent.width - 8px) / 20 + 4px;
+                                    height: parent.height - 4px;
+                                    x: 2px;
+                                    y: 2px;
+                                    background: ReadingThemes.accent-color;
+                                    border-radius: 2px;
+                                }
+                            }
+                            
+                            ThemedButton {
+                                text: "A+";
+                                
+                                clicked => {
+                                    root.font-size = min(32, root.font-size + 2);
+                                    ReadingThemes.adjust-font-size(root.font-size);
+                                    root.font-size-changed(root.font-size);
+                                }
+                            }
+                        }
+                    }
+                    
+                    // Line Height
+                    line-height-control := VerticalLayout {
+                        spacing: 8px;
+                        
+                        HorizontalLayout {
+                            Text {
+                                text: "Line Height";
+                                font-size: 12px;
+                                color: ReadingThemes.text-color;
+                            }
+                            
+                            Rectangle {
+                                horizontal-stretch: 1;
+                            }
+                            
+                            Text {
+                                text: round(line-height * 10) / 10;
+                                font-size: 12px;
+                                color: ReadingThemes.text-color;
+                            }
+                        }
+                        
+                        HorizontalLayout {
+                            spacing: 8px;
+                            
+                            ThemedButton {
+                                text: "−";
+                                
+                                clicked => {
+                                    root.line-height = max(1.0, root.line-height - 0.1);
+                                    ReadingThemes.adjust-line-height(root.line-height);
+                                    root.line-height-changed(root.line-height);
+                                }
+                            }
+                            
+                            Rectangle {
+                                horizontal-stretch: 1;
+                                height: 32px;
+                                background: ReadingThemes.border-color;
+                                border-radius: 4px;
+                                
+                                Rectangle {
+                                    width: (root.line-height - 1.0) * (parent.width - 8px) / 2.0 + 4px;
+                                    height: parent.height - 4px;
+                                    x: 2px;
+                                    y: 2px;
+                                    background: ReadingThemes.accent-color;
+                                    border-radius: 2px;
+                                }
+                            }
+                            
+                            ThemedButton {
+                                text: "+";
+                                
+                                clicked => {
+                                    root.line-height = min(3.0, root.line-height + 0.1);
+                                    ReadingThemes.adjust-line-height(root.line-height);
+                                    root.line-height-changed(root.line-height);
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                // Separator
+                Rectangle {
+                    height: 1px;
+                    background: ReadingThemes.border-color;
+                }
+                
+                // Display Controls
+                display-section := VerticalLayout {
+                    spacing: 16px;
+                    
+                    Text {
+                        text: "Display";
+                        font-size: 14px;
+                        font-weight: 600;
+                        color: ReadingThemes.text-color;
+                    }
+                    
+                    // Brightness
+                    brightness-control := VerticalLayout {
+                        spacing: 8px;
+                        
+                        HorizontalLayout {
+                            Text {
+                                text: "Brightness";
+                                font-size: 12px;
+                                color: ReadingThemes.text-color;
+                            }
+                            
+                            Rectangle {
+                                horizontal-stretch: 1;
+                            }
+                            
+                            Text {
+                                text: round(brightness * 100) + "%";
+                                font-size: 12px;
+                                color: ReadingThemes.text-color;
+                            }
+                        }
+                        
+                        HorizontalLayout {
+                            spacing: 8px;
+                            
+                            ThemedButton {
+                                text: "☀−";
+                                
+                                clicked => {
+                                    root.brightness = max(0.3, root.brightness - 0.1);
+                                    ReadingThemes.adjust-brightness(root.brightness);
+                                    root.brightness-changed(root.brightness);
+                                }
+                            }
+                            
+                            Rectangle {
+                                horizontal-stretch: 1;
+                                height: 32px;
+                                background: ReadingThemes.border-color;
+                                border-radius: 4px;
+                                
+                                Rectangle {
+                                    width: (root.brightness - 0.3) * (parent.width - 8px) / 1.2 + 4px;
+                                    height: parent.height - 4px;
+                                    x: 2px;
+                                    y: 2px;
+                                    background: ReadingThemes.accent-color;
+                                    border-radius: 2px;
+                                }
+                            }
+                            
+                            ThemedButton {
+                                text: "☀+";
+                                
+                                clicked => {
+                                    root.brightness = min(1.5, root.brightness + 0.1);
+                                    ReadingThemes.adjust-brightness(root.brightness);
+                                    root.brightness-changed(root.brightness);
+                                }
+                            }
+                        }
+                    }
+                    
+                    // Contrast
+                    contrast-control := VerticalLayout {
+                        spacing: 8px;
+                        
+                        HorizontalLayout {
+                            Text {
+                                text: "Contrast";
+                                font-size: 12px;
+                                color: ReadingThemes.text-color;
+                            }
+                            
+                            Rectangle {
+                                horizontal-stretch: 1;
+                            }
+                            
+                            Text {
+                                text: round(contrast * 100) + "%";
+                                font-size: 12px;
+                                color: ReadingThemes.text-color;
+                            }
+                        }
+                        
+                        HorizontalLayout {
+                            spacing: 8px;
+                            
+                            ThemedButton {
+                                text: "◐−";
+                                
+                                clicked => {
+                                    root.contrast = max(0.5, root.contrast - 0.1);
+                                    ReadingThemes.adjust-contrast(root.contrast);
+                                    root.contrast-changed(root.contrast);
+                                }
+                            }
+                            
+                            Rectangle {
+                                horizontal-stretch: 1;
+                                height: 32px;
+                                background: ReadingThemes.border-color;
+                                border-radius: 4px;
+                                
+                                Rectangle {
+                                    width: (root.contrast - 0.5) * (parent.width - 8px) / 1.5 + 4px;
+                                    height: parent.height - 4px;
+                                    x: 2px;
+                                    y: 2px;
+                                    background: ReadingThemes.accent-color;
+                                    border-radius: 2px;
+                                }
+                            }
+                            
+                            ThemedButton {
+                                text: "◐+";
+                                
+                                clicked => {
+                                    root.contrast = min(2.0, root.contrast + 0.1);
+                                    ReadingThemes.adjust-contrast(root.contrast);
+                                    root.contrast-changed(root.contrast);
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                // Separator
+                Rectangle {
+                    height: 1px;
+                    background: ReadingThemes.border-color;
+                }
+                
+                // Layout Controls
+                layout-section := VerticalLayout {
+                    spacing: 16px;
+                    
+                    Text {
+                        text: "Layout";
+                        font-size: 14px;
+                        font-weight: 600;
+                        color: ReadingThemes.text-color;
+                    }
+                    
+                    // Two-column mode
+                    two-column-control := HorizontalLayout {
+                        spacing: 12px;
+                        
+                        Text {
+                            text: "Two Columns";
+                            font-size: 12px;
+                            color: ReadingThemes.text-color;
+                            vertical-alignment: center;
+                        }
+                        
+                        Rectangle {
+                            horizontal-stretch: 1;
+                        }
+                        
+                        Rectangle {
+                            width: 44px;
+                            height: 24px;
+                            background: two-column-mode ? ReadingThemes.accent-color : ReadingThemes.border-color;
+                            border-radius: 12px;
+                            
+                            animate background {
+                                duration: 200ms;
+                                easing: ease-out;
+                            }
+                            
+                            Rectangle {
+                                width: 20px;
+                                height: 20px;
+                                background: #FFFFFF;
+                                border-radius: 10px;
+                                x: two-column-mode ? 22px : 2px;
+                                y: 2px;
+                                
+                                animate x {
+                                    duration: 200ms;
+                                    easing: ease-out;
+                                }
+                            }
+                            
+                            TouchArea {
+                                clicked => {
+                                    root.two-column-mode = !root.two-column-mode;
+                                    ReadingThemes.toggle-two-column();
+                                    root.two-column-toggled(root.two-column-mode);
+                                }
+                                mouse-cursor: pointer;
+                            }
+                        }
+                    }
+                    
+                    // Reading width
+                    reading-width-control := VerticalLayout {
+                        spacing: 8px;
+                        
+                        HorizontalLayout {
+                            Text {
+                                text: "Reading Width";
+                                font-size: 12px;
+                                color: ReadingThemes.text-color;
+                            }
+                            
+                            Rectangle {
+                                horizontal-stretch: 1;
+                            }
+                            
+                            Text {
+                                text: reading-width + "px";
+                                font-size: 12px;
+                                color: ReadingThemes.text-color;
+                            }
+                        }
+                        
+                        HorizontalLayout {
+                            spacing: 8px;
+                            
+                            ThemedButton {
+                                text: "−";
+                                
+                                clicked => {
+                                    root.reading-width = max(400, root.reading-width - 50);
+                                    ReadingThemes.adjust-reading-width(root.reading-width);
+                                    root.reading-width-changed(root.reading-width);
+                                }
+                            }
+                            
+                            Rectangle {
+                                horizontal-stretch: 1;
+                                height: 32px;
+                                background: ReadingThemes.border-color;
+                                border-radius: 4px;
+                                
+                                Rectangle {
+                                    width: (root.reading-width - 400) * (parent.width - 8px) / 800 + 4px;
+                                    height: parent.height - 4px;
+                                    x: 2px;
+                                    y: 2px;
+                                    background: ReadingThemes.accent-color;
+                                    border-radius: 2px;
+                                }
+                            }
+                            
+                            ThemedButton {
+                                text: "+";
+                                
+                                clicked => {
+                                    root.reading-width = min(1200, root.reading-width + 50);
+                                    ReadingThemes.adjust-reading-width(root.reading-width);
+                                    root.reading-width-changed(root.reading-width);
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                // Separator
+                Rectangle {
+                    height: 1px;
+                    background: ReadingThemes.border-color;
+                }
+                
+                // Reset button
+                reset-section := VerticalLayout {
+                    spacing: 12px;
+                    
+                    ThemedButton {
+                        text: "Reset to Defaults";
+                        
+                        clicked => {
+                            root.reset-to-defaults();
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

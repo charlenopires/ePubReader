@@ -1,0 +1,506 @@
+import { ReadingThemes } from "../styles/reading_themes.slint";
+import { ThemedButton } from "../styles/themes.slint";
+
+export struct TextSelectionData {
+    start_offset: int,
+    end_offset: int,
+    selected_text: string,
+    paragraph_index: int,
+    page_number: int,
+}
+
+export struct HighlightData {
+    id: string,
+    start_offset: int,
+    end_offset: int,
+    color: string,
+    note: string,
+}
+
+export component TextSelection inherits Rectangle {
+    in property <string> content: "";
+    in property <[HighlightData]> highlights: [];
+    in property <bool> selection_enabled: true;
+    in property <int> current_page: 1;
+    in property <int> font_size: 16;
+    in property <string> font_family: "Default";
+    in property <float> line_height: 1.5;
+    
+    // Selection state
+    out property <TextSelectionData> current_selection;
+    out property <bool> has_selection: false;
+    out property <bool> show_context_menu: false;
+    out property <length> context_menu_x: 0px;
+    out property <length> context_menu_y: 0px;
+    
+    // Callbacks
+    callback selection_changed(TextSelectionData);
+    callback create_highlight(string /* color */);
+    callback create_note(string /* note */);
+    callback create_bookmark();
+    callback clear_selection();
+    callback highlight_clicked(string /* id */);
+    
+    // Text container
+    background: ReadingThemes.background-color;
+    
+    VerticalLayout {
+        padding: 20px;
+        
+        // Text content with selection support
+        text-container := Rectangle {
+            background: transparent;
+            
+            // Main text display
+            text-display := Text {
+                text: root.content;
+                font-size: root.font-size * 1px;
+                font-family: root.font-family;
+                color: ReadingThemes.text-color;
+                line-height: root.line-height;
+                wrap: word-wrap;
+                horizontal-alignment: left;
+                vertical-alignment: top;
+                
+                // Selection properties
+                property <int> selection_start: -1;
+                property <int> selection_end: -1;
+                property <bool> is_selecting: false;
+                property <length> selection_start_x: 0px;
+                property <length> selection_start_y: 0px;
+                property <length> selection_end_x: 0px;
+                property <length> selection_end_y: 0px;
+            }
+            
+            // Highlight overlays
+            for highlight in highlights: highlight-overlay := Rectangle {
+                // Calculate position based on highlight offsets
+                // This is a simplified representation - actual implementation would need
+                // proper text measurement and positioning
+                x: 0px;
+                y: highlight.start_offset * 20px; // Simplified calculation
+                width: 100%;
+                height: 20px;
+                background: highlight.color;
+                opacity: 0.3;
+                border-radius: 2px;
+                
+                TouchArea {
+                    clicked => {
+                        root.highlight-clicked(highlight.id);
+                    }
+                    mouse-cursor: pointer;
+                }
+                
+                // Highlight tooltip
+                if highlight.note != "": tooltip := Rectangle {
+                    x: parent.width - 20px;
+                    y: -2px;
+                    width: 16px;
+                    height: 16px;
+                    background: ReadingThemes.accent-color;
+                    border-radius: 8px;
+                    
+                    Text {
+                        text: "💬";
+                        font-size: 10px;
+                        color: #FFFFFF;
+                        horizontal-alignment: center;
+                        vertical-alignment: center;
+                    }
+                }
+            }
+            
+            // Selection overlay
+            if has_selection: selection-overlay := Rectangle {
+                x: min(text-display.selection-start-x, text-display.selection-end-x);
+                y: min(text-display.selection-start-y, text-display.selection-end-y);
+                width: abs(text-display.selection-end-x - text-display.selection-start-x);
+                height: abs(text-display.selection-end-y - text-display.selection-start-y);
+                background: ReadingThemes.selection-color;
+                opacity: 0.5;
+                border-radius: 2px;
+            }
+            
+            // Text selection area
+            selection-area := TouchArea {
+                enabled: root.selection-enabled;
+                
+                pointer-event(event) => {
+                    if (event.kind == PointerEventKind.down) {
+                        text-display.is-selecting = true;
+                        text-display.selection-start-x = event.position.x;
+                        text-display.selection-start-y = event.position.y;
+                        text-display.selection-start = self.char-at-position(event.position);
+                        root.has-selection = false;
+                        root.show-context-menu = false;
+                    } else if (event.kind == PointerEventKind.move && text-display.is-selecting) {
+                        text-display.selection-end-x = event.position.x;
+                        text-display.selection-end-y = event.position.y;
+                        text-display.selection-end = self.char-at-position(event.position);
+                        
+                        // Update selection if we have a valid range
+                        if (text-display.selection-start != -1 && text-display.selection-end != -1) {
+                            root.has-selection = true;
+                            root.update-selection();
+                        }
+                    } else if (event.kind == PointerEventKind.up) {
+                        text-display.is-selecting = false;
+                        
+                        if (root.has-selection) {
+                            // Show context menu
+                            root.context-menu-x = event.position.x;
+                            root.context-menu-y = event.position.y;
+                            root.show-context-menu = true;
+                        }
+                    }
+                }
+                
+                // Helper function to get character at position
+                // This is a simplified implementation
+                function char-at-position(pos: Point) -> int {
+                    // Calculate approximate character position based on font metrics
+                    // Real implementation would need proper text measurement
+                    return floor(pos.y / (root.font-size * root.line-height)) * 50 + 
+                           floor(pos.x / (root.font-size * 0.6));
+                }
+            }
+        }
+        
+        // Context menu for text selection
+        if show_context_menu: context-menu := Rectangle {
+            x: root.context-menu-x;
+            y: root.context-menu-y;
+            width: 280px;
+            height: 200px;
+            background: ReadingThemes.surface;
+            border-width: 1px;
+            border-color: ReadingThemes.border-color;
+            border-radius: 8px;
+            drop-shadow-blur: 8px;
+            drop-shadow-color: ReadingThemes.shadow-medium;
+            drop-shadow-offset-y: 4px;
+            z: 1000;
+            
+            VerticalLayout {
+                padding: 12px;
+                spacing: 8px;
+                
+                // Header
+                Text {
+                    text: "Add Annotation";
+                    font-size: 14px;
+                    font-weight: 600;
+                    color: ReadingThemes.text-color;
+                }
+                
+                // Highlight color options
+                highlight-colors := Rectangle {
+                    height: 40px;
+                    
+                    VerticalLayout {
+                        spacing: 4px;
+                        
+                        Text {
+                            text: "Highlight Color";
+                            font-size: 12px;
+                            color: ReadingThemes.text-secondary;
+                        }
+                        
+                        HorizontalLayout {
+                            spacing: 6px;
+                            
+                            // Yellow
+                            color-yellow := Rectangle {
+                                width: 24px;
+                                height: 24px;
+                                background: #FFD700;
+                                border-radius: 12px;
+                                border-width: 2px;
+                                border-color: transparent;
+                                
+                                TouchArea {
+                                    clicked => {
+                                        root.create-highlight("#FFD700");
+                                        root.show-context-menu = false;
+                                    }
+                                    mouse-cursor: pointer;
+                                }
+                            }
+                            
+                            // Green
+                            color-green := Rectangle {
+                                width: 24px;
+                                height: 24px;
+                                background: #90EE90;
+                                border-radius: 12px;
+                                border-width: 2px;
+                                border-color: transparent;
+                                
+                                TouchArea {
+                                    clicked => {
+                                        root.create-highlight("#90EE90");
+                                        root.show-context-menu = false;
+                                    }
+                                    mouse-cursor: pointer;
+                                }
+                            }
+                            
+                            // Blue
+                            color-blue := Rectangle {
+                                width: 24px;
+                                height: 24px;
+                                background: #87CEEB;
+                                border-radius: 12px;
+                                border-width: 2px;
+                                border-color: transparent;
+                                
+                                TouchArea {
+                                    clicked => {
+                                        root.create-highlight("#87CEEB");
+                                        root.show-context-menu = false;
+                                    }
+                                    mouse-cursor: pointer;
+                                }
+                            }
+                            
+                            // Pink
+                            color-pink := Rectangle {
+                                width: 24px;
+                                height: 24px;
+                                background: #FFB6C1;
+                                border-radius: 12px;
+                                border-width: 2px;
+                                border-color: transparent;
+                                
+                                TouchArea {
+                                    clicked => {
+                                        root.create-highlight("#FFB6C1");
+                                        root.show-context-menu = false;
+                                    }
+                                    mouse-cursor: pointer;
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                // Note input
+                note-input := Rectangle {
+                    height: 60px;
+                    background: ReadingThemes.background-color;
+                    border-width: 1px;
+                    border-color: ReadingThemes.border-color;
+                    border-radius: 4px;
+                    
+                    VerticalLayout {
+                        padding: 6px;
+                        spacing: 4px;
+                        
+                        Text {
+                            text: "Add Note (optional)";
+                            font-size: 10px;
+                            color: ReadingThemes.text-secondary;
+                        }
+                        
+                        note-text-input := TextInput {
+                            placeholder_text: "Enter your note here...";
+                            font-size: 12px;
+                            color: ReadingThemes.text-color;
+                            wrap: word-wrap;
+                            
+                            property <string> note_text: "";
+                            
+                            edited => {
+                                self.note_text = self.text;
+                            }
+                        }
+                    }
+                }
+                
+                // Actions
+                actions := HorizontalLayout {
+                    spacing: 8px;
+                    
+                    // Add note button
+                    add-note-btn := ThemedButton {
+                        text: "📝 Add Note";
+                        
+                        clicked => {
+                            root.create-note(note-text-input.note_text);
+                            root.show-context-menu = false;
+                        }
+                    }
+                    
+                    // Add bookmark button
+                    add-bookmark-btn := ThemedButton {
+                        text: "🔖 Bookmark";
+                        
+                        clicked => {
+                            root.create-bookmark();
+                            root.show-context-menu = false;
+                        }
+                    }
+                    
+                    Rectangle {
+                        horizontal-stretch: 1;
+                    }
+                    
+                    // Cancel button
+                    cancel-btn := ThemedButton {
+                        text: "Cancel";
+                        
+                        clicked => {
+                            root.show-context-menu = false;
+                            root.clear-selection();
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    // Update selection data
+    function update-selection() {
+        if (text-display.selection-start != -1 && text-display.selection-end != -1) {
+            root.current-selection = TextSelectionData {
+                start_offset: min(text-display.selection-start, text-display.selection-end),
+                end_offset: max(text-display.selection-start, text-display.selection-end),
+                selected_text: root.get-selected-text(),
+                paragraph_index: 0, // Simplified - would need proper calculation
+                page_number: root.current-page,
+            };
+            root.selection-changed(root.current-selection);
+        }
+    }
+    
+    // Get selected text
+    function get-selected-text() -> string {
+        if (text-display.selection-start != -1 && text-display.selection-end != -1) {
+            // Extract text between selection start and end
+            // This is a simplified implementation
+            return "Selected text"; // Would need proper string extraction
+        }
+        return "";
+    }
+    
+    // Clear current selection
+    public function clear-text-selection() {
+        root.has-selection = false;
+        root.show-context-menu = false;
+        text-display.selection-start = -1;
+        text-display.selection-end = -1;
+        text-display.is-selecting = false;
+        root.clear-selection();
+    }
+    
+    // Add highlight programmatically
+    public function add-highlight(start: int, end: int, color: string, note: string) {
+        // This would be handled by the parent component
+        // by updating the highlights array
+    }
+    
+    // Remove highlight
+    public function remove-highlight(id: string) {
+        // This would be handled by the parent component
+        // by updating the highlights array
+    }
+    
+    // Get text at position
+    public function get-text-at-position(offset: int, length: int) -> string {
+        // Extract text at specific offset
+        // This is a simplified implementation
+        return "Text at position";
+    }
+    
+    // Scroll to highlight
+    public function scroll-to-highlight(id: string) {
+        // Scroll to make highlight visible
+        // Would need proper scrolling implementation
+    }
+    
+    // Hide context menu when clicking outside
+    background-click-area := TouchArea {
+        clicked => {
+            if (root.show-context-menu) {
+                root.show-context-menu = false;
+                root.clear-selection();
+            }
+        }
+    }
+}
+
+// Simplified text selection component for basic use
+export component SimpleTextSelection inherits Rectangle {
+    in property <string> content: "";
+    in property <bool> selection_enabled: true;
+    
+    out property <string> selected_text: "";
+    out property <bool> has_selection: false;
+    
+    callback selection_changed(string);
+    callback create_highlight(string);
+    
+    background: ReadingThemes.background-color;
+    
+    VerticalLayout {
+        padding: 20px;
+        
+        // Simple text with basic selection
+        text-area := TextInput {
+            text: root.content;
+            read-only: true;
+            font-size: 16px;
+            color: ReadingThemes.text-color;
+            wrap: word-wrap;
+            
+            // Handle selection
+            edited => {
+                // This would be triggered on selection in a real implementation
+                if (self.text != root.content) {
+                    root.selected-text = self.text;
+                    root.has-selection = true;
+                    root.selection-changed(root.selected-text);
+                }
+            }
+        }
+        
+        // Quick highlight buttons
+        if has_selection: quick-actions := HorizontalLayout {
+            spacing: 8px;
+            padding: 8px;
+            
+            ThemedButton {
+                text: "🟡 Yellow";
+                clicked => {
+                    root.create-highlight("#FFD700");
+                    root.has-selection = false;
+                }
+            }
+            
+            ThemedButton {
+                text: "🟢 Green";
+                clicked => {
+                    root.create-highlight("#90EE90");
+                    root.has-selection = false;
+                }
+            }
+            
+            ThemedButton {
+                text: "🔵 Blue";
+                clicked => {
+                    root.create-highlight("#87CEEB");
+                    root.has-selection = false;
+                }
+            }
+            
+            ThemedButton {
+                text: "🩷 Pink";
+                clicked => {
+                    root.create-highlight("#FFB6C1");
+                    root.has-selection = false;
+                }
+            }
+        }
+    }
+}

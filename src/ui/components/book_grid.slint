@@ -1,0 +1,353 @@
+import { BookCard } from "book_card.slint";
+import { Theme } from "../styles/themes.slint";
+
+export struct BookViewModel {
+    id: string,
+    title: string,
+    author: string,
+    cover: image,
+    progress: float,
+    status: string,
+    is_favorite: bool,
+    rating: int,
+    last_opened: string,
+    added_date: string,
+}
+
+// List item component
+export component BookListItem inherits Rectangle {
+    in property <BookViewModel> book-data;
+    callback clicked;
+    
+    property <bool> hovered: touch-area.has-hover;
+    
+    height: 80px;
+    background: hovered ? Theme.hover-background : transparent;
+    border-radius: 8px;
+    
+    animate background {
+        duration: 150ms;
+        easing: ease-out;
+    }
+    
+    HorizontalLayout {
+        padding: 12px;
+        spacing: 16px;
+        alignment: center;
+        
+        // Small cover
+        Rectangle {
+            width: 56px;
+            height: 56px;
+            border-radius: 4px;
+            clip: true;
+            background: Theme.placeholder_background;
+            
+            if book-data.cover.width > 0: Image {
+                source: book-data.cover;
+                width: 100%;
+                height: 100%;
+                image-fit: ImageFit.cover;
+            }
+        }
+        
+        // Book info
+        VerticalLayout {
+            spacing: 4px;
+            alignment: start;
+            
+            Text {
+                text: book-data.title;
+                color: Theme.text-primary;
+                font-size: 16px;
+                font-weight: 600;
+                overflow: elide;
+            }
+            
+            Text {
+                text: book-data.author;
+                color: Theme.text-secondary;
+                font-size: 14px;
+                overflow: elide;
+            }
+            
+            if book-data.progress > 0: Text {
+                text: floor(book-data.progress * 100) + "% complete";
+                color: Theme.text-tertiary;
+                font-size: 12px;
+            }
+        }
+        
+        // Status badge
+        if book-data.status != "": Rectangle {
+            width: 80px;
+            height: 24px;
+            border-radius: 12px;
+            background: book-data.status == "new" ? Theme.status-new : 
+                       book-data.status == "reading" ? Theme.status-reading : 
+                       Theme.status-finished;
+            
+            Text {
+                text: book-data.status == "new" ? "NEW" : 
+                      book-data.status == "reading" ? "READING" : 
+                      "FINISHED";
+                color: #FFFFFF;
+                font-size: 10px;
+                font-weight: 700;
+                horizontal-alignment: center;
+                vertical-alignment: center;
+            }
+        }
+    }
+    
+    touch-area := TouchArea {
+        clicked => {
+            root.clicked();
+        }
+        mouse-cursor: pointer;
+    }
+}
+
+// Large cover card component
+export component BookCardLarge inherits Rectangle {
+    in property <BookViewModel> book-data;
+    callback clicked;
+    
+    property <bool> hovered: touch-area.has-hover;
+    
+    width: 240px;
+    height: 400px;
+    
+    background: Theme.card-background;
+    border-radius: 16px;
+    drop-shadow-blur: hovered ? 20px : 10px;
+    drop-shadow-color: #00000025;
+    drop-shadow-offset-y: hovered ? 10px : 5px;
+    
+    animate drop-shadow-blur, drop-shadow-offset-y {
+        duration: 200ms;
+        easing: ease-out;
+    }
+    
+    property <float> scale-factor: hovered ? 1.03 : 1.0;
+    animate scale-factor {
+        duration: 200ms;
+        easing: ease-out;
+    }
+    // Scale effect removed - transform not available on Rectangle
+    
+    VerticalLayout {
+        padding: 20px;
+        spacing: 16px;
+        
+        // Large cover
+        Rectangle {
+            height: 280px;
+            border-radius: 12px;
+            clip: true;
+            background: Theme.placeholder_background;
+            
+            if book-data.cover.width > 0: Image {
+                source: book-data.cover;
+                width: 100%;
+                height: 100%;
+                image-fit: ImageFit.cover;
+            }
+            
+            // Status badge
+            if book-data.status != "": Rectangle {
+                x: parent.width - 70px;
+                y: 12px;
+                width: 58px;
+                height: 24px;
+                border-radius: 12px;
+                background: book-data.status == "new" ? Theme.status-new : 
+                           book-data.status == "reading" ? Theme.status-reading : 
+                           Theme.status-finished;
+                
+                Text {
+                    text: book-data.status == "new" ? "NEW" : 
+                          book-data.status == "reading" ? "READING" : 
+                          "FINISHED";
+                    color: #FFFFFF;
+                    font-size: 10px;
+                    font-weight: 700;
+                    horizontal-alignment: center;
+                    vertical-alignment: center;
+                }
+            }
+        }
+        
+        // Book info
+        VerticalLayout {
+            spacing: 6px;
+            
+            Text {
+                text: book-data.title;
+                color: Theme.text-primary;
+                font-size: 16px;
+                font-weight: 600;
+                wrap: word-wrap;
+                overflow: elide;
+                max-height: 48px;
+            }
+            
+            Text {
+                text: book-data.author;
+                color: Theme.text-secondary;
+                font-size: 14px;
+                wrap: word-wrap;
+                overflow: elide;
+                max-height: 28px;
+            }
+            
+            if book-data.progress > 0: Text {
+                text: floor(book-data.progress * 100) + "% complete";
+                color: Theme.text-tertiary;
+                font-size: 12px;
+                font-weight: 500;
+                horizontal-alignment: center;
+            }
+        }
+    }
+    
+    touch-area := TouchArea {
+        clicked => {
+            root.clicked();
+        }
+        mouse-cursor: pointer;
+    }
+}
+
+export component BookGrid inherits Rectangle {
+    in property <[BookViewModel]> books;
+    in property <string> view-mode: "grid"; // "grid", "list", "large-cover"
+    in property <int> columns: 6; // Dynamic columns based on width
+    in property <bool> loading: false;
+    
+    callback book-selected(BookViewModel);
+    callback load-more();
+    
+    // Calculate responsive columns
+    property <int> calculated-columns: max(1, min(columns, floor(root.width / 220px)));
+    
+    // Grid container
+    background: Theme.background;
+    
+    if loading: Rectangle {
+        background: Theme.loading-overlay;
+        
+        // Loading indicator
+        VerticalLayout {
+            alignment: center;
+            
+            Text {
+                text: "⟳";
+                font-size: 32px;
+                color: Theme.loading_spinner;
+                
+                // Rotating animation
+                animate rotation-angle {
+                    duration: 1000ms;
+                    iteration-count: -1;
+                    easing: linear;
+                }
+                rotation-angle: 360deg;
+            }
+            
+            Text {
+                text: "Loading books...";
+                color: Theme.text-secondary;
+                font-size: 14px;
+                font-weight: 500;
+            }
+        }
+    }
+    
+    if !loading: Flickable {
+        viewport-width: root.width;
+        
+        // Grid layout based on view mode
+        if view-mode == "grid": VerticalLayout {
+            padding: 24px;
+            spacing: 24px;
+            
+            // Books grid
+            for row-index in floor(books.length / calculated-columns) + 1: HorizontalLayout {
+                spacing: 20px;
+                alignment: start;
+                
+                for col-index in calculated-columns: Rectangle {
+                    property <int> book-index: row-index * calculated-columns + col-index;
+                    
+                    if book-index < books.length: BookCard {
+                        cover: books[book-index].cover;
+                        title: books[book-index].title;
+                        author: books[book-index].author;
+                        progress: books[book-index].progress;
+                        status: books[book-index].status;
+                        
+                        clicked => {
+                            root.book-selected(books[book-index]);
+                        }
+                    }
+                }
+            }
+            
+            // Load more trigger area
+            if books.length > 0: Rectangle {
+                height: 100px;
+                background: transparent;
+                
+                TouchArea {
+                    clicked => {
+                        root.load-more();
+                    }
+                }
+            }
+        }
+        
+        // List view mode
+        if view-mode == "list": VerticalLayout {
+            padding: 24px;
+            spacing: 12px;
+            
+            for book[i] in books: BookListItem {
+                book-data: book;
+                
+                clicked => {
+                    root.book-selected(book);
+                }
+            }
+        }
+        
+        // Large cover view mode
+        if view-mode == "large-cover": VerticalLayout {
+            padding: 24px;
+            spacing: 32px;
+            
+            // Calculate large cover columns (fewer than grid)
+            property <int> large-columns: max(1, min(3, floor(root.width / 280px)));
+            
+            for row-index in floor(books.length / large-columns) + 1: HorizontalLayout {
+                spacing: 32px;
+                alignment: start;
+                
+                for col-index in large-columns: Rectangle {
+                    property <int> book-index: row-index * large-columns + col-index;
+                    
+                    if book-index < books.length: BookCardLarge {
+                        book-data: books[book-index];
+                        
+                        clicked => {
+                            root.book-selected(books[book-index]);
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+// List item component for list view
+// Components removed - will be moved to top of file

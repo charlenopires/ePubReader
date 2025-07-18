@@ -1,0 +1,830 @@
+import { ReadingThemes } from "../styles/reading_themes.slint";
+import { ThemedButton } from "../styles/themes.slint";
+
+export struct BookmarkModel {
+    id: string,
+    page_number: int,
+    title: string,
+    preview_text: string,
+    created_at: string,
+    color: string,
+    is_favorite: bool,
+}
+
+export struct AnnotationModel {
+    id: string,
+    page_number: int,
+    selected_text: string,
+    note: string,
+    color: string,
+    annotation_type: string,
+    created_at: string,
+    tags: [string],
+    is_favorite: bool,
+}
+
+export component BookmarkPanel inherits Rectangle {
+    in property <[BookmarkModel]> bookmarks;
+    in property <[AnnotationModel]> annotations;
+    in property <string> current_tab: "bookmarks"; // "bookmarks", "annotations", "notes"
+    in property <bool> show_favorites_only: false;
+    in property <string> search_query: "";
+    in property <string> filter_color: "";
+    in property <bool> expanded: false;
+    
+    callback bookmark_clicked(int /* page */);
+    callback bookmark_deleted(string /* id */);
+    callback annotation_clicked(string /* id */);
+    callback annotation_deleted(string /* id */);
+    callback annotation_edited(string /* id */);
+    callback add_bookmark(int /* page */);
+    callback export_annotations();
+    callback tab_changed(string);
+    
+    // Panel dimensions
+    width: expanded ? 400px : 60px;
+    height: parent.height;
+    
+    background: ReadingThemes.header-color;
+    border-width: 0px 0px 0px 1px;
+    border-color: ReadingThemes.border-color;
+    
+    // Smooth expand/collapse animation
+    animate width {
+        duration: 300ms;
+        easing: ease-in-out;
+    }
+    
+    HorizontalLayout {
+        // Toggle button
+        toggle-button := Rectangle {
+            width: 60px;
+            height: 60px;
+            background: expanded ? ReadingThemes.accent-color : transparent;
+            
+            // Toggle icon
+            Text {
+                text: expanded ? "→" : "📚";
+                font-size: 20px;
+                color: expanded ? #FFFFFF : ReadingThemes.text-color;
+                horizontal-alignment: center;
+                vertical-alignment: center;
+            }
+            
+            TouchArea {
+                clicked => {
+                    root.expanded = !root.expanded;
+                }
+                mouse-cursor: pointer;
+            }
+            
+            animate background {
+                duration: 200ms;
+                easing: ease-out;
+            }
+        }
+        
+        // Panel content (only visible when expanded)
+        if expanded: panel-content := Rectangle {
+            width: 340px;
+            background: ReadingThemes.background-color;
+            
+            VerticalLayout {
+                // Header
+                header := Rectangle {
+                    height: 60px;
+                    background: ReadingThemes.surface;
+                    border-width: 0px 0px 1px 0px;
+                    border-color: ReadingThemes.border-color;
+                    
+                    HorizontalLayout {
+                        padding: 12px;
+                        spacing: 8px;
+                        alignment: center;
+                        
+                        Text {
+                            text: "Annotations";
+                            font-size: 16px;
+                            font-weight: 600;
+                            color: ReadingThemes.text-color;
+                        }
+                        
+                        Rectangle {
+                            horizontal-stretch: 1;
+                        }
+                        
+                        // Export button
+                        ThemedButton {
+                            text: "📤";
+                            clicked => {
+                                root.export-annotations();
+                            }
+                        }
+                    }
+                }
+                
+                // Tabs
+                tabs := Rectangle {
+                    height: 48px;
+                    background: ReadingThemes.surface;
+                    border-width: 0px 0px 1px 0px;
+                    border-color: ReadingThemes.border-color;
+                    
+                    HorizontalLayout {
+                        padding: 4px;
+                        spacing: 4px;
+                        
+                        tab-bookmarks := Rectangle {
+                            width: 100px;
+                            height: 36px;
+                            background: current-tab == "bookmarks" ? ReadingThemes.accent-color : transparent;
+                            border-radius: 6px;
+                            
+                            Text {
+                                text: "🔖 Bookmarks";
+                                font-size: 11px;
+                                font-weight: 500;
+                                color: current-tab == "bookmarks" ? #FFFFFF : ReadingThemes.text-color;
+                                horizontal-alignment: center;
+                                vertical-alignment: center;
+                            }
+                            
+                            TouchArea {
+                                clicked => {
+                                    root.current-tab = "bookmarks";
+                                    root.tab-changed("bookmarks");
+                                }
+                                mouse-cursor: pointer;
+                            }
+                            
+                            animate background {
+                                duration: 200ms;
+                                easing: ease-out;
+                            }
+                        }
+                        
+                        tab-annotations := Rectangle {
+                            width: 100px;
+                            height: 36px;
+                            background: current-tab == "annotations" ? ReadingThemes.accent-color : transparent;
+                            border-radius: 6px;
+                            
+                            Text {
+                                text: "🖍️ Highlights";
+                                font-size: 11px;
+                                font-weight: 500;
+                                color: current-tab == "annotations" ? #FFFFFF : ReadingThemes.text-color;
+                                horizontal-alignment: center;
+                                vertical-alignment: center;
+                            }
+                            
+                            TouchArea {
+                                clicked => {
+                                    root.current-tab = "annotations";
+                                    root.tab-changed("annotations");
+                                }
+                                mouse-cursor: pointer;
+                            }
+                            
+                            animate background {
+                                duration: 200ms;
+                                easing: ease-out;
+                            }
+                        }
+                        
+                        tab-notes := Rectangle {
+                            width: 100px;
+                            height: 36px;
+                            background: current-tab == "notes" ? ReadingThemes.accent-color : transparent;
+                            border-radius: 6px;
+                            
+                            Text {
+                                text: "📝 Notes";
+                                font-size: 11px;
+                                font-weight: 500;
+                                color: current-tab == "notes" ? #FFFFFF : ReadingThemes.text-color;
+                                horizontal-alignment: center;
+                                vertical-alignment: center;
+                            }
+                            
+                            TouchArea {
+                                clicked => {
+                                    root.current-tab = "notes";
+                                    root.tab-changed("notes");
+                                }
+                                mouse-cursor: pointer;
+                            }
+                            
+                            animate background {
+                                duration: 200ms;
+                                easing: ease-out;
+                            }
+                        }
+                    }
+                }
+                
+                // Filters
+                filters := Rectangle {
+                    height: 40px;
+                    background: ReadingThemes.surface;
+                    border-width: 0px 0px 1px 0px;
+                    border-color: ReadingThemes.border-color;
+                    
+                    HorizontalLayout {
+                        padding: 8px;
+                        spacing: 8px;
+                        alignment: center;
+                        
+                        // Search input
+                        search-input := Rectangle {
+                            width: 160px;
+                            height: 28px;
+                            background: ReadingThemes.background-color;
+                            border-width: 1px;
+                            border-color: ReadingThemes.border-color;
+                            border-radius: 4px;
+                            
+                            HorizontalLayout {
+                                padding: 4px;
+                                spacing: 4px;
+                                alignment: center;
+                                
+                                Text {
+                                    text: "🔍";
+                                    font-size: 12px;
+                                    color: ReadingThemes.text-tertiary;
+                                }
+                                
+                                TextInput {
+                                    text: root.search-query;
+                                    placeholder_text: "Search...";
+                                    font-size: 12px;
+                                    color: ReadingThemes.text-color;
+                                    
+                                    edited => {
+                                        root.search-query = self.text;
+                                    }
+                                }
+                            }
+                        }
+                        
+                        // Favorites filter
+                        favorites-toggle := Rectangle {
+                            width: 32px;
+                            height: 28px;
+                            background: show-favorites-only ? ReadingThemes.accent-color : transparent;
+                            border-width: 1px;
+                            border-color: ReadingThemes.border-color;
+                            border-radius: 4px;
+                            
+                            Text {
+                                text: "⭐";
+                                font-size: 12px;
+                                color: show-favorites-only ? #FFFFFF : ReadingThemes.text-color;
+                                horizontal-alignment: center;
+                                vertical-alignment: center;
+                            }
+                            
+                            TouchArea {
+                                clicked => {
+                                    root.show-favorites-only = !root.show-favorites-only;
+                                }
+                                mouse-cursor: pointer;
+                            }
+                            
+                            animate background {
+                                duration: 200ms;
+                                easing: ease-out;
+                            }
+                        }
+                        
+                        // Color filter
+                        color-filter := Rectangle {
+                            width: 80px;
+                            height: 28px;
+                            background: ReadingThemes.background-color;
+                            border-width: 1px;
+                            border-color: ReadingThemes.border-color;
+                            border-radius: 4px;
+                            
+                            HorizontalLayout {
+                                padding: 4px;
+                                spacing: 4px;
+                                alignment: center;
+                                
+                                Text {
+                                    text: "🎨";
+                                    font-size: 12px;
+                                    color: ReadingThemes.text-tertiary;
+                                }
+                                
+                                Text {
+                                    text: root.filter-color == "" ? "All" : root.filter-color;
+                                    font-size: 10px;
+                                    color: ReadingThemes.text-color;
+                                }
+                            }
+                            
+                            TouchArea {
+                                clicked => {
+                                    // Toggle color filter
+                                    root.filter-color = root.filter-color == "" ? "Yellow" : "";
+                                }
+                                mouse-cursor: pointer;
+                            }
+                        }
+                    }
+                }
+                
+                // Content area
+                content-area := Rectangle {
+                    vertical-stretch: 1;
+                    
+                    // Bookmarks tab
+                    if current-tab == "bookmarks": bookmarks-list := ScrollView {
+                        VerticalLayout {
+                            spacing: 8px;
+                            padding: 12px;
+                            
+                            // Add bookmark button
+                            add-bookmark-btn := Rectangle {
+                                height: 40px;
+                                background: ReadingThemes.surface;
+                                border-width: 1px;
+                                border-color: ReadingThemes.border-color;
+                                border-radius: 6px;
+                                
+                                HorizontalLayout {
+                                    padding: 12px;
+                                    spacing: 8px;
+                                    alignment: center;
+                                    
+                                    Text {
+                                        text: "➕";
+                                        font-size: 14px;
+                                        color: ReadingThemes.accent-color;
+                                    }
+                                    
+                                    Text {
+                                        text: "Add Bookmark";
+                                        font-size: 12px;
+                                        font-weight: 500;
+                                        color: ReadingThemes.text-color;
+                                    }
+                                    
+                                    Rectangle {
+                                        horizontal-stretch: 1;
+                                    }
+                                }
+                                
+                                TouchArea {
+                                    clicked => {
+                                        root.add-bookmark(1); // Current page
+                                    }
+                                    mouse-cursor: pointer;
+                                }
+                                
+                                property <bool> hovered: touch-area.has-hover;
+                                animate background {
+                                    duration: 150ms;
+                                    easing: ease-out;
+                                }
+                                background: hovered ? ReadingThemes.hover-background : ReadingThemes.surface;
+                            }
+                            
+                            // Bookmarks list
+                            for bookmark[i] in bookmarks: BookmarkItem {
+                                bookmark-data: bookmark;
+                                
+                                clicked => {
+                                    root.bookmark-clicked(bookmark.page-number);
+                                }
+                                
+                                deleted => {
+                                    root.bookmark-deleted(bookmark.id);
+                                }
+                            }
+                        }
+                    }
+                    
+                    // Annotations tab
+                    if current-tab == "annotations": annotations-list := ScrollView {
+                        VerticalLayout {
+                            spacing: 8px;
+                            padding: 12px;
+                            
+                            // Instructions
+                            if annotations.length == 0: empty-state := Rectangle {
+                                height: 100px;
+                                background: ReadingThemes.surface;
+                                border-radius: 6px;
+                                
+                                VerticalLayout {
+                                    alignment: center;
+                                    spacing: 8px;
+                                    
+                                    Text {
+                                        text: "📝";
+                                        font-size: 24px;
+                                        horizontal-alignment: center;
+                                    }
+                                    
+                                    Text {
+                                        text: "No annotations yet";
+                                        font-size: 14px;
+                                        font-weight: 500;
+                                        color: ReadingThemes.text-color;
+                                        horizontal-alignment: center;
+                                    }
+                                    
+                                    Text {
+                                        text: "Select text to create highlights and notes";
+                                        font-size: 11px;
+                                        color: ReadingThemes.text-secondary;
+                                        horizontal-alignment: center;
+                                    }
+                                }
+                            }
+                            
+                            // Annotations list
+                            for annotation[i] in annotations: AnnotationItem {
+                                annotation-data: annotation;
+                                
+                                clicked => {
+                                    root.annotation-clicked(annotation.id);
+                                }
+                                
+                                deleted => {
+                                    root.annotation-deleted(annotation.id);
+                                }
+                                
+                                edited => {
+                                    root.annotation-edited(annotation.id);
+                                }
+                            }
+                        }
+                    }
+                    
+                    // Notes tab
+                    if current-tab == "notes": notes-list := ScrollView {
+                        VerticalLayout {
+                            spacing: 8px;
+                            padding: 12px;
+                            
+                            // Filter annotations that have notes
+                            for annotation[i] in annotations: if annotation.note != "": AnnotationItem {
+                                annotation-data: annotation;
+                                show-note-preview: true;
+                                
+                                clicked => {
+                                    root.annotation-clicked(annotation.id);
+                                }
+                                
+                                deleted => {
+                                    root.annotation-deleted(annotation.id);
+                                }
+                                
+                                edited => {
+                                    root.annotation-edited(annotation.id);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+// Individual bookmark item component
+component BookmarkItem inherits Rectangle {
+    in property <BookmarkModel> bookmark-data;
+    
+    callback clicked();
+    callback deleted();
+    
+    property <bool> hovered: touch-area.has-hover;
+    
+    height: 80px;
+    background: hovered ? ReadingThemes.hover-background : ReadingThemes.surface;
+    border-radius: 6px;
+    border-width: 1px;
+    border-color: ReadingThemes.border-color;
+    
+    animate background {
+        duration: 150ms;
+        easing: ease-out;
+    }
+    
+    HorizontalLayout {
+        padding: 12px;
+        spacing: 12px;
+        
+        // Color indicator
+        color-indicator := Rectangle {
+            width: 4px;
+            height: 100%;
+            background: bookmark-data.color;
+            border-radius: 2px;
+        }
+        
+        // Content
+        content := VerticalLayout {
+            spacing: 4px;
+            
+            // Title and page number
+            header := HorizontalLayout {
+                spacing: 8px;
+                alignment: center;
+                
+                Text {
+                    text: bookmark-data.title;
+                    font-size: 13px;
+                    font-weight: 600;
+                    color: ReadingThemes.text-color;
+                    overflow: elide;
+                }
+                
+                Rectangle {
+                    horizontal-stretch: 1;
+                }
+                
+                Text {
+                    text: "p. " + bookmark-data.page-number;
+                    font-size: 11px;
+                    color: ReadingThemes.text-secondary;
+                }
+                
+                if bookmark-data.is-favorite: Text {
+                    text: "⭐";
+                    font-size: 12px;
+                }
+            }
+            
+            // Preview text
+            Text {
+                text: bookmark-data.preview-text;
+                font-size: 11px;
+                color: ReadingThemes.text-secondary;
+                wrap: word-wrap;
+                overflow: elide;
+                max-height: 30px;
+            }
+            
+            // Created date
+            Text {
+                text: bookmark-data.created-at;
+                font-size: 9px;
+                color: ReadingThemes.text-tertiary;
+            }
+        }
+        
+        // Actions
+        actions := VerticalLayout {
+            spacing: 4px;
+            alignment: center;
+            
+            // Delete button
+            delete-btn := Rectangle {
+                width: 24px;
+                height: 24px;
+                border-radius: 12px;
+                background: delete-area.has-hover ? #FF6B6B : transparent;
+                
+                Text {
+                    text: "×";
+                    font-size: 14px;
+                    color: delete-area.has-hover ? #FFFFFF : ReadingThemes.text-tertiary;
+                    horizontal-alignment: center;
+                    vertical-alignment: center;
+                }
+                
+                delete-area := TouchArea {
+                    clicked => {
+                        root.deleted();
+                    }
+                    mouse-cursor: pointer;
+                }
+                
+                animate background {
+                    duration: 150ms;
+                    easing: ease-out;
+                }
+            }
+        }
+    }
+    
+    touch-area := TouchArea {
+        clicked => {
+            root.clicked();
+        }
+        mouse-cursor: pointer;
+    }
+}
+
+// Individual annotation item component
+component AnnotationItem inherits Rectangle {
+    in property <AnnotationModel> annotation-data;
+    in property <bool> show-note-preview: false;
+    
+    callback clicked();
+    callback deleted();
+    callback edited();
+    
+    property <bool> hovered: touch-area.has-hover;
+    
+    height: show-note-preview && annotation-data.note != "" ? 120px : 90px;
+    background: hovered ? ReadingThemes.hover-background : ReadingThemes.surface;
+    border-radius: 6px;
+    border-width: 1px;
+    border-color: ReadingThemes.border-color;
+    
+    animate background, height {
+        duration: 150ms;
+        easing: ease-out;
+    }
+    
+    HorizontalLayout {
+        padding: 12px;
+        spacing: 12px;
+        
+        // Color indicator
+        color-indicator := Rectangle {
+            width: 4px;
+            height: 100%;
+            background: annotation-data.color;
+            border-radius: 2px;
+        }
+        
+        // Content
+        content := VerticalLayout {
+            spacing: 6px;
+            
+            // Header with type and page
+            header := HorizontalLayout {
+                spacing: 8px;
+                alignment: center;
+                
+                Text {
+                    text: annotation-data.annotation-type;
+                    font-size: 11px;
+                    font-weight: 600;
+                    color: ReadingThemes.text-color;
+                }
+                
+                Rectangle {
+                    horizontal-stretch: 1;
+                }
+                
+                Text {
+                    text: "p. " + annotation-data.page-number;
+                    font-size: 11px;
+                    color: ReadingThemes.text-secondary;
+                }
+                
+                if annotation-data.is-favorite: Text {
+                    text: "⭐";
+                    font-size: 12px;
+                }
+            }
+            
+            // Selected text
+            Text {
+                text: annotation-data.selected-text;
+                font-size: 12px;
+                color: ReadingThemes.text-color;
+                wrap: word-wrap;
+                overflow: elide;
+                max-height: 32px;
+            }
+            
+            // Note preview (if enabled and exists)
+            if show-note-preview && annotation-data.note != "": note-preview := Rectangle {
+                height: 24px;
+                background: ReadingThemes.background-color;
+                border-radius: 4px;
+                border-width: 1px;
+                border-color: ReadingThemes.border-color;
+                
+                HorizontalLayout {
+                    padding: 6px;
+                    
+                    Text {
+                        text: annotation-data.note;
+                        font-size: 10px;
+                        color: ReadingThemes.text-secondary;
+                        wrap: word-wrap;
+                        overflow: elide;
+                        font-style: italic;
+                    }
+                }
+            }
+            
+            // Tags and created date
+            footer := HorizontalLayout {
+                spacing: 8px;
+                alignment: center;
+                
+                // Tags
+                if annotation-data.tags.length > 0: tags-container := HorizontalLayout {
+                    spacing: 4px;
+                    
+                    for tag in annotation-data.tags: tag-item := Rectangle {
+                        width: tag-text.preferred-width + 8px;
+                        height: 16px;
+                        background: ReadingThemes.accent-color;
+                        border-radius: 8px;
+                        opacity: 0.8;
+                        
+                        tag-text := Text {
+                            text: tag;
+                            font-size: 8px;
+                            color: #FFFFFF;
+                            horizontal-alignment: center;
+                            vertical-alignment: center;
+                        }
+                    }
+                }
+                
+                Rectangle {
+                    horizontal-stretch: 1;
+                }
+                
+                Text {
+                    text: annotation-data.created-at;
+                    font-size: 9px;
+                    color: ReadingThemes.text-tertiary;
+                }
+            }
+        }
+        
+        // Actions
+        actions := VerticalLayout {
+            spacing: 4px;
+            alignment: center;
+            
+            // Edit button
+            edit-btn := Rectangle {
+                width: 24px;
+                height: 24px;
+                border-radius: 12px;
+                background: edit-area.has-hover ? ReadingThemes.accent-color : transparent;
+                
+                Text {
+                    text: "✏️";
+                    font-size: 10px;
+                    color: edit-area.has-hover ? #FFFFFF : ReadingThemes.text-tertiary;
+                    horizontal-alignment: center;
+                    vertical-alignment: center;
+                }
+                
+                edit-area := TouchArea {
+                    clicked => {
+                        root.edited();
+                    }
+                    mouse-cursor: pointer;
+                }
+                
+                animate background {
+                    duration: 150ms;
+                    easing: ease-out;
+                }
+            }
+            
+            // Delete button
+            delete-btn := Rectangle {
+                width: 24px;
+                height: 24px;
+                border-radius: 12px;
+                background: delete-area.has-hover ? #FF6B6B : transparent;
+                
+                Text {
+                    text: "×";
+                    font-size: 14px;
+                    color: delete-area.has-hover ? #FFFFFF : ReadingThemes.text-tertiary;
+                    horizontal-alignment: center;
+                    vertical-alignment: center;
+                }
+                
+                delete-area := TouchArea {
+                    clicked => {
+                        root.deleted();
+                    }
+                    mouse-cursor: pointer;
+                }
+                
+                animate background {
+                    duration: 150ms;
+                    easing: ease-out;
+                }
+            }
+        }
+    }
+    
+    touch-area := TouchArea {
+        clicked => {
+            root.clicked();
+        }
+        mouse-cursor: pointer;
+    }
+}

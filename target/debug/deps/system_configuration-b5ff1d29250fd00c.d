@@ -1,0 +1,9 @@
+/Users/fazapp/projects/opensource/ePubReader/target/debug/deps/system_configuration-b5ff1d29250fd00c.d: /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/system-configuration-0.5.1/src/lib.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/system-configuration-0.5.1/src/dynamic_store.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/system-configuration-0.5.1/src/network_configuration.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/system-configuration-0.5.1/src/network_reachability.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/system-configuration-0.5.1/src/preferences.rs
+
+/Users/fazapp/projects/opensource/ePubReader/target/debug/deps/libsystem_configuration-b5ff1d29250fd00c.rmeta: /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/system-configuration-0.5.1/src/lib.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/system-configuration-0.5.1/src/dynamic_store.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/system-configuration-0.5.1/src/network_configuration.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/system-configuration-0.5.1/src/network_reachability.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/system-configuration-0.5.1/src/preferences.rs
+
+/Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/system-configuration-0.5.1/src/lib.rs:
+/Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/system-configuration-0.5.1/src/dynamic_store.rs:
+/Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/system-configuration-0.5.1/src/network_configuration.rs:
+/Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/system-configuration-0.5.1/src/network_reachability.rs:
+/Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/system-configuration-0.5.1/src/preferences.rs:

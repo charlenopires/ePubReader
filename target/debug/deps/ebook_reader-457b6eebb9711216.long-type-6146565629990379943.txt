@@ -1,0 +1,1 @@
+*const i_slint_core::properties::dependency_tracker::DependencyNode<*const (dyn ModelChangeListener + 'static)>

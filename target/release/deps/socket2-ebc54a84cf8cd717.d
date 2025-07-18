@@ -1,0 +1,11 @@
+/Users/fazapp/projects/opensource/ePubReader/target/release/deps/socket2-ebc54a84cf8cd717.d: /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/socket2-0.5.10/src/lib.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/socket2-0.5.10/src/sockaddr.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/socket2-0.5.10/src/socket.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/socket2-0.5.10/src/sockref.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/socket2-0.5.10/src/sys/unix.rs
+
+/Users/fazapp/projects/opensource/ePubReader/target/release/deps/libsocket2-ebc54a84cf8cd717.rlib: /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/socket2-0.5.10/src/lib.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/socket2-0.5.10/src/sockaddr.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/socket2-0.5.10/src/socket.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/socket2-0.5.10/src/sockref.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/socket2-0.5.10/src/sys/unix.rs
+
+/Users/fazapp/projects/opensource/ePubReader/target/release/deps/libsocket2-ebc54a84cf8cd717.rmeta: /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/socket2-0.5.10/src/lib.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/socket2-0.5.10/src/sockaddr.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/socket2-0.5.10/src/socket.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/socket2-0.5.10/src/sockref.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/socket2-0.5.10/src/sys/unix.rs
+
+/Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/socket2-0.5.10/src/lib.rs:
+/Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/socket2-0.5.10/src/sockaddr.rs:
+/Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/socket2-0.5.10/src/socket.rs:
+/Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/socket2-0.5.10/src/sockref.rs:
+/Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/socket2-0.5.10/src/sys/unix.rs:

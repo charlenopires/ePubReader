@@ -1,0 +1,10 @@
+/Users/fazapp/projects/opensource/ePubReader/target/debug/deps/crc32fast-672b99bd38fedab4.d: /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/crc32fast-1.5.0/src/lib.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/crc32fast-1.5.0/src/baseline.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/crc32fast-1.5.0/src/combine.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/crc32fast-1.5.0/src/specialized/mod.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/crc32fast-1.5.0/src/table.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/crc32fast-1.5.0/src/specialized/aarch64.rs
+
+/Users/fazapp/projects/opensource/ePubReader/target/debug/deps/libcrc32fast-672b99bd38fedab4.rmeta: /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/crc32fast-1.5.0/src/lib.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/crc32fast-1.5.0/src/baseline.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/crc32fast-1.5.0/src/combine.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/crc32fast-1.5.0/src/specialized/mod.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/crc32fast-1.5.0/src/table.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/crc32fast-1.5.0/src/specialized/aarch64.rs
+
+/Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/crc32fast-1.5.0/src/lib.rs:
+/Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/crc32fast-1.5.0/src/baseline.rs:
+/Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/crc32fast-1.5.0/src/combine.rs:
+/Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/crc32fast-1.5.0/src/specialized/mod.rs:
+/Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/crc32fast-1.5.0/src/table.rs:
+/Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/crc32fast-1.5.0/src/specialized/aarch64.rs:

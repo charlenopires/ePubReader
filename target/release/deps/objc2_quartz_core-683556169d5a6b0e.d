@@ -1,0 +1,10 @@
+/Users/fazapp/projects/opensource/ePubReader/target/release/deps/objc2_quartz_core-683556169d5a6b0e.d: /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/objc2-quartz-core-0.2.2/src/lib.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/objc2-quartz-core-0.2.2/src/generated/mod.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/objc2-quartz-core-0.2.2/src/generated/CALayer.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/objc2-quartz-core-0.2.2/src/generated/CATransaction.rs
+
+/Users/fazapp/projects/opensource/ePubReader/target/release/deps/libobjc2_quartz_core-683556169d5a6b0e.rlib: /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/objc2-quartz-core-0.2.2/src/lib.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/objc2-quartz-core-0.2.2/src/generated/mod.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/objc2-quartz-core-0.2.2/src/generated/CALayer.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/objc2-quartz-core-0.2.2/src/generated/CATransaction.rs
+
+/Users/fazapp/projects/opensource/ePubReader/target/release/deps/libobjc2_quartz_core-683556169d5a6b0e.rmeta: /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/objc2-quartz-core-0.2.2/src/lib.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/objc2-quartz-core-0.2.2/src/generated/mod.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/objc2-quartz-core-0.2.2/src/generated/CALayer.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/objc2-quartz-core-0.2.2/src/generated/CATransaction.rs
+
+/Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/objc2-quartz-core-0.2.2/src/lib.rs:
+/Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/objc2-quartz-core-0.2.2/src/generated/mod.rs:
+/Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/objc2-quartz-core-0.2.2/src/generated/CALayer.rs:
+/Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/objc2-quartz-core-0.2.2/src/generated/CATransaction.rs:

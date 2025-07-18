@@ -1,0 +1,11 @@
+/Users/fazapp/projects/opensource/ePubReader/target/release/deps/either-e6e5142ac4816c96.d: /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/either-1.15.0/src/lib.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/either-1.15.0/src/serde_untagged.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/either-1.15.0/src/serde_untagged_optional.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/either-1.15.0/src/iterator.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/either-1.15.0/src/into_either.rs
+
+/Users/fazapp/projects/opensource/ePubReader/target/release/deps/libeither-e6e5142ac4816c96.rlib: /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/either-1.15.0/src/lib.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/either-1.15.0/src/serde_untagged.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/either-1.15.0/src/serde_untagged_optional.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/either-1.15.0/src/iterator.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/either-1.15.0/src/into_either.rs
+
+/Users/fazapp/projects/opensource/ePubReader/target/release/deps/libeither-e6e5142ac4816c96.rmeta: /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/either-1.15.0/src/lib.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/either-1.15.0/src/serde_untagged.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/either-1.15.0/src/serde_untagged_optional.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/either-1.15.0/src/iterator.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/either-1.15.0/src/into_either.rs
+
+/Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/either-1.15.0/src/lib.rs:
+/Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/either-1.15.0/src/serde_untagged.rs:
+/Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/either-1.15.0/src/serde_untagged_optional.rs:
+/Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/either-1.15.0/src/iterator.rs:
+/Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/either-1.15.0/src/into_either.rs:

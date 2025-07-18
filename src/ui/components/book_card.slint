@@ -1,0 +1,171 @@
+import { Theme } from "../styles/themes.slint";
+
+export component BookCard inherits Rectangle {
+    in property <image> cover;
+    in property <string> title;
+    in property <string> author;
+    in property <float> progress; // 0.0 a 1.0
+    in property <string> status; // "new", "reading", "finished"
+    in property <bool> hover-enabled: true;
+    
+    callback clicked;
+    
+    // Card dimensions
+    width: 200px;
+    height: 320px;
+    
+    // Hover state
+    property <bool> hovered: touch-area.has-hover;
+    
+    // Card styling
+    background: Theme.card-background;
+    border-radius: 12px;
+    drop-shadow-blur: hovered ? 16px : 8px;
+    drop-shadow-color: #00000020;
+    drop-shadow-offset-x: 0;
+    drop-shadow-offset-y: hovered ? 8px : 4px;
+    
+    // Hover animation
+    animate drop-shadow-blur, drop-shadow-offset-y {
+        duration: 200ms;
+        easing: ease-out;
+    }
+    
+    // Scale animation on hover
+    // Scale effect removed - transform not available on Rectangle
+    
+    // Main card layout
+    VerticalLayout {
+        padding: 16px;
+        spacing: 12px;
+        
+        // Cover image container
+        cover-container := Rectangle {
+            height: 200px;
+            border-radius: 8px;
+            clip: true;
+            background: Theme.placeholder_background;
+            
+            // Cover image or placeholder
+            if cover.width > 0: Image {
+                source: cover;
+                width: 100%;
+                height: 100%;
+                image-fit: ImageFit.cover;
+                image-rendering: smooth;
+            }
+            
+            // Placeholder when no cover
+            if cover.width == 0: VerticalLayout {
+                alignment: center;
+                
+                Rectangle {
+                    width: 60px;
+                    height: 80px;
+                    background: Theme.placeholder_icon;
+                    border-radius: 4px;
+                }
+                
+                Text {
+                    text: "No Cover";
+                    color: Theme.placeholder_text;
+                    font-size: 12px;
+                    font-weight: 500;
+                }
+            }
+            
+            // Progress overlay at bottom
+            if progress > 0: Rectangle {
+                y: parent.height - 4px;
+                width: parent.width;
+                height: 4px;
+                background: Theme.progress-background;
+                border-radius: 2px;
+                
+                // Progress bar
+                Rectangle {
+                    width: parent.width * progress;
+                    height: 100%;
+                    background: Theme.progress-foreground;
+                    border-radius: 2px;
+                    
+                    animate width {
+                        duration: 500ms;
+                        easing: ease-out;
+                    }
+                }
+            }
+            
+            // Status badge
+            if status != "": Rectangle {
+                x: parent.width - 60px;
+                y: 8px;
+                width: 52px;
+                height: 20px;
+                border-radius: 10px;
+                background: status == "new" ? Theme.status-new : 
+                           status == "reading" ? Theme.status-reading : 
+                           Theme.status-finished;
+                
+                Text {
+                    text: status == "new" ? "NEW" : 
+                          status == "reading" ? "READING" : 
+                          "FINISHED";
+                    color: #FFFFFF;
+                    font-size: 10px;
+                    font-weight: 700;
+                    horizontal-alignment: center;
+                    vertical-alignment: center;
+                }
+            }
+        }
+        
+        // Book info
+        VerticalLayout {
+            spacing: 4px;
+            
+            // Title
+            title-text := Text {
+                text: title;
+                color: Theme.text-primary;
+                font-size: 14px;
+                font-weight: 600;
+                wrap: word-wrap;
+                overflow: elide;
+                max-height: 40px;
+                vertical-alignment: top;
+            }
+            
+            // Author
+            author-text := Text {
+                text: author;
+                color: Theme.text-secondary;
+                font-size: 12px;
+                font-weight: 400;
+                wrap: word-wrap;
+                overflow: elide;
+                max-height: 20px;
+                vertical-alignment: top;
+            }
+        }
+        
+        // Progress text (if reading)
+        if progress > 0 && status == "reading": Text {
+            text: floor(progress * 100) + "% complete";
+            color: Theme.text-tertiary;
+            font-size: 10px;
+            font-weight: 500;
+            horizontal-alignment: center;
+        }
+    }
+    
+    // Touch area for interaction
+    touch-area := TouchArea {
+        clicked => {
+            root.clicked();
+        }
+        
+        // Cursor pointer on hover
+        mouse-cursor: pointer;
+    }
+}

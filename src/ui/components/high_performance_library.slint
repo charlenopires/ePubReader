@@ -1,0 +1,498 @@
+import { VirtualBookGrid, VirtualBookItem, PerformanceMetrics } from "./virtual_book_grid.slint";
+import { SearchPanel, SearchResult } from "./search_panel.slint";
+import { ReadingThemes } from "../styles/reading_themes.slint";
+
+// High-performance library component integrating all performance features
+export component HighPerformanceLibrary inherits Rectangle {
+    // Input properties
+    in property <[VirtualBookItem]> books: [];
+    in property <bool> show-performance-overlay: false;
+    in property <PerformanceMetrics> performance-metrics;
+    in property <string> search-query: "";
+    in property <[SearchResult]> search-results: [];
+    
+    // State properties
+    in-out property <string> selected-book-id: "";
+    in-out property <bool> search-panel-visible: false;
+    in-out property <int> current-search-result: -1;
+    in-out property <string> filter-status: "all";
+    in-out property <int> items-per-row: 6;
+    
+    // Callbacks
+    callback book-selected(string /* book_id */);
+    callback book-opened(string /* book_id */);
+    callback book-context-menu(string /* book_id */, length /* x */, length /* y */);
+    callback search-triggered(string /* query */);
+    callback search-result-selected(int /* page */, int /* position */);
+    callback filter-changed(string /* filter */);
+    callback grid-config-changed(int /* items_per_row */);
+    callback performance-toggle();
+    callback load-more-books();
+    callback refresh-library();
+    
+    background: ReadingThemes.background-color;
+    
+    // Main layout
+    VerticalLayout {
+        // Toolbar
+        toolbar := Rectangle {
+            height: 56px;
+            background: ReadingThemes.surface;
+            border-width: 0px 0px 1px 0px;
+            border-color: ReadingThemes.border-color;
+            
+            HorizontalLayout {
+                padding-left: 16px;
+                padding-right: 16px;
+                padding-top: 8px;
+                padding-bottom: 8px;
+                spacing: 12px;
+                alignment: center;
+                
+                // Library title
+                title := Text {
+                    text: "📚 Library";
+                    font-size: 18px;
+                    font-weight: 600;
+                    color: ReadingThemes.text-color;
+                }
+                
+                // Book count
+                count := Text {
+                    text: "(" + books.length + " books)";
+                    font-size: 14px;
+                    color: ReadingThemes.text-secondary;
+                }
+                
+                Rectangle {
+                    horizontal-stretch: 1;
+                }
+                
+                // Filter dropdown
+                filter-dropdown := Rectangle {
+                    width: 120px;
+                    height: 32px;
+                    background: ReadingThemes.background-color;
+                    border-width: 1px;
+                    border-color: ReadingThemes.border-color;
+                    border-radius: 4px;
+                    
+                    HorizontalLayout {
+                        padding-left: 8px;
+                        padding-right: 8px;
+                        padding-top: 6px;
+                        padding-bottom: 6px;
+                        spacing: 6px;
+                        alignment: center;
+                        
+                        Text {
+                            text: "Status: " + filter-status;
+                            font-size: 12px;
+                            color: ReadingThemes.text-color;
+                            horizontal-stretch: 1;
+                        }
+                        
+                        Text {
+                            text: "▼";
+                            font-size: 10px;
+                            color: ReadingThemes.text-secondary;
+                        }
+                    }
+                    
+                    filter-area := TouchArea {
+                        clicked => {
+                            // Toggle filter (simplified - would show dropdown)
+                            if filter-status == "all" {
+                                root.filter-status = "reading";
+                            } else if filter-status == "reading" {
+                                root.filter-status = "finished";
+                            } else {
+                                root.filter-status = "all";
+                            }
+                            root.filter-changed(root.filter-status);
+                        }
+                        mouse-cursor: pointer;
+                    }
+                }
+                
+                // Grid size control
+                grid-size-control := Rectangle {
+                    width: 100px;
+                    height: 32px;
+                    background: ReadingThemes.background-color;
+                    border-width: 1px;
+                    border-color: ReadingThemes.border-color;
+                    border-radius: 4px;
+                    
+                    HorizontalLayout {
+                        padding: 4px;
+                        spacing: 2px;
+                        alignment: center;
+                        
+                        // Decrease button
+                        decrease-btn := Rectangle {
+                            width: 24px;
+                            height: 24px;
+                            background: decrease-area.has-hover ? ReadingThemes.accent-color : transparent;
+                            border-radius: 2px;
+                            
+                            Text {
+                                text: "−";
+                                font-size: 14px;
+                                color: decrease-area.has-hover ? #FFFFFF : ReadingThemes.text-color;
+                                horizontal-alignment: center;
+                                vertical-alignment: center;
+                            }
+                            
+                            decrease-area := TouchArea {
+                                clicked => {
+                                    if root.items-per-row > 3 {
+                                        root.items-per-row -= 1;
+                                        root.grid-config-changed(root.items-per-row);
+                                    }
+                                }
+                                mouse-cursor: pointer;
+                            }
+                        }
+                        
+                        // Size display
+                        size-display := Text {
+                            text: items-per-row;
+                            font-size: 12px;
+                            color: ReadingThemes.text-color;
+                            horizontal-alignment: center;
+                            width: 20px;
+                        }
+                        
+                        // Increase button
+                        increase-btn := Rectangle {
+                            width: 24px;
+                            height: 24px;
+                            background: increase-area.has-hover ? ReadingThemes.accent-color : transparent;
+                            border-radius: 2px;
+                            
+                            Text {
+                                text: "+";
+                                font-size: 14px;
+                                color: increase-area.has-hover ? #FFFFFF : ReadingThemes.text-color;
+                                horizontal-alignment: center;
+                                vertical-alignment: center;
+                            }
+                            
+                            increase-area := TouchArea {
+                                clicked => {
+                                    if root.items-per-row < 10 {
+                                        root.items-per-row += 1;
+                                        root.grid-config-changed(root.items-per-row);
+                                    }
+                                }
+                                mouse-cursor: pointer;
+                            }
+                        }
+                    }
+                }
+                
+                // Search toggle
+                search-toggle := Rectangle {
+                    width: 32px;
+                    height: 32px;
+                    background: search-panel-visible ? ReadingThemes.accent-color : 
+                                (search-area.has-hover ? ReadingThemes.hover-background : transparent);
+                    border-radius: 4px;
+                    
+                    Text {
+                        text: "🔍";
+                        font-size: 14px;
+                        color: search-panel-visible ? #FFFFFF : ReadingThemes.text-color;
+                        horizontal-alignment: center;
+                        vertical-alignment: center;
+                    }
+                    
+                    search-area := TouchArea {
+                        clicked => {
+                            root.search-panel-visible = !root.search-panel-visible;
+                        }
+                        mouse-cursor: pointer;
+                    }
+                    
+                    animate background {
+                        duration: 150ms;
+                        easing: ease-out;
+                    }
+                }
+                
+                // Performance toggle
+                perf-toggle := Rectangle {
+                    width: 32px;
+                    height: 32px;
+                    background: show-performance-overlay ? ReadingThemes.accent-color : 
+                                (perf-area.has-hover ? ReadingThemes.hover-background : transparent);
+                    border-radius: 4px;
+                    
+                    Text {
+                        text: "📊";
+                        font-size: 14px;
+                        color: show-performance-overlay ? #FFFFFF : ReadingThemes.text-color;
+                        horizontal-alignment: center;
+                        vertical-alignment: center;
+                    }
+                    
+                    perf-area := TouchArea {
+                        clicked => {
+                            root.performance-toggle();
+                        }
+                        mouse-cursor: pointer;
+                    }
+                    
+                    animate background {
+                        duration: 150ms;
+                        easing: ease-out;
+                    }
+                }
+                
+                // Refresh button
+                refresh-btn := Rectangle {
+                    width: 32px;
+                    height: 32px;
+                    background: refresh-area.has-hover ? ReadingThemes.accent-color : transparent;
+                    border-radius: 4px;
+                    
+                    Text {
+                        text: "🔄";
+                        font-size: 14px;
+                        color: refresh-area.has-hover ? #FFFFFF : ReadingThemes.text-color;
+                        horizontal-alignment: center;
+                        vertical-alignment: center;
+                    }
+                    
+                    refresh-area := TouchArea {
+                        clicked => {
+                            root.refresh-library();
+                        }
+                        mouse-cursor: pointer;
+                    }
+                    
+                    animate background {
+                        duration: 150ms;
+                        easing: ease-out;
+                    }
+                }
+            }
+        }
+        
+        // Content area
+        content := HorizontalLayout {
+            spacing: 0px;
+            vertical-stretch: 1;
+            
+            // Main grid area
+            grid-area := Rectangle {
+                horizontal-stretch: 1;
+                background: ReadingThemes.background-color;
+                
+                // Virtual book grid
+                virtual-grid := VirtualBookGrid {
+                    width: 100%;
+                    height: 100%;
+                    items: root.books;
+                    items-per-row: root.items-per-row;
+                    selected-book-id: root.selected-book-id;
+                    show-performance-metrics: root.show-performance-overlay;
+                    metrics: root.performance-metrics;
+                    
+                    book-selected(book_id) => {
+                        root.selected-book-id = book_id;
+                        root.book-selected(book_id);
+                    }
+                    
+                    book-double-clicked(book_id) => {
+                        root.book-opened(book_id);
+                    }
+                    
+                    book-context-menu(book_id, x, y) => {
+                        root.book-context-menu(book_id, x, y);
+                    }
+                    
+                    scroll-position-changed(offset) => {
+                        // Handle scroll for performance monitoring
+                    }
+                    
+                    load-more-items() => {
+                        root.load-more-books();
+                    }
+                    
+                    preload-covers(start_index, end_index) => {
+                        // Trigger preloading in backend
+                    }
+                }
+                
+                // Loading indicator overlay
+                if books.length == 0: loading-overlay := Rectangle {
+                    background: ReadingThemes.background-color;
+                    
+                    VerticalLayout {
+                        alignment: center;
+                        spacing: 16px;
+                        
+                        Text {
+                            text: "📚";
+                            font-size: 48px;
+                            horizontal-alignment: center;
+                            opacity: 0.5;
+                        }
+                        
+                        Text {
+                            text: "Loading your library...";
+                            font-size: 16px;
+                            color: ReadingThemes.text-secondary;
+                            horizontal-alignment: center;
+                        }
+                        
+                        // Loading animation
+                        loading-spinner := Rectangle {
+                            width: 32px;
+                            height: 32px;
+                            
+                            Text {
+                                text: "⏳";
+                                font-size: 24px;
+                                horizontal-alignment: center;
+                                vertical-alignment: center;
+                                // TODO: Add rotation animation
+                            }
+                        }
+                    }
+                }
+            }
+            
+            // Search panel (slides in from right)
+            search-panel := SearchPanel {
+                visible: root.search-panel-visible;
+                search-query: root.search-query;
+                results: root.search-results;
+                current-result-index: root.current-search-result;
+                
+                search-triggered(query) => {
+                    root.search-query = query;
+                    root.search-triggered(query);
+                }
+                
+                result-clicked(page, position) => {
+                    root.search-result-selected(page, position);
+                }
+                
+                next-result() => {
+                    if root.current-search-result < root.search-results.length - 1 {
+                        root.current-search-result += 1;
+                        root.search-result-selected(
+                            root.search-results[root.current-search-result].page-number,
+                            root.search-results[root.current-search-result].position
+                        );
+                    }
+                }
+                
+                previous-result() => {
+                    if root.current-search-result > 0 {
+                        root.current-search-result -= 1;
+                        root.search-result-selected(
+                            root.search-results[root.current-search-result].page-number,
+                            root.search-results[root.current-search-result].position
+                        );
+                    }
+                }
+                
+                close-search() => {
+                    root.search-panel-visible = false;
+                }
+            }
+        }
+        
+        // Status bar
+        status-bar := Rectangle {
+            height: 24px;
+            background: ReadingThemes.surface;
+            border-width: 1px 0px 0px 0px;
+            border-color: ReadingThemes.border-color;
+            
+            HorizontalLayout {
+                padding-left: 16px;
+                padding-right: 16px;
+                padding-top: 4px;
+                padding-bottom: 4px;
+                spacing: 16px;
+                alignment: center;
+                
+                // Status text
+                status-text := Text {
+                    text: books.length + " books loaded";
+                    font-size: 10px;
+                    color: ReadingThemes.text-secondary;
+                }
+                
+                Rectangle {
+                    horizontal-stretch: 1;
+                }
+                
+                // Performance indicator
+                if show-performance-overlay: perf-indicator := HorizontalLayout {
+                    spacing: 8px;
+                    alignment: center;
+                    
+                    Text {
+                        text: "FPS: " + round(performance-metrics.current-fps);
+                        font-size: 10px;
+                        color: performance-metrics.current-fps > 55 ? #4CAF50 : 
+                               (performance-metrics.current-fps > 30 ? #FF9800 : #F44336);
+                    }
+                    
+                    Text {
+                        text: "Memory: " + round(performance-metrics.memory-usage-mb) + "MB";
+                        font-size: 10px;
+                        color: performance-metrics.memory-usage-mb < 200 ? #4CAF50 : 
+                               (performance-metrics.memory-usage-mb < 400 ? #FF9800 : #F44336);
+                    }
+                    
+                    Text {
+                        text: "Cache: " + round(performance-metrics.cache-hit-rate * 100) + "%";
+                        font-size: 10px;
+                        color: performance-metrics.cache-hit-rate > 0.8 ? #4CAF50 : 
+                               (performance-metrics.cache-hit-rate > 0.6 ? #FF9800 : #F44336);
+                    }
+                }
+            }
+        }
+    }
+    
+    // Keyboard shortcuts
+    forward-focus: FocusScope {
+        key-pressed(event) => {
+            if event.text == Key.F3 || (event.modifiers.control && event.text == "f") {
+                root.search-panel-visible = !root.search-panel-visible;
+                return accept;
+            }
+            
+            if event.text == Key.F5 {
+                root.refresh-library();
+                return accept;
+            }
+            
+            if event.modifiers.control && event.text == "=" {
+                if root.items-per-row < 10 {
+                    root.items-per-row += 1;
+                    root.grid-config-changed(root.items-per-row);
+                }
+                return accept;
+            }
+            
+            if event.modifiers.control && event.text == "-" {
+                if root.items-per-row > 3 {
+                    root.items-per-row -= 1;
+                    root.grid-config-changed(root.items-per-row);
+                }
+                return accept;
+            }
+            
+            return reject;
+        }
+    }
+}

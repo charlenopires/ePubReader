@@ -1,0 +1,11 @@
+/Users/fazapp/projects/opensource/ePubReader/target/debug/deps/getrandom-f61189ce70d8bbe7.d: /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/getrandom-0.3.3/src/lib.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/getrandom-0.3.3/src/backends.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/getrandom-0.3.3/src/error.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/getrandom-0.3.3/src/util.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/getrandom-0.3.3/src/../README.md /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/getrandom-0.3.3/src/backends/getentropy.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/getrandom-0.3.3/src/backends/../util_libc.rs
+
+/Users/fazapp/projects/opensource/ePubReader/target/debug/deps/libgetrandom-f61189ce70d8bbe7.rmeta: /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/getrandom-0.3.3/src/lib.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/getrandom-0.3.3/src/backends.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/getrandom-0.3.3/src/error.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/getrandom-0.3.3/src/util.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/getrandom-0.3.3/src/../README.md /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/getrandom-0.3.3/src/backends/getentropy.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/getrandom-0.3.3/src/backends/../util_libc.rs
+
+/Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/getrandom-0.3.3/src/lib.rs:
+/Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/getrandom-0.3.3/src/backends.rs:
+/Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/getrandom-0.3.3/src/error.rs:
+/Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/getrandom-0.3.3/src/util.rs:
+/Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/getrandom-0.3.3/src/../README.md:
+/Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/getrandom-0.3.3/src/backends/getentropy.rs:
+/Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/getrandom-0.3.3/src/backends/../util_libc.rs:

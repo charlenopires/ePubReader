@@ -1,0 +1,459 @@
+// Page transition animations for the reading view
+
+export component PageTransition inherits Rectangle {
+    in property <string> current-content: "";
+    in property <string> next-content: "";
+    in property <bool> is-transitioning: false;
+    in property <string> transition-type: "fade"; // "fade", "slide", "flip", "curl", "none"
+    in property <int> duration: 300; // milliseconds
+    in property <bool> forward: true; // true for next page, false for previous
+    
+    callback transition-finished();
+    
+    width: 100%;
+    height: 100%;
+    clip: true;
+    
+    // Fade transition
+    if transition-type == "fade": fade-transition := Rectangle {
+        width: 100%;
+        height: 100%;
+        
+        // Current page
+        current-page := Rectangle {
+            width: 100%;
+            height: 100%;
+            opacity: is-transitioning ? 0.0 : 1.0;
+            
+            animate opacity {
+                duration: root.duration * 1ms;
+                easing: ease-out;
+            }
+            
+            Text {
+                text: root.current-content;
+                color: #000000;
+                font-size: 16px;
+                wrap: word-wrap;
+                padding: 20px;
+            }
+        }
+        
+        // Next page
+        if is-transitioning: next-page := Rectangle {
+            width: 100%;
+            height: 100%;
+            opacity: is-transitioning ? 1.0 : 0.0;
+            
+            animate opacity {
+                duration: root.duration * 1ms;
+                easing: ease-out;
+            }
+            
+            Text {
+                text: root.next-content;
+                color: #000000;
+                font-size: 16px;
+                wrap: word-wrap;
+                padding: 20px;
+            }
+        }
+    }
+    
+    // Slide transition
+    if transition-type == "slide": slide-transition := Rectangle {
+        width: 100%;
+        height: 100%;
+        
+        // Current page
+        current-page := Rectangle {
+            width: 100%;
+            height: 100%;
+            x: is-transitioning ? (forward ? -100% : 100%) : 0px;
+            
+            animate x {
+                duration: root.duration * 1ms;
+                easing: ease-in-out;
+            }
+            
+            Text {
+                text: root.current-content;
+                color: #000000;
+                font-size: 16px;
+                wrap: word-wrap;
+                padding: 20px;
+            }
+        }
+        
+        // Next page
+        if is-transitioning: next-page := Rectangle {
+            width: 100%;
+            height: 100%;
+            x: is-transitioning ? 0px : (forward ? 100% : -100%);
+            
+            animate x {
+                duration: root.duration * 1ms;
+                easing: ease-in-out;
+            }
+            
+            Text {
+                text: root.next-content;
+                color: #000000;
+                font-size: 16px;
+                wrap: word-wrap;
+                padding: 20px;
+            }
+        }
+    }
+    
+    // Flip transition
+    if transition-type == "flip": flip-transition := Rectangle {
+        width: 100%;
+        height: 100%;
+        
+        // Current page
+        current-page := Rectangle {
+            width: 100%;
+            height: 100%;
+            property <angle> rotation: is-transitioning ? (forward ? 90deg : -90deg) : 0deg;
+            
+            animate rotation {
+                duration: root.duration * 1ms;
+                easing: ease-in-out;
+            }
+            
+            // Apply 3D rotation effect (simplified)
+            transform: rotate(rotation);
+            opacity: abs(rotation / 90deg) < 0.5 ? 1.0 : 0.0;
+            
+            Text {
+                text: root.current-content;
+                color: #000000;
+                font-size: 16px;
+                wrap: word-wrap;
+                padding: 20px;
+            }
+        }
+        
+        // Next page
+        if is-transitioning: next-page := Rectangle {
+            width: 100%;
+            height: 100%;
+            property <angle> rotation: is-transitioning ? 0deg : (forward ? -90deg : 90deg);
+            
+            animate rotation {
+                duration: root.duration * 1ms;
+                easing: ease-in-out;
+            }
+            
+            transform: rotate(rotation);
+            opacity: abs(rotation / 90deg) < 0.5 ? 1.0 : 0.0;
+            
+            Text {
+                text: root.next-content;
+                color: #000000;
+                font-size: 16px;
+                wrap: word-wrap;
+                padding: 20px;
+            }
+        }
+    }
+    
+    // Curl transition (page curl effect)
+    if transition-type == "curl": curl-transition := Rectangle {
+        width: 100%;
+        height: 100%;
+        
+        // Current page
+        current-page := Rectangle {
+            width: 100%;
+            height: 100%;
+            
+            // Curl effect using gradient and rotation
+            property <float> curl-progress: is-transitioning ? 1.0 : 0.0;
+            property <angle> curl-angle: curl-progress * 180deg;
+            
+            animate curl-progress {
+                duration: root.duration * 1ms;
+                easing: ease-in-out;
+            }
+            
+            // Create curl effect with clipping
+            clip: true;
+            
+            // Main content
+            content-rect := Rectangle {
+                width: 100% - curl-progress * 50%;
+                height: 100%;
+                
+                Text {
+                    text: root.current-content;
+                    color: #000000;
+                    font-size: 16px;
+                    wrap: word-wrap;
+                    padding: 20px;
+                }
+            }
+            
+            // Curl shadow
+            if curl-progress > 0: curl-shadow := Rectangle {
+                width: curl-progress * 20px;
+                height: 100%;
+                x: 100% - curl-progress * 50% - 20px;
+                background: linear-gradient(90deg, transparent, #00000030);
+            }
+        }
+        
+        // Next page (visible through curl)
+        if is-transitioning: next-page := Rectangle {
+            width: 100%;
+            height: 100%;
+            x: 50%;
+            opacity: current-page.curl-progress * 0.5;
+            
+            Text {
+                text: root.next-content;
+                color: #000000;
+                font-size: 16px;
+                wrap: word-wrap;
+                padding: 20px;
+            }
+        }
+    }
+    
+    // No transition
+    if transition-type == "none": no-transition := Rectangle {
+        width: 100%;
+        height: 100%;
+        
+        Text {
+            text: is-transitioning ? root.next-content : root.current-content;
+            color: #000000;
+            font-size: 16px;
+            wrap: word-wrap;
+            padding: 20px;
+        }
+    }
+    
+    // Transition completion timer
+    if is-transitioning: transition-timer := Rectangle {
+        width: 0;
+        height: 0;
+        
+        // Use a property animation to trigger completion
+        property <float> progress: 1.0;
+        
+        animate progress {
+            duration: root.duration * 1ms;
+            easing: linear;
+        }
+        
+        // When animation completes, emit signal
+        changed progress => {
+            if (progress >= 1.0) {
+                root.transition-finished();
+            }
+        }
+    }
+}
+
+// Enhanced page transition with reading-specific features
+export component ReadingPageTransition inherits Rectangle {
+    in property <string> current-content: "";
+    in property <string> next-content: "";
+    in property <bool> is-transitioning: false;
+    in property <string> transition-type: "fade";
+    in property <int> duration: 300;
+    in property <bool> forward: true;
+    
+    // Reading-specific properties
+    in property <color> background-color: #FFFFFF;
+    in property <color> text-color: #000000;
+    in property <int> font-size: 16;
+    in property <float> line-height: 1.5;
+    in property <string> font-family: "Default";
+    in property <int> margin-horizontal: 40;
+    in property <int> margin-vertical: 40;
+    in property <bool> two-column-mode: false;
+    
+    callback transition-finished();
+    
+    width: 100%;
+    height: 100%;
+    background: root.background-color;
+    clip: true;
+    
+    // Use the base transition component
+    page-transition := PageTransition {
+        current-content: root.current-content;
+        next-content: root.next-content;
+        is-transitioning: root.is-transitioning;
+        transition-type: root.transition-type;
+        duration: root.duration;
+        forward: root.forward;
+        
+        transition-finished => {
+            root.transition-finished();
+        }
+    }
+    
+    // Override the content rendering for reading-specific formatting
+    if transition-type == "fade": fade-content := Rectangle {
+        width: 100%;
+        height: 100%;
+        
+        // Current page with reading formatting
+        current-formatted := Rectangle {
+            width: 100%;
+            height: 100%;
+            opacity: is-transitioning ? 0.0 : 1.0;
+            background: root.background-color;
+            
+            animate opacity {
+                duration: root.duration * 1ms;
+                easing: ease-out;
+            }
+            
+            // Single or two-column layout
+            if !two-column-mode: single-column := Rectangle {
+                width: 100%;
+                height: 100%;
+                
+                VerticalLayout {
+                    padding-top: root.margin-vertical * 1px;
+                    padding-bottom: root.margin-vertical * 1px;
+                    padding-left: root.margin-horizontal * 1px;
+                    padding-right: root.margin-horizontal * 1px;
+                    
+                    Text {
+                        text: root.current-content;
+                        color: root.text-color;
+                        font-size: root.font-size * 1px;
+                        font-family: root.font-family;
+                        line-height: root.line-height;
+                        wrap: word-wrap;
+                        horizontal-alignment: left;
+                        vertical-alignment: top;
+                    }
+                }
+            }
+            
+            if two-column-mode: two-column := HorizontalLayout {
+                padding-top: root.margin-vertical * 1px;
+                padding-bottom: root.margin-vertical * 1px;
+                padding-left: root.margin-horizontal * 1px;
+                padding-right: root.margin-horizontal * 1px;
+                spacing: 32px;
+                
+                // Left column
+                Rectangle {
+                    width: 50%;
+                    
+                    Text {
+                        text: root.current-content; // Would be split appropriately
+                        color: root.text-color;
+                        font-size: root.font-size * 1px;
+                        font-family: root.font-family;
+                        line-height: root.line-height;
+                        wrap: word-wrap;
+                        horizontal-alignment: left;
+                        vertical-alignment: top;
+                    }
+                }
+                
+                // Right column
+                Rectangle {
+                    width: 50%;
+                    
+                    Text {
+                        text: ""; // Second half of content
+                        color: root.text-color;
+                        font-size: root.font-size * 1px;
+                        font-family: root.font-family;
+                        line-height: root.line-height;
+                        wrap: word-wrap;
+                        horizontal-alignment: left;
+                        vertical-alignment: top;
+                    }
+                }
+            }
+        }
+        
+        // Next page with reading formatting
+        if is-transitioning: next-formatted := Rectangle {
+            width: 100%;
+            height: 100%;
+            opacity: is-transitioning ? 1.0 : 0.0;
+            background: root.background-color;
+            
+            animate opacity {
+                duration: root.duration * 1ms;
+                easing: ease-out;
+            }
+            
+            // Single or two-column layout
+            if !two-column-mode: single-column := Rectangle {
+                width: 100%;
+                height: 100%;
+                
+                VerticalLayout {
+                    padding-top: root.margin-vertical * 1px;
+                    padding-bottom: root.margin-vertical * 1px;
+                    padding-left: root.margin-horizontal * 1px;
+                    padding-right: root.margin-horizontal * 1px;
+                    
+                    Text {
+                        text: root.next-content;
+                        color: root.text-color;
+                        font-size: root.font-size * 1px;
+                        font-family: root.font-family;
+                        line-height: root.line-height;
+                        wrap: word-wrap;
+                        horizontal-alignment: left;
+                        vertical-alignment: top;
+                    }
+                }
+            }
+            
+            if two-column-mode: two-column := HorizontalLayout {
+                padding-top: root.margin-vertical * 1px;
+                padding-bottom: root.margin-vertical * 1px;
+                padding-left: root.margin-horizontal * 1px;
+                padding-right: root.margin-horizontal * 1px;
+                spacing: 32px;
+                
+                // Left column
+                Rectangle {
+                    width: 50%;
+                    
+                    Text {
+                        text: root.next-content; // Would be split appropriately
+                        color: root.text-color;
+                        font-size: root.font-size * 1px;
+                        font-family: root.font-family;
+                        line-height: root.line-height;
+                        wrap: word-wrap;
+                        horizontal-alignment: left;
+                        vertical-alignment: top;
+                    }
+                }
+                
+                // Right column
+                Rectangle {
+                    width: 50%;
+                    
+                    Text {
+                        text: ""; // Second half of content
+                        color: root.text-color;
+                        font-size: root.font-size * 1px;
+                        font-family: root.font-family;
+                        line-height: root.line-height;
+                        wrap: word-wrap;
+                        horizontal-alignment: left;
+                        vertical-alignment: top;
+                    }
+                }
+            }
+        }
+    }
+}

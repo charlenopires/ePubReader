@@ -1,0 +1,765 @@
+import { ReadingThemes } from "../styles/reading_themes.slint";
+import { ThemedButton } from "../styles/themes.slint";
+
+export struct SearchResult {
+    page_number: int,
+    position: int,
+    context: string,
+    match_text: string,
+    before_text: string,
+    after_text: string,
+    chapter_title: string,
+}
+
+export component SearchPanel inherits Rectangle {
+    in property <bool> visible: false;
+    in-out property <string> search_query: "";
+    in property <[SearchResult]> results: [];
+    in property <int> current_result_index: -1;
+    in property <bool> is_searching: false;
+    in property <bool> case_sensitive: false;
+    in property <bool> whole_words: false;
+    in property <bool> regex_mode: false;
+    
+    callback search_triggered(string);
+    callback result_clicked(int /* page */, int /* position */);
+    callback next_result();
+    callback previous_result();
+    callback close_search();
+    callback toggle_case_sensitive();
+    callback toggle_whole_words();
+    callback toggle_regex_mode();
+    
+    // Panel dimensions
+    width: visible ? 400px : 0px;
+    height: parent.height;
+    background: ReadingThemes.sidebar-background;
+    border-width: 1px 0px 0px 0px;
+    border-color: ReadingThemes.border-color;
+    
+    // Smooth expand/collapse animation
+    animate width {
+        duration: 300ms;
+        easing: ease-in-out;
+    }
+    
+    if visible: content := VerticalLayout {
+        // Header
+        header := Rectangle {
+            height: 60px;
+            background: ReadingThemes.header-color;
+            border-width: 0px 0px 1px 0px;
+            border-color: ReadingThemes.border-color;
+            
+            HorizontalLayout {
+                padding: 12px;
+                spacing: 8px;
+                alignment: center;
+                
+                Text {
+                    text: "📖 Search in Book";
+                    font-size: 16px;
+                    font-weight: 600;
+                    color: ReadingThemes.text-color;
+                    horizontal-stretch: 1;
+                }
+                
+                // Close button
+                close-btn := Rectangle {
+                    width: 32px;
+                    height: 32px;
+                    background: close-area.has-hover ? ReadingThemes.accent-color : transparent;
+                    border-radius: 16px;
+                    
+                    Text {
+                        text: "×";
+                        font-size: 18px;
+                        color: close-area.has-hover ? #FFFFFF : ReadingThemes.text-color;
+                        horizontal-alignment: center;
+                        vertical-alignment: center;
+                    }
+                    
+                    close-area := TouchArea {
+                        clicked => {
+                            root.close-search();
+                        }
+                        mouse-cursor: pointer;
+                    }
+                    
+                    animate background {
+                        duration: 150ms;
+                        easing: ease-out;
+                    }
+                }
+            }
+        }
+        
+        // Search input area
+        search-area := Rectangle {
+            height: 120px;
+            background: ReadingThemes.surface;
+            border-width: 0px 0px 1px 0px;
+            border-color: ReadingThemes.border-color;
+            
+            VerticalLayout {
+                padding: 12px;
+                spacing: 8px;
+                
+                // Search input
+                search-input-container := Rectangle {
+                    height: 36px;
+                    background: ReadingThemes.background-color;
+                    border-width: 1px;
+                    border-color: ReadingThemes.border-color;
+                    border-radius: 6px;
+                    
+                    HorizontalLayout {
+                        padding: 8px;
+                        spacing: 8px;
+                        alignment: center;
+                        
+                        Text {
+                            text: "🔍";
+                            font-size: 14px;
+                            color: ReadingThemes.text-secondary;
+                        }
+                        
+                        search-input := TextInput {
+                            text: root.search-query;
+                            placeholder_text: "Search text...";
+                            font-size: 14px;
+                            color: ReadingThemes.text-color;
+                            horizontal-stretch: 1;
+                            
+                            edited => {
+                                root.search-query = self.text;
+                                // Debounced search will be handled in the backend
+                                if self.text.length > 2 {
+                                    root.search-triggered(self.text);
+                                }
+                            }
+                            
+                            accepted => {
+                                root.search-triggered(self.text);
+                            }
+                        }
+                        
+                        // Search button
+                        search-btn := Rectangle {
+                            width: 28px;
+                            height: 28px;
+                            background: search-btn-area.has-hover ? ReadingThemes.accent-color : transparent;
+                            border-radius: 4px;
+                            
+                            Text {
+                                text: "⏎";
+                                font-size: 12px;
+                                color: search-btn-area.has-hover ? #FFFFFF : ReadingThemes.text-secondary;
+                                horizontal-alignment: center;
+                                vertical-alignment: center;
+                            }
+                            
+                            search-btn-area := TouchArea {
+                                clicked => {
+                                    root.search-triggered(root.search-query);
+                                }
+                                mouse-cursor: pointer;
+                            }
+                            
+                            animate background {
+                                duration: 150ms;
+                                easing: ease-out;
+                            }
+                        }
+                    }
+                }
+                
+                // Search options
+                search-options := HorizontalLayout {
+                    spacing: 8px;
+                    alignment: center;
+                    
+                    // Case sensitive toggle
+                    case-sensitive-toggle := Rectangle {
+                        width: 24px;
+                        height: 24px;
+                        background: case-sensitive ? ReadingThemes.accent-color : ReadingThemes.background-color;
+                        border-width: 1px;
+                        border-color: ReadingThemes.border-color;
+                        border-radius: 4px;
+                        
+                        Text {
+                            text: "Aa";
+                            font-size: 10px;
+                            font-weight: 600;
+                            color: case-sensitive ? #FFFFFF : ReadingThemes.text-secondary;
+                            horizontal-alignment: center;
+                            vertical-alignment: center;
+                        }
+                        
+                        case-sensitive-area := TouchArea {
+                            clicked => {
+                                root.toggle-case-sensitive();
+                            }
+                            mouse-cursor: pointer;
+                        }
+                        
+                        animate background {
+                            duration: 150ms;
+                            easing: ease-out;
+                        }
+                    }
+                    
+                    Text {
+                        text: "Case";
+                        font-size: 10px;
+                        color: ReadingThemes.text-secondary;
+                    }
+                    
+                    // Whole words toggle
+                    whole-words-toggle := Rectangle {
+                        width: 24px;
+                        height: 24px;
+                        background: whole-words ? ReadingThemes.accent-color : ReadingThemes.background-color;
+                        border-width: 1px;
+                        border-color: ReadingThemes.border-color;
+                        border-radius: 4px;
+                        
+                        Text {
+                            text: "W";
+                            font-size: 10px;
+                            font-weight: 600;
+                            color: whole-words ? #FFFFFF : ReadingThemes.text-secondary;
+                            horizontal-alignment: center;
+                            vertical-alignment: center;
+                        }
+                        
+                        whole-words-area := TouchArea {
+                            clicked => {
+                                root.toggle-whole-words();
+                            }
+                            mouse-cursor: pointer;
+                        }
+                        
+                        animate background {
+                            duration: 150ms;
+                            easing: ease-out;
+                        }
+                    }
+                    
+                    Text {
+                        text: "Word";
+                        font-size: 10px;
+                        color: ReadingThemes.text-secondary;
+                    }
+                    
+                    // Regex toggle
+                    regex-toggle := Rectangle {
+                        width: 24px;
+                        height: 24px;
+                        background: regex-mode ? ReadingThemes.accent-color : ReadingThemes.background-color;
+                        border-width: 1px;
+                        border-color: ReadingThemes.border-color;
+                        border-radius: 4px;
+                        
+                        Text {
+                            text: ".*";
+                            font-size: 8px;
+                            font-weight: 600;
+                            color: regex-mode ? #FFFFFF : ReadingThemes.text-secondary;
+                            horizontal-alignment: center;
+                            vertical-alignment: center;
+                        }
+                        
+                        regex-area := TouchArea {
+                            clicked => {
+                                root.toggle-regex-mode();
+                            }
+                            mouse-cursor: pointer;
+                        }
+                        
+                        animate background {
+                            duration: 150ms;
+                            easing: ease-out;
+                        }
+                    }
+                    
+                    Text {
+                        text: "Regex";
+                        font-size: 10px;
+                        color: ReadingThemes.text-secondary;
+                    }
+                    
+                    Rectangle {
+                        horizontal-stretch: 1;
+                    }
+                }
+                
+                // Results summary and navigation
+                results-nav := HorizontalLayout {
+                    spacing: 8px;
+                    alignment: center;
+                    
+                    // Loading indicator
+                    if is-searching: loading-indicator := Rectangle {
+                        width: 20px;
+                        height: 20px;
+                        
+                        Text {
+                            text: "⏳";
+                            font-size: 12px;
+                            color: ReadingThemes.text-secondary;
+                            horizontal-alignment: center;
+                            vertical-alignment: center;
+                        }
+                    }
+                    
+                    // Results count
+                    results-count := Text {
+                        text: results.length == 0 ? "No results" : 
+                              current-result-index == -1 ? results.length + " results" :
+                              (current-result-index + 1) + " of " + results.length;
+                        font-size: 12px;
+                        color: ReadingThemes.text-secondary;
+                        horizontal-stretch: 1;
+                    }
+                    
+                    // Navigation buttons
+                    if results.length > 0: nav-buttons := HorizontalLayout {
+                        spacing: 4px;
+                        
+                        // Previous button
+                        prev-btn := Rectangle {
+                            width: 24px;
+                            height: 24px;
+                            background: prev-btn-area.has-hover ? ReadingThemes.accent-color : ReadingThemes.background-color;
+                            border-width: 1px;
+                            border-color: ReadingThemes.border-color;
+                            border-radius: 4px;
+                            
+                            Text {
+                                text: "↑";
+                                font-size: 12px;
+                                color: prev-btn-area.has-hover ? #FFFFFF : ReadingThemes.text-secondary;
+                                horizontal-alignment: center;
+                                vertical-alignment: center;
+                            }
+                            
+                            prev-btn-area := TouchArea {
+                                clicked => {
+                                    root.previous-result();
+                                }
+                                mouse-cursor: pointer;
+                            }
+                            
+                            animate background {
+                                duration: 150ms;
+                                easing: ease-out;
+                            }
+                        }
+                        
+                        // Next button
+                        next-btn := Rectangle {
+                            width: 24px;
+                            height: 24px;
+                            background: next-btn-area.has-hover ? ReadingThemes.accent-color : ReadingThemes.background-color;
+                            border-width: 1px;
+                            border-color: ReadingThemes.border-color;
+                            border-radius: 4px;
+                            
+                            Text {
+                                text: "↓";
+                                font-size: 12px;
+                                color: next-btn-area.has-hover ? #FFFFFF : ReadingThemes.text-secondary;
+                                horizontal-alignment: center;
+                                vertical-alignment: center;
+                            }
+                            
+                            next-btn-area := TouchArea {
+                                clicked => {
+                                    root.next-result();
+                                }
+                                mouse-cursor: pointer;
+                            }
+                            
+                            animate background {
+                                duration: 150ms;
+                                easing: ease-out;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        // Results list
+        results-area := Rectangle {
+            vertical-stretch: 1;
+            background: ReadingThemes.background-color;
+            
+            if results.length > 0: results-list := ScrollView {
+                VerticalLayout {
+                    spacing: 4px;
+                    padding: 8px;
+                    
+                    for result[i] in results: SearchResultItem {
+                        result-data: result;
+                        result-index: i;
+                        is-current: current-result-index == i;
+                        
+                        clicked => {
+                            root.result-clicked(result.page-number, result.position);
+                        }
+                    }
+                }
+            }
+            
+            // Empty state
+            if results.length == 0 && search-query.length > 0 && !is-searching: empty-state := Rectangle {
+                background: ReadingThemes.surface;
+                border-radius: 8px;
+                margin: 16px;
+                
+                VerticalLayout {
+                    alignment: center;
+                    spacing: 8px;
+                    
+                    Text {
+                        text: "🔍";
+                        font-size: 48px;
+                        horizontal-alignment: center;
+                        opacity: 0.5;
+                    }
+                    
+                    Text {
+                        text: "No results found";
+                        font-size: 16px;
+                        font-weight: 600;
+                        color: ReadingThemes.text-color;
+                        horizontal-alignment: center;
+                    }
+                    
+                    Text {
+                        text: "Try adjusting your search terms or options";
+                        font-size: 12px;
+                        color: ReadingThemes.text-secondary;
+                        horizontal-alignment: center;
+                    }
+                }
+            }
+            
+            // Initial state
+            if search-query.length == 0: initial-state := Rectangle {
+                background: ReadingThemes.surface;
+                border-radius: 8px;
+                margin: 16px;
+                
+                VerticalLayout {
+                    alignment: center;
+                    spacing: 8px;
+                    
+                    Text {
+                        text: "📖";
+                        font-size: 48px;
+                        horizontal-alignment: center;
+                        opacity: 0.5;
+                    }
+                    
+                    Text {
+                        text: "Search in Book";
+                        font-size: 16px;
+                        font-weight: 600;
+                        color: ReadingThemes.text-color;
+                        horizontal-alignment: center;
+                    }
+                    
+                    Text {
+                        text: "Enter search terms to find content\nwithin the current book";
+                        font-size: 12px;
+                        color: ReadingThemes.text-secondary;
+                        horizontal-alignment: center;
+                    }
+                }
+            }
+        }
+        
+        // Footer with shortcuts
+        footer := Rectangle {
+            height: 40px;
+            background: ReadingThemes.surface;
+            border-width: 1px 0px 0px 0px;
+            border-color: ReadingThemes.border-color;
+            
+            HorizontalLayout {
+                padding-left: 12px;
+                padding-right: 12px;
+                padding-top: 8px;
+                padding-bottom: 8px;
+                spacing: 12px;
+                alignment: center;
+                
+                Text {
+                    text: "Shortcuts:";
+                    font-size: 10px;
+                    font-weight: 600;
+                    color: ReadingThemes.text-secondary;
+                }
+                
+                Text {
+                    text: "Enter - Search";
+                    font-size: 10px;
+                    color: ReadingThemes.text-tertiary;
+                }
+                
+                Text {
+                    text: "↑↓ - Navigate";
+                    font-size: 10px;
+                    color: ReadingThemes.text-tertiary;
+                }
+                
+                Text {
+                    text: "Esc - Close";
+                    font-size: 10px;
+                    color: ReadingThemes.text-tertiary;
+                }
+                
+                Rectangle {
+                    horizontal-stretch: 1;
+                }
+            }
+        }
+    }
+}
+
+// Individual search result item
+component SearchResultItem inherits Rectangle {
+    in property <SearchResult> result-data;
+    in property <int> result-index;
+    in property <bool> is-current: false;
+    
+    callback clicked();
+    
+    property <bool> hovered: touch-area.has-hover;
+    
+    height: 80px;
+    background: is-current ? ReadingThemes.accent-color : 
+                (hovered ? ReadingThemes.hover-background : ReadingThemes.surface);
+    border-radius: 6px;
+    border-width: 1px;
+    border-color: is-current ? ReadingThemes.accent-color : ReadingThemes.border-color;
+    margin: 2px;
+    
+    animate background {
+        duration: 150ms;
+        easing: ease-out;
+    }
+    
+    VerticalLayout {
+        padding: 8px;
+        spacing: 4px;
+        
+        // Header with page and chapter info
+        header := HorizontalLayout {
+            spacing: 8px;
+            alignment: center;
+            
+            // Page number
+            page-badge := Rectangle {
+                width: page-text.preferred-width + 8px;
+                height: 18px;
+                background: ReadingThemes.accent-color;
+                border-radius: 9px;
+                
+                page-text := Text {
+                    text: "p. " + result-data.page-number;
+                    font-size: 9px;
+                    color: #FFFFFF;
+                    horizontal-alignment: center;
+                    vertical-alignment: center;
+                }
+            }
+            
+            // Chapter title
+            chapter-title := Text {
+                text: result-data.chapter-title;
+                font-size: 10px;
+                color: is-current ? #FFFFFF : ReadingThemes.text-secondary;
+                horizontal-stretch: 1;
+                overflow: elide;
+            }
+            
+            // Result number
+            result-number := Text {
+                text: "#" + (result-index + 1);
+                font-size: 9px;
+                color: is-current ? rgba(255, 255, 255, 0.7) : ReadingThemes.text-tertiary;
+            }
+        }
+        
+        // Search result context
+        context := Rectangle {
+            height: 40px;
+            background: is-current ? rgba(255, 255, 255, 0.1) : ReadingThemes.background-color;
+            border-radius: 4px;
+            border-width: 1px;
+            border-color: is-current ? rgba(255, 255, 255, 0.2) : ReadingThemes.border-color;
+            
+            HorizontalLayout {
+                padding: 6px;
+                spacing: 0px;
+                alignment: center;
+                
+                // Before text
+                before-text := Text {
+                    text: result-data.before-text;
+                    font-size: 11px;
+                    color: is-current ? rgba(255, 255, 255, 0.8) : ReadingThemes.text-secondary;
+                    wrap: word-wrap;
+                    overflow: elide;
+                }
+                
+                // Matched text (highlighted)
+                match-text := Text {
+                    text: result-data.match-text;
+                    font-size: 11px;
+                    font-weight: 600;
+                    color: is-current ? #FFFFFF : ReadingThemes.accent-color;
+                    background: is-current ? rgba(255, 255, 255, 0.2) : ReadingThemes.accent-color-light;
+                    border-radius: 2px;
+                    padding-left: 2px;
+                    padding-right: 2px;
+                    padding-top: 1px;
+                    padding-bottom: 1px;
+                }
+                
+                // After text
+                after-text := Text {
+                    text: result-data.after-text;
+                    font-size: 11px;
+                    color: is-current ? rgba(255, 255, 255, 0.8) : ReadingThemes.text-secondary;
+                    wrap: word-wrap;
+                    overflow: elide;
+                }
+                
+                Rectangle {
+                    horizontal-stretch: 1;
+                }
+            }
+        }
+    }
+    
+    touch-area := TouchArea {
+        clicked => {
+            root.clicked();
+        }
+        mouse-cursor: pointer;
+    }
+}
+
+// Search highlight overlay for the reading view
+export component SearchHighlightOverlay inherits Rectangle {
+    in property <[SearchResult]> results;
+    in property <int> current_page: 1;
+    in property <int> current_result_index: -1;
+    in property <string> search_query: "";
+    
+    background: transparent;
+    
+    // Highlight overlays for current page results
+    for result[i] in results: if result.page-number == current-page: highlight-overlay := Rectangle {
+        // Position calculation would be done by the parent component
+        // This is a simplified representation
+        x: 0px; // Would be calculated based on result.position
+        y: i * 20px; // Simplified positioning
+        width: 200px; // Would be calculated based on text width
+        height: 20px;
+        background: current-result-index == i ? ReadingThemes.accent-color : ReadingThemes.selection-color;
+        opacity: 0.4;
+        border-radius: 2px;
+        
+        animate background {
+            duration: 300ms;
+            easing: ease-out;
+        }
+        
+        // Highlight border for current result
+        if current-result-index == i: border-width: 2px;
+        border-color: ReadingThemes.accent-color;
+    }
+}
+
+// Search widget for quick access
+export component SearchWidget inherits Rectangle {
+    in property <bool> expanded: false;
+    in-out property <string> search_query: "";
+    
+    callback search_requested();
+    callback toggle_expanded();
+    
+    width: expanded ? 250px : 40px;
+    height: 40px;
+    background: ReadingThemes.surface;
+    border-radius: 20px;
+    border-width: 1px;
+    border-color: ReadingThemes.border-color;
+    
+    animate width {
+        duration: 300ms;
+        easing: ease-in-out;
+    }
+    
+    HorizontalLayout {
+        padding: 8px;
+        spacing: 8px;
+        alignment: center;
+        
+        // Search icon
+        search-icon := Rectangle {
+            width: 24px;
+            height: 24px;
+            background: search-icon-area.has-hover ? ReadingThemes.accent-color : transparent;
+            border-radius: 12px;
+            
+            Text {
+                text: "🔍";
+                font-size: 12px;
+                color: search-icon-area.has-hover ? #FFFFFF : ReadingThemes.text-secondary;
+                horizontal-alignment: center;
+                vertical-alignment: center;
+            }
+            
+            search-icon-area := TouchArea {
+                clicked => {
+                    if expanded {
+                        root.search-requested();
+                    } else {
+                        root.toggle-expanded();
+                    }
+                }
+                mouse-cursor: pointer;
+            }
+            
+            animate background {
+                duration: 150ms;
+                easing: ease-out;
+            }
+        }
+        
+        // Search input (only visible when expanded)
+        if expanded: search-input := TextInput {
+            text: root.search-query;
+            placeholder_text: "Search in book...";
+            font-size: 12px;
+            color: ReadingThemes.text-color;
+            horizontal-stretch: 1;
+            
+            edited => {
+                root.search-query = self.text;
+            }
+            
+            accepted => {
+                root.search-requested();
+            }
+        }
+    }
+}

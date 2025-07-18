@@ -1,3 +1,3 @@
 fn main() {
-    tauri_build::build()
+    slint_build::compile("src/ui/main_window.slint").unwrap();
 }

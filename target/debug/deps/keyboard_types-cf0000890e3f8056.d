@@ -1,0 +1,11 @@
+/Users/fazapp/projects/opensource/ePubReader/target/debug/deps/keyboard_types-cf0000890e3f8056.d: /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/keyboard-types-0.7.0/src/lib.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/keyboard-types-0.7.0/src/code.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/keyboard-types-0.7.0/src/key.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/keyboard-types-0.7.0/src/location.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/keyboard-types-0.7.0/src/modifiers.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/keyboard-types-0.7.0/src/shortcuts.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/keyboard-types-0.7.0/src/webdriver.rs
+
+/Users/fazapp/projects/opensource/ePubReader/target/debug/deps/libkeyboard_types-cf0000890e3f8056.rmeta: /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/keyboard-types-0.7.0/src/lib.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/keyboard-types-0.7.0/src/code.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/keyboard-types-0.7.0/src/key.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/keyboard-types-0.7.0/src/location.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/keyboard-types-0.7.0/src/modifiers.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/keyboard-types-0.7.0/src/shortcuts.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/keyboard-types-0.7.0/src/webdriver.rs
+
+/Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/keyboard-types-0.7.0/src/lib.rs:
+/Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/keyboard-types-0.7.0/src/code.rs:
+/Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/keyboard-types-0.7.0/src/key.rs:
+/Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/keyboard-types-0.7.0/src/location.rs:
+/Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/keyboard-types-0.7.0/src/modifiers.rs:
+/Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/keyboard-types-0.7.0/src/shortcuts.rs:
+/Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/keyboard-types-0.7.0/src/webdriver.rs:

@@ -1,0 +1,371 @@
+import { Theme, ThemedButton, ThemedTextInput } from "styles/themes.slint";
+import { BookGrid, BookViewModel } from "components/book_grid.slint";
+
+export component AppWindow inherits Window {
+    preferred-width: 1400px;
+    preferred-height: 900px;
+    title: "Ebook Reader";
+    
+    // Properties
+    in-out property <[BookViewModel]> books;
+    in-out property <string> current-view: "library"; // "library", "reading", "settings"
+    in-out property <string> current-view-mode: "grid"; // "grid", "list", "large-cover"
+    in-out property <string> current-theme: "light";
+    in-out property <bool> loading: false;
+    in-out property <string> search-query: "";
+    
+    // Current book properties
+    in-out property <string> current-book-title: "";
+    in-out property <string> current-book-author: "";
+    in-out property <float> current-book-progress: 0.0;
+    
+    // Callbacks
+    callback book-selected(BookViewModel);
+    callback open-file();
+    callback search-books(string);
+    callback change-view-mode(string);
+    callback change-theme(string);
+    
+    // Initialize theme
+    init => {
+        Theme.switch-theme(current-theme);
+    }
+    
+    // Main layout
+    background: Theme.background;
+    
+    VerticalLayout {
+        // Header
+        header := Rectangle {
+            height: 60px;
+            background: Theme.surface;
+            drop-shadow-blur: 2px;
+            drop-shadow-color: Theme.shadow-light;
+            drop-shadow-offset-y: 1px;
+            
+            HorizontalLayout {
+                padding: 16px;
+                spacing: 16px;
+                alignment: center;
+                
+                // Logo/Title
+                Text {
+                    text: "Ebook Reader";
+                    font-size: 20px;
+                    font-weight: 700;
+                    color: Theme.text-primary;
+                    vertical-alignment: center;
+                }
+                
+                Rectangle {
+                    width: 1px;
+                    height: 30px;
+                    background: Theme.card-border;
+                }
+                
+                // Search bar
+                search-container := Rectangle {
+                    width: 300px;
+                    height: 36px;
+                    
+                    ThemedTextInput {
+                        width: 100%;
+                        height: 100%;
+                        text: root.search-query;
+                        placeholder_text: "Search books...";
+                        
+                        accepted(query) => {
+                            root.search-query = query;
+                            root.search-books(query);
+                        }
+                        
+                        edited(query) => {
+                            root.search-query = query;
+                            if (query == "") {
+                                root.search-books(query);
+                            }
+                        }
+                    }
+                }
+                
+                // Spacer
+                Rectangle {
+                    horizontal-stretch: 1;
+                }
+                
+                // View mode buttons
+                HorizontalLayout {
+                    spacing: 8px;
+                    
+                    ThemedButton {
+                        text: "Grid";
+                        primary: current-view-mode == "grid";
+                        clicked => {
+                            root.change-view-mode("grid");
+                        }
+                    }
+                    
+                    ThemedButton {
+                        text: "List";
+                        primary: current-view-mode == "list";
+                        clicked => {
+                            root.change-view-mode("list");
+                        }
+                    }
+                    
+                    ThemedButton {
+                        text: "Large";
+                        primary: current-view-mode == "large-cover";
+                        clicked => {
+                            root.change-view-mode("large-cover");
+                        }
+                    }
+                }
+                
+                Rectangle {
+                    width: 1px;
+                    height: 30px;
+                    background: Theme.card-border;
+                }
+                
+                // Theme selector
+                HorizontalLayout {
+                    spacing: 8px;
+                    
+                    ThemedButton {
+                        text: "Light";
+                        primary: current-theme == "light";
+                        clicked => {
+                            root.current-theme = "light";
+                            Theme.switch-theme("light");
+                        }
+                    }
+                    
+                    ThemedButton {
+                        text: "Dark";
+                        primary: current-theme == "dark";
+                        clicked => {
+                            root.current-theme = "dark";
+                            Theme.switch-theme("dark");
+                        }
+                    }
+                    
+                    ThemedButton {
+                        text: "Sepia";
+                        primary: current-theme == "sepia";
+                        clicked => {
+                            root.current-theme = "sepia";
+                            Theme.switch-theme("sepia");
+                        }
+                    }
+                }
+                
+                Rectangle {
+                    width: 1px;
+                    height: 30px;
+                    background: Theme.card-border;
+                }
+                
+                // Add book button
+                ThemedButton {
+                    text: "Add Book";
+                    primary: true;
+                    clicked => {
+                        root.open-file();
+                    }
+                }
+            }
+        }
+        
+        // Main content area
+        main-content := Rectangle {
+            horizontal-stretch: 1;
+            vertical-stretch: 1;
+            background: Theme.background;
+            
+            // Library view
+            if current-view == "library": library-view := BookGrid {
+                books: root.books;
+                view-mode: root.current-view-mode;
+                loading: root.loading;
+                
+                book-selected(book) => {
+                    root.book-selected(book);
+                }
+                
+                load-more => {
+                    // Handle pagination
+                }
+            }
+            
+            // Reading view
+            if current-view == "reading": reading-view := Rectangle {
+                background: Theme.surface;
+                
+                VerticalLayout {
+                    padding: 32px;
+                    spacing: 24px;
+                    
+                    // Back button
+                    HorizontalLayout {
+                        ThemedButton {
+                            text: "← Back to Library";
+                            clicked => {
+                                root.current-view = "library";
+                            }
+                        }
+                        
+                        Rectangle {
+                            horizontal-stretch: 1;
+                        }
+                    }
+                    
+                    // Book info
+                    HorizontalLayout {
+                        spacing: 24px;
+                        alignment: start;
+                        
+                        // Book cover placeholder
+                        Rectangle {
+                            width: 200px;
+                            height: 300px;
+                            background: Theme.placeholder_background;
+                            border-radius: 8px;
+                            
+                            Text {
+                                text: "Book Cover";
+                                color: Theme.placeholder_text;
+                                horizontal-alignment: center;
+                                vertical-alignment: center;
+                            }
+                        }
+                        
+                        // Book details
+                        VerticalLayout {
+                            spacing: 12px;
+                            
+                            Text {
+                                text: root.current-book-title;
+                                font-size: 28px;
+                                font-weight: 700;
+                                color: Theme.text-primary;
+                            }
+                            
+                            Text {
+                                text: "by " + root.current-book-author;
+                                font-size: 18px;
+                                color: Theme.text-secondary;
+                            }
+                            
+                            Rectangle {
+                                height: 20px;
+                            }
+                            
+                            // Progress bar
+                            VerticalLayout {
+                                spacing: 8px;
+                                
+                                Text {
+                                    text: floor(root.current-book-progress * 100) + "% complete";
+                                    font-size: 14px;
+                                    color: Theme.text-tertiary;
+                                }
+                                
+                                Rectangle {
+                                    width: 300px;
+                                    height: 6px;
+                                    background: Theme.progress-background;
+                                    border-radius: 3px;
+                                    
+                                    Rectangle {
+                                        width: parent.width * root.current-book-progress;
+                                        height: 100%;
+                                        background: Theme.progress-foreground;
+                                        border-radius: 3px;
+                                    }
+                                }
+                            }
+                            
+                            Rectangle {
+                                height: 20px;
+                            }
+                            
+                            // Action buttons
+                            HorizontalLayout {
+                                spacing: 12px;
+                                
+                                ThemedButton {
+                                    text: "Continue Reading";
+                                    primary: true;
+                                    clicked => {
+                                        // Handle continue reading
+                                    }
+                                }
+                                
+                                ThemedButton {
+                                    text: "Start Over";
+                                    clicked => {
+                                        // Handle start over
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            
+            // Settings view
+            if current-view == "settings": settings-view := Rectangle {
+                background: Theme.surface;
+                
+                VerticalLayout {
+                    padding: 32px;
+                    spacing: 24px;
+                    
+                    Text {
+                        text: "Settings";
+                        font-size: 24px;
+                        font-weight: 700;
+                        color: Theme.text-primary;
+                    }
+                    
+                    // Settings content would go here
+                    Text {
+                        text: "Settings panel coming soon...";
+                        color: Theme.text-secondary;
+                    }
+                }
+            }
+        }
+        
+        // Footer/Status bar
+        footer := Rectangle {
+            height: 30px;
+            background: Theme.surface;
+            
+            HorizontalLayout {
+                padding-left: 16px;
+                padding-right: 16px;
+                padding-top: 8px;
+                padding-bottom: 8px;
+                alignment: center;
+                
+                Text {
+                    text: root.books.length + " books in library";
+                    font-size: 12px;
+                    color: Theme.text-tertiary;
+                }
+                
+                Rectangle {
+                    horizontal-stretch: 1;
+                }
+                
+                if root.loading: Text {
+                    text: "Loading...";
+                    font-size: 12px;
+                    color: Theme.text-tertiary;
+                }
+            }
+        }
+    }
+}

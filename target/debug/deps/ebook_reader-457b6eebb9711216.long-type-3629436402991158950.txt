@@ -1,0 +1,24 @@
+UnsafeCell<std::option::Option<VWeakMapped<i_slint_core::item_tree::ItemTree_vtable_mod::ItemTreeVTable, InnerComponent_image_69>>>
+once_cell::unsync::OnceCell<VWeakMapped<i_slint_core::item_tree::ItemTree_vtable_mod::ItemTreeVTable, InnerComponent_image_69>>
+std::option::Option<VRc<i_slint_core::item_tree::ItemTree_vtable_mod::ItemTreeVTable, InnerComponent_image_69>>
+RefCell<std::option::Option<VRc<i_slint_core::item_tree::ItemTree_vtable_mod::ItemTreeVTable, InnerComponent_image_69>>>
+std::option::Option<VRc<i_slint_core::item_tree::ItemTree_vtable_mod::ItemTreeVTable, InnerComponent__shadow_64>>
+RefCell<std::option::Option<VRc<i_slint_core::item_tree::ItemTree_vtable_mod::ItemTreeVTable, InnerComponent__shadow_64>>>
+VRc<i_slint_core::item_tree::ItemTree_vtable_mod::ItemTreeVTable, InnerComponent_rectangle_63>
+std::option::Option<VRc<i_slint_core::item_tree::ItemTree_vtable_mod::ItemTreeVTable, InnerComponent_rectangle_63>>
+(i_slint_core::model::RepeatedInstanceState, std::option::Option<VRc<i_slint_core::item_tree::ItemTree_vtable_mod::ItemTreeVTable, InnerComponent_rectangle_63>>)
+PhantomData<(i_slint_core::model::RepeatedInstanceState, std::option::Option<VRc<i_slint_core::item_tree::ItemTree_vtable_mod::ItemTreeVTable, InnerComponent_rectangle_63>>)>
+alloc::raw_vec::RawVec<(i_slint_core::model::RepeatedInstanceState, std::option::Option<VRc<i_slint_core::item_tree::ItemTree_vtable_mod::ItemTreeVTable, InnerComponent_rectangle_63>>)>
+Vec<(i_slint_core::model::RepeatedInstanceState, std::option::Option<VRc<i_slint_core::item_tree::ItemTree_vtable_mod::ItemTreeVTable, InnerComponent_rectangle_63>>)>
+std::option::Option<VRc<i_slint_core::item_tree::ItemTree_vtable_mod::ItemTreeVTable, InnerComponent_empty_62>>
+(i_slint_core::model::RepeatedInstanceState, std::option::Option<VRc<i_slint_core::item_tree::ItemTree_vtable_mod::ItemTreeVTable, InnerComponent_empty_62>>)
+PhantomData<(i_slint_core::model::RepeatedInstanceState, std::option::Option<VRc<i_slint_core::item_tree::ItemTree_vtable_mod::ItemTreeVTable, InnerComponent_empty_62>>)>
+alloc::raw_vec::RawVec<(i_slint_core::model::RepeatedInstanceState, std::option::Option<VRc<i_slint_core::item_tree::ItemTree_vtable_mod::ItemTreeVTable, InnerComponent_empty_62>>)>
+Vec<(i_slint_core::model::RepeatedInstanceState, std::option::Option<VRc<i_slint_core::item_tree::ItemTree_vtable_mod::ItemTreeVTable, InnerComponent_empty_62>>)>
+std::option::Option<VRc<i_slint_core::item_tree::ItemTree_vtable_mod::ItemTreeVTable, InnerComponent_empty_61>>
+RefCell<std::option::Option<VRc<i_slint_core::item_tree::ItemTree_vtable_mod::ItemTreeVTable, InnerComponent_empty_61>>>
+std::option::Option<VRc<i_slint_core::item_tree::ItemTree_vtable_mod::ItemTreeVTable, InnerComponent_flickable_8>>
+RefCell<std::option::Option<VRc<i_slint_core::item_tree::ItemTree_vtable_mod::ItemTreeVTable, InnerComponent_flickable_8>>>
+VRc<i_slint_core::item_tree::ItemTree_vtable_mod::ItemTreeVTable, InnerComponent_library_view_126>
+std::option::Option<VRc<i_slint_core::item_tree::ItemTree_vtable_mod::ItemTreeVTable, InnerComponent_library_view_126>>
+RefCell<std::option::Option<VRc<i_slint_core::item_tree::ItemTree_vtable_mod::ItemTreeVTable, InnerComponent_library_view_126>>>

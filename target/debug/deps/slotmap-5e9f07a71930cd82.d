@@ -1,0 +1,11 @@
+/Users/fazapp/projects/opensource/ePubReader/target/debug/deps/slotmap-5e9f07a71930cd82.d: /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/slotmap-1.0.7/src/lib.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/slotmap-1.0.7/src/basic.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/slotmap-1.0.7/src/dense.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/slotmap-1.0.7/src/hop.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/slotmap-1.0.7/src/secondary.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/slotmap-1.0.7/src/sparse_secondary.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/slotmap-1.0.7/src/util.rs
+
+/Users/fazapp/projects/opensource/ePubReader/target/debug/deps/libslotmap-5e9f07a71930cd82.rmeta: /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/slotmap-1.0.7/src/lib.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/slotmap-1.0.7/src/basic.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/slotmap-1.0.7/src/dense.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/slotmap-1.0.7/src/hop.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/slotmap-1.0.7/src/secondary.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/slotmap-1.0.7/src/sparse_secondary.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/slotmap-1.0.7/src/util.rs
+
+/Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/slotmap-1.0.7/src/lib.rs:
+/Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/slotmap-1.0.7/src/basic.rs:
+/Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/slotmap-1.0.7/src/dense.rs:
+/Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/slotmap-1.0.7/src/hop.rs:
+/Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/slotmap-1.0.7/src/secondary.rs:
+/Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/slotmap-1.0.7/src/sparse_secondary.rs:
+/Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/slotmap-1.0.7/src/util.rs:

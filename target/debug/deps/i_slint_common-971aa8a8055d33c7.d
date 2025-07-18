@@ -1,0 +1,10 @@
+/Users/fazapp/projects/opensource/ePubReader/target/debug/deps/i_slint_common-971aa8a8055d33c7.d: /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/i-slint-common-1.12.1/lib.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/i-slint-common-1.12.1/builtin_structs.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/i-slint-common-1.12.1/enums.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/i-slint-common-1.12.1/key_codes.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/i-slint-common-1.12.1/sharedfontdb.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/i-slint-common-1.12.1/README.md
+
+/Users/fazapp/projects/opensource/ePubReader/target/debug/deps/libi_slint_common-971aa8a8055d33c7.rmeta: /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/i-slint-common-1.12.1/lib.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/i-slint-common-1.12.1/builtin_structs.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/i-slint-common-1.12.1/enums.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/i-slint-common-1.12.1/key_codes.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/i-slint-common-1.12.1/sharedfontdb.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/i-slint-common-1.12.1/README.md
+
+/Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/i-slint-common-1.12.1/lib.rs:
+/Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/i-slint-common-1.12.1/builtin_structs.rs:
+/Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/i-slint-common-1.12.1/enums.rs:
+/Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/i-slint-common-1.12.1/key_codes.rs:
+/Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/i-slint-common-1.12.1/sharedfontdb.rs:
+/Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/i-slint-common-1.12.1/README.md:

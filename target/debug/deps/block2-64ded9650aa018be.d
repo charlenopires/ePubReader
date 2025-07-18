@@ -1,0 +1,13 @@
+/Users/fazapp/projects/opensource/ePubReader/target/debug/deps/block2-64ded9650aa018be.d: /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/block2-0.5.1/src/lib.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/block2-0.5.1/src/abi.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/block2-0.5.1/src/block.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/block2-0.5.1/src/debug.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/block2-0.5.1/src/ffi.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/block2-0.5.1/src/global.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/block2-0.5.1/src/rc_block.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/block2-0.5.1/src/stack.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/block2-0.5.1/src/traits.rs
+
+/Users/fazapp/projects/opensource/ePubReader/target/debug/deps/libblock2-64ded9650aa018be.rmeta: /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/block2-0.5.1/src/lib.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/block2-0.5.1/src/abi.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/block2-0.5.1/src/block.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/block2-0.5.1/src/debug.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/block2-0.5.1/src/ffi.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/block2-0.5.1/src/global.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/block2-0.5.1/src/rc_block.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/block2-0.5.1/src/stack.rs /Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/block2-0.5.1/src/traits.rs
+
+/Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/block2-0.5.1/src/lib.rs:
+/Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/block2-0.5.1/src/abi.rs:
+/Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/block2-0.5.1/src/block.rs:
+/Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/block2-0.5.1/src/debug.rs:
+/Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/block2-0.5.1/src/ffi.rs:
+/Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/block2-0.5.1/src/global.rs:
+/Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/block2-0.5.1/src/rc_block.rs:
+/Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/block2-0.5.1/src/stack.rs:
+/Users/fazapp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/block2-0.5.1/src/traits.rs:

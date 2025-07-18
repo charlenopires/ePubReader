@@ -1,0 +1,1 @@
+NonNull<vtable::vrc::VRcInner<'static, i_slint_core::item_tree::ItemTree_vtable_mod::ItemTreeVTable, vtable::vrc::Dyn>>
