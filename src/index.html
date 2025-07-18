@@ -5,6 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ePubReader</title>
     <style>
+        :root {
+            --primary-color: #667eea;
+            --primary-hover: #5a67d8;
+            --text-color: #2d3748;
+            --text-muted: #718096;
+            --bg-color: #ffffff;
+            --border-color: rgba(0,0,0,0.06);
+            --sidebar-bg: #2c3e50;
+            --reading-font: 'Georgia', 'Times New Roman', serif;
+            --ui-font: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+            --reading-font-size: 18px;
+            --reading-line-height: 1.8;
+            --reading-width: 680px;
+            --reading-margin: 48px;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -117,28 +133,29 @@
         }
 
         .reading-content {
-            max-width: 680px;
+            max-width: var(--reading-width);
             margin: 0 auto;
-            padding: 48px 32px 80px;
-            line-height: 1.75;
-            font-size: 18px;
-            color: #2d3748;
+            padding: var(--reading-margin) 32px 80px;
+            line-height: var(--reading-line-height);
+            font-size: var(--reading-font-size);
+            color: var(--text-color);
+            transition: all 0.3s ease;
         }
 
         .chapter-title {
-            font-size: 28px;
+            font-size: calc(var(--reading-font-size) * 1.55);
             font-weight: 700;
-            color: #1a202c;
+            color: var(--text-color);
             margin: 0 0 32px 0;
             line-height: 1.3;
             letter-spacing: -0.025em;
         }
 
         .chapter-content {
-            font-family: 'Georgia', 'Times New Roman', serif;
-            font-size: 18px;
-            line-height: 1.8;
-            color: #2d3748;
+            font-family: var(--reading-font);
+            font-size: var(--reading-font-size);
+            line-height: var(--reading-line-height);
+            color: var(--text-color);
         }
 
         .chapter-content p {
@@ -451,6 +468,241 @@
             max-width: 400px;
             line-height: 1.5;
         }
+
+        /* Reading Style Panel */
+        .reading-style-panel {
+            display: none;
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 360px;
+            height: 100vh;
+            background: white;
+            box-shadow: -4px 0 20px rgba(0,0,0,0.15);
+            z-index: 1000;
+            overflow-y: auto;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+        }
+
+        .reading-style-panel.active {
+            transform: translateX(0);
+        }
+
+        .style-panel-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 24px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .style-panel-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin: 0 0 4px 0;
+        }
+
+        .style-panel-subtitle {
+            font-size: 14px;
+            opacity: 0.9;
+            margin: 0;
+        }
+
+        .style-panel-close {
+            position: absolute;
+            top: 24px;
+            right: 24px;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            transition: background 0.2s ease;
+        }
+
+        .style-panel-close:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .style-panel-content {
+            padding: 24px;
+        }
+
+        .style-section {
+            margin-bottom: 32px;
+        }
+
+        .style-section-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1a202c;
+            margin: 0 0 16px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .style-control {
+            margin-bottom: 20px;
+        }
+
+        .style-control-label {
+            font-size: 14px;
+            font-weight: 500;
+            color: #4a5568;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .style-slider {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: #e2e8f0;
+            outline: none;
+            -webkit-appearance: none;
+            margin-bottom: 8px;
+        }
+
+        .style-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+        }
+
+        .style-slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+        }
+
+        .style-value {
+            font-size: 12px;
+            color: #718096;
+            text-align: center;
+        }
+
+        .style-options {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+
+        .style-option {
+            background: #f7fafc;
+            border: 2px solid transparent;
+            border-radius: 8px;
+            padding: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+            font-size: 14px;
+            font-weight: 500;
+            color: #4a5568;
+        }
+
+        .style-option:hover {
+            background: #edf2f7;
+        }
+
+        .style-option.active {
+            background: rgba(102, 126, 234, 0.1);
+            border-color: #667eea;
+            color: #667eea;
+        }
+
+        .font-preview {
+            font-size: 16px;
+            line-height: 1.5;
+            padding: 8px 0;
+            border-bottom: 1px solid #e2e8f0;
+            margin-bottom: 8px;
+        }
+
+        .theme-option {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s ease;
+            margin-bottom: 8px;
+        }
+
+        .theme-option:hover {
+            background: #f7fafc;
+        }
+
+        .theme-option.active {
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .theme-preview {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            border: 2px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+
+        .theme-info {
+            flex: 1;
+        }
+
+        .theme-name {
+            font-size: 14px;
+            font-weight: 500;
+            color: #2d3748;
+            margin: 0 0 2px 0;
+        }
+
+        .theme-desc {
+            font-size: 12px;
+            color: #718096;
+            margin: 0;
+        }
+
+        /* Theme variations */
+        .theme-light .theme-preview {
+            background: #ffffff;
+            color: #2d3748;
+        }
+
+        .theme-sepia .theme-preview {
+            background: #f7f3e9;
+            color: #5d4e37;
+        }
+
+        .theme-dark .theme-preview {
+            background: #1a202c;
+            color: #f7fafc;
+        }
+
+        .theme-night .theme-preview {
+            background: #0f0f0f;
+            color: #a0aec0;
+        }
     </style>
 </head>
 <body>
@@ -477,6 +729,9 @@
                     </div>
                 </div>
                 <div class="reading-controls">
+                    <button class="control-btn" onclick="showReadingSettings()">
+                        🎨 Style
+                    </button>
                     <button class="control-btn" onclick="showSettings()">
                         ⚙️ Settings
                     </button>
@@ -513,6 +768,113 @@
         </div>
     </div>
 
+    <!-- Reading Style Panel -->
+    <div class="reading-style-panel" id="readingStylePanel">
+        <div class="style-panel-header">
+            <h2 class="style-panel-title">Reading Style</h2>
+            <p class="style-panel-subtitle">Customize your reading experience</p>
+            <button class="style-panel-close" onclick="hideReadingSettings()">×</button>
+        </div>
+        
+        <div class="style-panel-content">
+            <!-- Theme Section -->
+            <div class="style-section">
+                <h3 class="style-section-title">🎨 Theme</h3>
+                <div class="theme-option theme-light active" onclick="setTheme('light')">
+                    <div class="theme-preview">Aa</div>
+                    <div class="theme-info">
+                        <div class="theme-name">Light</div>
+                        <div class="theme-desc">Clean white background</div>
+                    </div>
+                </div>
+                <div class="theme-option theme-sepia" onclick="setTheme('sepia')">
+                    <div class="theme-preview">Aa</div>
+                    <div class="theme-info">
+                        <div class="theme-name">Sepia</div>
+                        <div class="theme-desc">Warm, paper-like tone</div>
+                    </div>
+                </div>
+                <div class="theme-option theme-dark" onclick="setTheme('dark')">
+                    <div class="theme-preview">Aa</div>
+                    <div class="theme-info">
+                        <div class="theme-name">Dark</div>
+                        <div class="theme-desc">Easy on the eyes</div>
+                    </div>
+                </div>
+                <div class="theme-option theme-night" onclick="setTheme('night')">
+                    <div class="theme-preview">Aa</div>
+                    <div class="theme-info">
+                        <div class="theme-name">Night</div>
+                        <div class="theme-desc">True black for OLED</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Font Family Section -->
+            <div class="style-section">
+                <h3 class="style-section-title">🔤 Font Family</h3>
+                <div class="style-options">
+                    <div class="style-option active" onclick="setFontFamily('serif')" data-font="serif">
+                        <div class="font-preview" style="font-family: Georgia, serif;">Georgia</div>
+                        Serif
+                    </div>
+                    <div class="style-option" onclick="setFontFamily('sans-serif')" data-font="sans-serif">
+                        <div class="font-preview" style="font-family: -apple-system, sans-serif;">System</div>
+                        Sans-serif
+                    </div>
+                    <div class="style-option" onclick="setFontFamily('lora')" data-font="lora">
+                        <div class="font-preview" style="font-family: Lora, serif;">Lora</div>
+                        Modern Serif
+                    </div>
+                    <div class="style-option" onclick="setFontFamily('crimson')" data-font="crimson">
+                        <div class="font-preview" style="font-family: 'Crimson Text', serif;">Crimson</div>
+                        Classic
+                    </div>
+                </div>
+            </div>
+
+            <!-- Font Size Section -->
+            <div class="style-section">
+                <h3 class="style-section-title">📏 Font Size</h3>
+                <div class="style-control">
+                    <label class="style-control-label">Size</label>
+                    <input type="range" id="fontSizeSlider" class="style-slider" min="14" max="28" value="18" oninput="setFontSize(this.value)">
+                    <div class="style-value" id="fontSizeValue">18px</div>
+                </div>
+            </div>
+
+            <!-- Line Spacing Section -->
+            <div class="style-section">
+                <h3 class="style-section-title">📐 Line Spacing</h3>
+                <div class="style-control">
+                    <label class="style-control-label">Height</label>
+                    <input type="range" id="lineSpacingSlider" class="style-slider" min="1.2" max="2.4" step="0.1" value="1.8" oninput="setLineSpacing(this.value)">
+                    <div class="style-value" id="lineSpacingValue">1.8</div>
+                </div>
+            </div>
+
+            <!-- Reading Width Section -->
+            <div class="style-section">
+                <h3 class="style-section-title">📖 Reading Width</h3>
+                <div class="style-control">
+                    <label class="style-control-label">Content Width</label>
+                    <input type="range" id="widthSlider" class="style-slider" min="500" max="900" step="20" value="680" oninput="setReadingWidth(this.value)">
+                    <div class="style-value" id="widthValue">680px</div>
+                </div>
+            </div>
+
+            <!-- Margins Section -->
+            <div class="style-section">
+                <h3 class="style-section-title">📄 Margins</h3>
+                <div class="style-control">
+                    <label class="style-control-label">Top & Bottom Margin</label>
+                    <input type="range" id="marginSlider" class="style-slider" min="24" max="80" step="4" value="48" oninput="setReadingMargin(this.value)">
+                    <div class="style-value" id="marginValue">48px</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Settings Modal -->
     <div class="settings-panel" id="settingsPanel">
         <div class="settings-modal">
@@ -535,11 +897,6 @@
             <div class="form-group">
                 <label for="apiKey">Google Translate API Key:</label>
                 <input type="text" id="apiKey" placeholder="Enter your Google Translate API key">
-            </div>
-            <div class="form-group">
-                <label for="fontSize">Font Size:</label>
-                <input type="range" id="fontSize" min="12" max="24" value="16">
-                <span id="fontSizeValue">16px</span>
             </div>
             <div class="form-group">
                 <label for="autoTranslate">

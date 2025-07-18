@@ -10,6 +10,7 @@ let settings = {};
 document.addEventListener('DOMContentLoaded', async () => {
     await loadSettings();
     await loadSavedBooks();
+    loadReadingStyle();
     updateFontSize();
 });
 
@@ -275,10 +276,164 @@ function updateFontSize() {
     document.getElementById('fontSizeValue').textContent = settings.font_size + 'px';
 }
 
-// Font size slider handler
-document.getElementById('fontSize').addEventListener('input', function() {
-    document.getElementById('fontSizeValue').textContent = this.value + 'px';
-});
+// Reading Style Settings
+let currentReadingStyle = {
+    theme: 'light',
+    fontFamily: 'serif',
+    fontSize: 18,
+    lineSpacing: 1.8,
+    width: 680,
+    margin: 48
+};
+
+function showReadingSettings() {
+    const panel = document.getElementById('readingStylePanel');
+    panel.style.display = 'block';
+    setTimeout(() => panel.classList.add('active'), 10);
+}
+
+function hideReadingSettings() {
+    const panel = document.getElementById('readingStylePanel');
+    panel.classList.remove('active');
+    setTimeout(() => panel.style.display = 'none', 300);
+}
+
+function setTheme(theme) {
+    currentReadingStyle.theme = theme;
+    
+    // Update theme options
+    document.querySelectorAll('.theme-option').forEach(option => {
+        option.classList.remove('active');
+    });
+    document.querySelector(`.theme-${theme}`).classList.add('active');
+    
+    // Apply theme
+    const root = document.documentElement;
+    const body = document.body;
+    
+    // Remove existing theme classes
+    body.classList.remove('theme-light', 'theme-sepia', 'theme-dark', 'theme-night');
+    body.classList.add(`theme-${theme}`);
+    
+    switch(theme) {
+        case 'light':
+            root.style.setProperty('--bg-color', '#ffffff');
+            root.style.setProperty('--text-color', '#2d3748');
+            root.style.setProperty('--text-muted', '#718096');
+            root.style.setProperty('--border-color', 'rgba(0,0,0,0.06)');
+            break;
+        case 'sepia':
+            root.style.setProperty('--bg-color', '#f7f3e9');
+            root.style.setProperty('--text-color', '#5d4e37');
+            root.style.setProperty('--text-muted', '#8b7355');
+            root.style.setProperty('--border-color', 'rgba(93,78,55,0.15)');
+            break;
+        case 'dark':
+            root.style.setProperty('--bg-color', '#1a202c');
+            root.style.setProperty('--text-color', '#f7fafc');
+            root.style.setProperty('--text-muted', '#a0aec0');
+            root.style.setProperty('--border-color', 'rgba(255,255,255,0.1)');
+            break;
+        case 'night':
+            root.style.setProperty('--bg-color', '#0f0f0f');
+            root.style.setProperty('--text-color', '#e2e8f0');
+            root.style.setProperty('--text-muted', '#a0aec0');
+            root.style.setProperty('--border-color', 'rgba(255,255,255,0.05)');
+            break;
+    }
+    
+    // Update main content and reading area
+    document.querySelector('.main-content').style.background = `var(--bg-color)`;
+    
+    saveReadingStyle();
+}
+
+function setFontFamily(family) {
+    currentReadingStyle.fontFamily = family;
+    
+    // Update font options
+    document.querySelectorAll('.style-option[data-font]').forEach(option => {
+        option.classList.remove('active');
+    });
+    document.querySelector(`[data-font="${family}"]`).classList.add('active');
+    
+    // Apply font
+    const root = document.documentElement;
+    let fontStack;
+    
+    switch(family) {
+        case 'serif':
+            fontStack = "'Georgia', 'Times New Roman', serif";
+            break;
+        case 'sans-serif':
+            fontStack = "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif";
+            break;
+        case 'lora':
+            fontStack = "'Lora', Georgia, serif";
+            break;
+        case 'crimson':
+            fontStack = "'Crimson Text', Georgia, serif";
+            break;
+    }
+    
+    root.style.setProperty('--reading-font', fontStack);
+    saveReadingStyle();
+}
+
+function setFontSize(size) {
+    currentReadingStyle.fontSize = parseInt(size);
+    document.getElementById('fontSizeValue').textContent = size + 'px';
+    document.documentElement.style.setProperty('--reading-font-size', size + 'px');
+    saveReadingStyle();
+}
+
+function setLineSpacing(spacing) {
+    currentReadingStyle.lineSpacing = parseFloat(spacing);
+    document.getElementById('lineSpacingValue').textContent = spacing;
+    document.documentElement.style.setProperty('--reading-line-height', spacing);
+    saveReadingStyle();
+}
+
+function setReadingWidth(width) {
+    currentReadingStyle.width = parseInt(width);
+    document.getElementById('widthValue').textContent = width + 'px';
+    document.documentElement.style.setProperty('--reading-width', width + 'px');
+    saveReadingStyle();
+}
+
+function setReadingMargin(margin) {
+    currentReadingStyle.margin = parseInt(margin);
+    document.getElementById('marginValue').textContent = margin + 'px';
+    document.documentElement.style.setProperty('--reading-margin', margin + 'px');
+    saveReadingStyle();
+}
+
+function saveReadingStyle() {
+    localStorage.setItem('epubReader_readingStyle', JSON.stringify(currentReadingStyle));
+}
+
+function loadReadingStyle() {
+    const saved = localStorage.getItem('epubReader_readingStyle');
+    if (saved) {
+        currentReadingStyle = JSON.parse(saved);
+        
+        // Apply all saved settings
+        setTheme(currentReadingStyle.theme);
+        setFontFamily(currentReadingStyle.fontFamily);
+        
+        // Update sliders
+        document.getElementById('fontSizeSlider').value = currentReadingStyle.fontSize;
+        document.getElementById('lineSpacingSlider').value = currentReadingStyle.lineSpacing;
+        document.getElementById('widthSlider').value = currentReadingStyle.width;
+        document.getElementById('marginSlider').value = currentReadingStyle.margin;
+        
+        // Apply values
+        setFontSize(currentReadingStyle.fontSize);
+        setLineSpacing(currentReadingStyle.lineSpacing);
+        setReadingWidth(currentReadingStyle.width);
+        setReadingMargin(currentReadingStyle.margin);
+    }
+}
 
 // Saved books
 async function loadSavedBooks() {
