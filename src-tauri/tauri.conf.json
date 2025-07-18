@@ -6,15 +6,16 @@
   "build": {
     "beforeDevCommand": "",
     "beforeBuildCommand": "",
-    "frontendDist": "../src",
-    "devUrl": "http://localhost:8080"
+    "frontendDist": "../src"
   },
   "app": {
     "security": {
-      "csp": null
+      "csp": null,
+      "capabilities": ["default"]
     },
     "windows": [
       {
+        "label": "main",
         "fullscreen": false,
         "resizable": true,
         "title": "ePubReader",
@@ -25,30 +26,5 @@
       }
     ]
   },
-  "plugins": {
-    "dialog": {
-      "all": true,
-      "ask": true,
-      "confirm": true,
-      "message": true,
-      "open": true,
-      "save": true
-    },
-    "fs": {
-      "all": true,
-      "readFile": true,
-      "writeFile": true,
-      "readDir": true,
-      "copyFile": true,
-      "createDir": true,
-      "removeDir": true,
-      "removeFile": true,
-      "renameFile": true,
-      "exists": true
-    },
-    "shell": {
-      "all": false,
-      "open": true
-    }
-  }
+  "plugins": {}
 }

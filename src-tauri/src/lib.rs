@@ -187,6 +187,49 @@ async fn delete_all_saved_books() -> Result<(), String> {
     }
 }
 
+#[tauri::command]
+async fn open_file_dialog(app: tauri::AppHandle) -> Result<Option<String>, String> {
+    info!("Opening file dialog through backend command");
+    
+    use tauri_plugin_dialog::DialogExt;
+    use std::sync::mpsc;
+    
+    // Create a channel to communicate between the callback and this async function
+    let (tx, rx) = mpsc::channel();
+    
+    // Use the dialog plugin directly from the backend
+    app.dialog()
+        .file()
+        .add_filter("ePub Files", &["epub"])
+        .pick_file(move |file_path| {
+            let result = match file_path {
+                Some(path) => {
+                    let path_str = path.to_string();
+                    Some(path_str)
+                }
+                None => None,
+            };
+            let _ = tx.send(result);
+        });
+    
+    // Wait for the callback to complete
+    match rx.recv() {
+        Ok(result) => {
+            if let Some(path) = &result {
+                info!("File selected: {}", path);
+            } else {
+                info!("No file selected");
+            }
+            Ok(result)
+        }
+        Err(e) => {
+            let error_msg = format!("Failed to receive file dialog result: {}", e);
+            error!("{}", error_msg);
+            Err(error_msg)
+        }
+    }
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     // Initialize logging first
@@ -210,7 +253,8 @@ pub fn run() {
             get_settings,
             save_settings,
             delete_saved_book,
-            delete_all_saved_books
+            delete_all_saved_books,
+            open_file_dialog
         ])
         .setup(|_app| {
             info!("Initializing application setup");

@@ -2,9 +2,73 @@
 let invoke, open;
 let isTauriEnvironment = false;
 
+// Try to import Tauri APIs using modern import syntax
+async function loadTauriAPIs() {
+    try {
+        console.log('🔄 Attempting to load Tauri APIs via import...');
+        
+        // Try to dynamically import the Tauri APIs
+        const { invoke: tauriInvoke } = await import('@tauri-apps/api/core');
+        console.log('✅ Core API loaded');
+        
+        const { open: tauriOpen } = await import('@tauri-apps/plugin-dialog');
+        console.log('✅ Dialog plugin loaded');
+        
+        invoke = tauriInvoke;
+        open = tauriOpen;
+        isTauriEnvironment = true;
+        
+        console.log('✅ Tauri v2 APIs loaded via import');
+        console.log('Available APIs:', { 
+            hasInvoke: typeof invoke === 'function', 
+            hasOpen: typeof open === 'function' 
+        });
+        return true;
+    } catch (error) {
+        console.log('Import method failed:', error.message);
+        
+        // Try alternative import methods
+        try {
+            console.log('🔄 Trying alternative import from @tauri-apps/api...');
+            const tauriApi = await import('@tauri-apps/api');
+            if (tauriApi.invoke) {
+                invoke = tauriApi.invoke;
+                console.log('✅ Invoke loaded from main API');
+            }
+            
+            // Try different dialog import paths
+            try {
+                const dialogApi = await import('@tauri-apps/api/dialog');
+                if (dialogApi.open) {
+                    open = dialogApi.open;
+                    console.log('✅ Dialog loaded from main API');
+                }
+            } catch (dialogError) {
+                console.log('Dialog import from main API failed:', dialogError.message);
+            }
+            
+            if (invoke) {
+                isTauriEnvironment = true;
+                return true;
+            }
+        } catch (altError) {
+            console.log('Alternative import also failed:', altError.message);
+        }
+        
+        return false;
+    }
+}
+
 async function initTauriAPIs() {
     try {
-        // Check if we're in a Tauri v2 environment
+        // First try the modern import method
+        console.log('Trying modern import method...');
+        if (await loadTauriAPIs()) {
+            return;
+        }
+        
+        // Fallback to window object detection
+        console.log('Falling back to window object detection...');
         let attempts = 0;
         const maxAttempts = 10;
         
@@ -20,16 +84,32 @@ async function initTauriAPIs() {
                 if (window.__TAURI__.core && window.__TAURI__.core.invoke) {
                     invoke = window.__TAURI__.core.invoke;
                     
-                    // Check for dialog plugin
+                    // Check for dialog plugin - try multiple possible locations
                     if (window.__TAURI__.dialog && window.__TAURI__.dialog.open) {
                         open = window.__TAURI__.dialog.open;
+                        console.log('✅ Found dialog API at window.__TAURI__.dialog.open');
                     } else if (window.__TAURI_PLUGIN_DIALOG__ && window.__TAURI_PLUGIN_DIALOG__.open) {
                         open = window.__TAURI_PLUGIN_DIALOG__.open;
+                        console.log('✅ Found dialog API at window.__TAURI_PLUGIN_DIALOG__.open');
+                    } else if (window.__TAURI__.pluginDialog && window.__TAURI__.pluginDialog.open) {
+                        open = window.__TAURI__.pluginDialog.open;
+                        console.log('✅ Found dialog API at window.__TAURI__.pluginDialog.open');
+                    } else {
+                        console.log('⚠️  Dialog API not found, checking for invoke availability...');
+                        // If we have invoke, we can try to use it directly for file operations
+                        if (invoke) {
+                            console.log('✅ Invoke available, will use backend file operations');
+                            isTauriEnvironment = true;
+                            open = null; // We'll handle this differently
+                            return;
+                        }
                     }
                     
-                    isTauriEnvironment = true;
-                    console.log('✅ Tauri v2 environment detected and initialized successfully');
-                    return;
+                    if (invoke) {
+                        isTauriEnvironment = true;
+                        console.log('✅ Tauri v2 environment detected and initialized successfully');
+                        return;
+                    }
                 } else {
                     console.log('Tauri v2 core APIs not fully loaded yet...');
                 }
@@ -49,7 +129,7 @@ async function initTauriAPIs() {
                 open = window.tauri.dialog?.open;
             }
             
-            if (invoke && open) {
+            if (invoke) {
                 isTauriEnvironment = true;
                 console.log('✅ Alternative Tauri APIs initialized successfully');
                 return;
@@ -65,6 +145,52 @@ async function initTauriAPIs() {
     }
 }
 
+// Additional aggressive detection method
+async function forceDetectTauriEnvironment() {
+    console.log('🔍 Force detecting Tauri environment...');
+    
+    // Check for any Tauri indicators
+    const checks = [
+        typeof window !== 'undefined',
+        window.__TAURI__ !== undefined,
+        window.tauri !== undefined,
+        window.__TAURI_INVOKE__ !== undefined,
+        window.__TAURI_PLUGIN_DIALOG__ !== undefined,
+        window.location?.protocol === 'tauri:',
+        navigator.userAgent?.includes('Tauri'),
+        typeof document !== 'undefined' && document.location?.protocol === 'tauri:'
+    ];
+    
+    console.log('🧪 Environment checks:', {
+        hasWindow: checks[0],
+        hasMainTauri: checks[1],
+        hasTauriObj: checks[2],
+        hasInvokeGlobal: checks[3],
+        hasDialogPlugin: checks[4],
+        isTauriProtocol: checks[5],
+        isTauriUserAgent: checks[6],
+        isTauriDocProtocol: checks[7]
+    });
+    
+    // If any check passes, force environment to true
+    if (checks.some(check => check)) {
+        console.log('🚀 Tauri environment detected via force check');
+        isTauriEnvironment = true;
+        
+        // Try to get the APIs one more time
+        if (window.__TAURI__?.core?.invoke) {
+            invoke = window.__TAURI__.core.invoke;
+        }
+        if (window.__TAURI__?.dialog?.open) {
+            open = window.__TAURI__.dialog.open;
+        }
+        
+        return true;
+    }
+    
+    return false;
+}
+
 let currentBook = null;
 let currentChapter = 0;
 let translatedContent = {};
@@ -78,6 +204,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     loadReadingStyle();
     updateFontSize();
     updateWelcomeMessage();
+    addBookCardEnhancements();
 });
 
 function updateWelcomeMessage() {
@@ -100,32 +227,72 @@ function updateWelcomeMessage() {
 // File operations
 async function openFile() {
     try {
-        // Re-check Tauri environment if not detected initially
+        // Force re-initialization of Tauri APIs
+        console.log('🔄 Forcing Tauri API re-initialization...');
+        await initTauriAPIs();
+        
+        // If still not detected, try aggressive detection
         if (!isTauriEnvironment) {
-            console.log('Re-checking Tauri environment...');
-            await initTauriAPIs();
+            console.log('🔄 Trying aggressive Tauri detection...');
+            await forceDetectTauriEnvironment();
         }
         
-        if (!isTauriEnvironment) {
+        // Final check with detailed logging
+        const hasInvoke = typeof invoke === 'function';
+        const hasWindow = typeof window !== 'undefined';
+        const hasTauriGlobal = hasWindow && (window.__TAURI__ || window.tauri);
+        
+        console.log('🔍 Final environment check:', {
+            hasInvoke,
+            hasWindow,
+            hasTauriGlobal,
+            isTauriEnvironment,
+            windowProtocol: window?.location?.protocol,
+            userAgent: navigator?.userAgent?.includes('Tauri')
+        });
+        
+        // Force environment detection based on any available indicator
+        if (!isTauriEnvironment && (hasInvoke || hasTauriGlobal || window?.location?.protocol === 'tauri:')) {
+            console.log('🚀 Forcing Tauri environment to true based on available APIs');
+            isTauriEnvironment = true;
+        }
+        
+        // Last resort: If we're not in a typical web browser environment, assume Tauri
+        if (!isTauriEnvironment && typeof window !== 'undefined' && !window.location.href.startsWith('http')) {
+            console.log('🔧 Non-HTTP environment detected, assuming Tauri');
+            isTauriEnvironment = true;
+        }
+        
+        if (!isTauriEnvironment && !hasInvoke) {
             showError('File opening is only available in the desktop application. Please execute: ./src-tauri/target/release/epubreader');
             return;
         }
         
-        if (!open) {
-            // Try to reinitialize APIs
-            await initTauriAPIs();
-            if (!open) {
-                throw new Error('Tauri dialog API not initialized');
-            }
-        }
+        let selected;
         
-        const selected = await open({
-            multiple: false,
-            filters: [{
-                name: 'ePub',
-                extensions: ['epub']
-            }]
-        });
+        if (open) {
+            // Use the dialog plugin API if available
+            console.log('Using dialog plugin API...');
+            selected = await open({
+                multiple: false,
+                filters: [{
+                    name: 'ePub',
+                    extensions: ['epub']
+                }]
+            });
+        } else if (invoke) {
+            // Fallback to a custom backend command for file selection
+            console.log('Dialog plugin not available, using invoke for file selection...');
+            try {
+                selected = await invoke('open_file_dialog');
+            } catch (invokeError) {
+                console.error('Backend file dialog failed:', invokeError);
+                showError('Unable to open file dialog. Please check the application setup.');
+                return;
+            }
+        } else {
+            throw new Error('No file dialog method available');
+        }
 
         if (selected) {
             await loadEpub(selected);
@@ -666,31 +833,30 @@ async function loadSavedBooks() {
             const isRecent = (Date.now() - savedDate.getTime()) < (7 * 24 * 60 * 60 * 1000); // Less than 7 days
             
             return `
-                <div class="book-card">
-                    <div class="book-content" onclick="loadSavedBook('${book.id}')">
-                        ${(isNew || isRecent) ? '<div class="new-badge">New</div>' : ''}
-                        <div class="book-cover">
-                            ${getBookCoverElement(book)}
-                            <div style="position: absolute; bottom: 5px; right: 5px; font-size: 10px; opacity: 0.7;">
-                                ${book.original_language.toUpperCase()}→${book.translated_language.toUpperCase()}
-                            </div>
-                        </div>
-                        <div class="book-info">
-                            <div class="book-title">${book.title}</div>
-                            <div class="book-author">${book.author}</div>
-                            <div class="book-meta">
-                                <span>${formatDate(book.saved_date)}</span>
-                            </div>
+                <div class="book-card" 
+                     data-book-id="${book.id}"
+                     data-book-title="${book.title.replace(/"/g, '&quot;')}"
+                     title="Clique esquerdo: abrir livro | Clique direito: opções">
+                    ${(isNew || isRecent) ? '<div class="new-badge">New</div>' : ''}
+                    <div class="book-cover">
+                        ${getBookCoverElement(book)}
+                        <div style="position: absolute; bottom: 5px; right: 5px; font-size: 10px; opacity: 0.7;">
+                            ${book.original_language.toUpperCase()}→${book.translated_language.toUpperCase()}
                         </div>
                     </div>
-                    <div class="book-actions">
-                        <button class="delete-btn" onclick="confirmDeleteBook('${book.id}', '${book.title.replace(/'/g, '\\\'')}')" title="Deletar livro">
-                            🗑️
-                        </button>
+                    <div class="book-info">
+                        <div class="book-title">${book.title}</div>
+                        <div class="book-author">${book.author}</div>
+                        <div class="book-meta">
+                            <span>${formatDate(book.saved_date)}</span>
+                        </div>
                     </div>
                 </div>
             `;
         }).join('');
+        
+        // Add event listeners after creating the HTML
+        setTimeout(() => setupBookCardListeners(), 100);
         
         // Add "Delete All" button if there are books
         if (books.length > 0) {
@@ -821,6 +987,189 @@ function showSuccess(message) {
     }, 3000);
 }
 
+// Context menu functionality
+let currentContextMenu = null;
+
+function showContextMenu(event, bookId, encodedBookTitle) {
+    event.preventDefault(); // Prevent default right-click menu
+    event.stopPropagation();
+    
+    const bookTitle = decodeURIComponent(encodedBookTitle);
+    
+    // Remove any existing context menu
+    hideContextMenu();
+    
+    // Create context menu
+    const contextMenu = document.createElement('div');
+    contextMenu.className = 'context-menu';
+    
+    // Store the book data on the menu element
+    contextMenu.setAttribute('data-book-id', bookId);
+    contextMenu.setAttribute('data-book-title', bookTitle);
+    
+    contextMenu.innerHTML = `
+        <div class="context-menu-item" data-action="open">
+            📖 Abrir Livro
+        </div>
+        <div class="context-menu-separator"></div>
+        <div class="context-menu-item delete-item" data-action="delete">
+            🗑️ Deletar Livro
+        </div>
+        <div class="context-menu-separator"></div>
+        <div class="context-menu-item" data-action="info">
+            ℹ️ Informações
+        </div>
+    `;
+    
+    // Add click listeners to menu items
+    contextMenu.querySelectorAll('.context-menu-item[data-action]').forEach(item => {
+        item.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const action = this.getAttribute('data-action');
+            handleContextMenuAction(action, bookId, bookTitle);
+        });
+    });
+    
+    // Position the menu
+    document.body.appendChild(contextMenu);
+    currentContextMenu = contextMenu;
+    
+    // Calculate position
+    const x = event.clientX;
+    const y = event.clientY;
+    const menuRect = contextMenu.getBoundingClientRect();
+    const windowWidth = window.innerWidth;
+    const windowHeight = window.innerHeight;
+    
+    // Adjust position to keep menu on screen
+    let menuX = x;
+    let menuY = y;
+    
+    if (x + menuRect.width > windowWidth) {
+        menuX = windowWidth - menuRect.width - 5;
+    }
+    
+    if (y + menuRect.height > windowHeight) {
+        menuY = windowHeight - menuRect.height - 5;
+    }
+    
+    contextMenu.style.left = `${menuX}px`;
+    contextMenu.style.top = `${menuY}px`;
+    
+    // Add event listener to hide menu when clicking elsewhere
+    setTimeout(() => {
+        document.addEventListener('click', hideContextMenu);
+        document.addEventListener('contextmenu', hideContextMenu);
+        document.addEventListener('keydown', handleContextMenuKeydown);
+    }, 0);
+    
+    return false; // Prevent default context menu
+}
+
+function hideContextMenu() {
+    if (currentContextMenu) {
+        currentContextMenu.remove();
+        currentContextMenu = null;
+    }
+    
+    // Remove event listeners
+    document.removeEventListener('click', hideContextMenu);
+    document.removeEventListener('contextmenu', hideContextMenu);
+    document.removeEventListener('keydown', handleContextMenuKeydown);
+}
+
+function handleContextMenuAction(action, bookId, bookTitle) {
+    hideContextMenu();
+    
+    console.log('Context menu action:', action, 'for book:', bookTitle);
+    
+    switch(action) {
+        case 'open':
+            loadSavedBook(bookId);
+            break;
+        case 'delete':
+            confirmDeleteBook(bookId, bookTitle);
+            break;
+        case 'info':
+            showBookInfo(bookId, bookTitle);
+            break;
+        default:
+            console.log('Unknown action:', action);
+    }
+}
+
+function showBookInfo(bookId, bookTitle) {
+    if (!isTauriEnvironment || !invoke) {
+        showError('Book info not available in browser mode');
+        return;
+    }
+    
+    // Find book in the current loaded books
+    invoke('get_saved_books').then(books => {
+        const book = books.find(b => b.id === bookId);
+        if (book) {
+            const readingArea = document.getElementById('readingArea');
+            readingArea.innerHTML = `
+                <div class="reading-content">
+                    <h2>📚 Informações do Livro</h2>
+                    <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                        <p><strong>Título:</strong> ${book.title}</p>
+                        <p><strong>Autor:</strong> ${book.author}</p>
+                        <p><strong>Idioma Original:</strong> ${book.original_language.toUpperCase()}</p>
+                        <p><strong>Idioma Traduzido:</strong> ${book.translated_language.toUpperCase()}</p>
+                        <p><strong>Data de Tradução:</strong> ${formatDate(book.saved_date)}</p>
+                        <p><strong>ID do Livro:</strong> ${book.id}</p>
+                        <p><strong>Localização:</strong> ${book.file_path}</p>
+                    </div>
+                    <button onclick="loadSavedBook('${bookId}')" style="
+                        background: #667eea; 
+                        color: white; 
+                        border: none; 
+                        padding: 10px 20px; 
+                        border-radius: 4px; 
+                        cursor: pointer;
+                        margin-right: 10px;
+                    ">📖 Abrir Livro</button>
+                    <button onclick="document.getElementById('readingArea').innerHTML = '<div class=\\'reading-content\\'><h2>Selecione um livro</h2><p>Escolha um livro da biblioteca ou abra um novo ePub para começar a ler.</p></div>'" style="
+                        background: #6c757d; 
+                        color: white; 
+                        border: none; 
+                        padding: 10px 20px; 
+                        border-radius: 4px; 
+                        cursor: pointer;
+                    ">❌ Fechar</button>
+                </div>
+            `;
+        }
+    }).catch(error => {
+        console.error('Failed to get book info:', error);
+        showError('Erro ao carregar informações do livro');
+    });
+}
+
+function handleContextMenuKeydown(event) {
+    if (event.key === 'Escape') {
+        hideContextMenu();
+    }
+}
+
+// Enhanced book card hover effects
+function addBookCardEnhancements() {
+    document.addEventListener('mouseover', function(event) {
+        if (event.target.closest('.book-card')) {
+            const card = event.target.closest('.book-card');
+            card.style.transform = 'translateY(-2px)';
+        }
+    });
+    
+    document.addEventListener('mouseout', function(event) {
+        if (event.target.closest('.book-card')) {
+            const card = event.target.closest('.book-card');
+            card.style.transform = 'translateY(0)';
+        }
+    });
+}
+
 function getBookCoverElement(book) {
     // For now, use the first letter of the title as a placeholder
     // In a real implementation, you'd extract the cover from the ePub
@@ -862,6 +1211,51 @@ async function loadSavedBook(bookId) {
         console.error('Load saved book error:', error);
         showError('Failed to load saved book: ' + error.message);
     }
+}
+
+// Book card event listeners setup
+function setupBookCardListeners() {
+    console.log('Setting up book card listeners...');
+    
+    const bookCards = document.querySelectorAll('.book-card[data-book-id]');
+    console.log('Found', bookCards.length, 'book cards');
+    
+    bookCards.forEach(card => {
+        const bookId = card.getAttribute('data-book-id');
+        const bookTitle = card.getAttribute('data-book-title');
+        
+        if (!bookId || !bookTitle) {
+            console.warn('Book card missing required attributes:', card);
+            return;
+        }
+        
+        console.log('Setting up listeners for book:', bookTitle, 'ID:', bookId);
+        
+        // Remove any existing listeners to prevent duplicates
+        card.removeEventListener('click', card._clickHandler);
+        card.removeEventListener('contextmenu', card._contextHandler);
+        
+        // Left click to open book
+        card._clickHandler = function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('Left click: Opening book:', bookTitle);
+            loadSavedBook(bookId);
+        };
+        
+        // Right click for context menu
+        card._contextHandler = function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('Right click: Showing context menu for book:', bookTitle);
+            showContextMenu(e, bookId, encodeURIComponent(bookTitle));
+        };
+        
+        card.addEventListener('click', card._clickHandler);
+        card.addEventListener('contextmenu', card._contextHandler);
+    });
+    
+    console.log('Book card listeners setup complete');
 }
 
 // Keyboard navigation
