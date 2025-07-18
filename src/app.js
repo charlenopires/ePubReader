@@ -1,30 +1,37 @@
-// Tauri API imports - with proper error handling
+// Tauri v2 API imports - with proper error handling
 let invoke, open;
 let isTauriEnvironment = false;
 
 async function initTauriAPIs() {
     try {
-        // Check if we're in a Tauri environment multiple ways
+        // Check if we're in a Tauri v2 environment
         let attempts = 0;
         const maxAttempts = 10;
         
         while (attempts < maxAttempts) {
-            console.log(`Attempt ${attempts + 1}: Checking for Tauri environment...`);
+            console.log(`Attempt ${attempts + 1}: Checking for Tauri v2 environment...`);
             
-            // Check for Tauri global object
+            // Check for Tauri v2 global object structure
             if (window.__TAURI__) {
                 console.log('window.__TAURI__ found!');
                 console.log('Available APIs:', Object.keys(window.__TAURI__));
                 
-                // Check for required APIs
-                if (window.__TAURI__.tauri && window.__TAURI__.dialog) {
-                    invoke = window.__TAURI__.tauri.invoke;
-                    open = window.__TAURI__.dialog.open;
+                // Check for required v2 APIs - updated structure for v2
+                if (window.__TAURI__.core && window.__TAURI__.core.invoke) {
+                    invoke = window.__TAURI__.core.invoke;
+                    
+                    // Check for dialog plugin
+                    if (window.__TAURI__.dialog && window.__TAURI__.dialog.open) {
+                        open = window.__TAURI__.dialog.open;
+                    } else if (window.__TAURI_PLUGIN_DIALOG__ && window.__TAURI_PLUGIN_DIALOG__.open) {
+                        open = window.__TAURI_PLUGIN_DIALOG__.open;
+                    }
+                    
                     isTauriEnvironment = true;
-                    console.log('✅ Tauri environment detected and initialized successfully');
+                    console.log('✅ Tauri v2 environment detected and initialized successfully');
                     return;
                 } else {
-                    console.log('Tauri APIs not fully loaded yet...');
+                    console.log('Tauri v2 core APIs not fully loaded yet...');
                 }
             } else {
                 console.log('window.__TAURI__ not found yet...');
@@ -374,12 +381,13 @@ async function translateBookToBrazilianPortuguese() {
             showLoading(`Translation progress: ${progress}% (${i + 1}/${currentBook.chapters.length} chapters)`);
         }
         
-        showLoading('Saving translated book...');
+        showLoading('Saving translated book with image preservation...');
         
-        // Save translated book automatically
-        const bookId = await invoke('save_translated_epub', {
+        // Use the new enhanced translation function that preserves images
+        const bookId = await invoke('translate_epub_with_images', {
             epubInfo: currentBook,
-            translatedContent: translatedContent
+            targetLang: 'pt-BR',
+            apiKey: settings.google_api_key
         });
         
         showLoading('Loading translated content...');
@@ -658,28 +666,159 @@ async function loadSavedBooks() {
             const isRecent = (Date.now() - savedDate.getTime()) < (7 * 24 * 60 * 60 * 1000); // Less than 7 days
             
             return `
-                <div class="book-card" onclick="loadSavedBook('${book.id}')">
-                    ${(isNew || isRecent) ? '<div class="new-badge">New</div>' : ''}
-                    <div class="book-cover">
-                        ${getBookCoverElement(book)}
-                        <div style="position: absolute; bottom: 5px; right: 5px; font-size: 10px; opacity: 0.7;">
-                            ${book.original_language.toUpperCase()}→${book.translated_language.toUpperCase()}
+                <div class="book-card">
+                    <div class="book-content" onclick="loadSavedBook('${book.id}')">
+                        ${(isNew || isRecent) ? '<div class="new-badge">New</div>' : ''}
+                        <div class="book-cover">
+                            ${getBookCoverElement(book)}
+                            <div style="position: absolute; bottom: 5px; right: 5px; font-size: 10px; opacity: 0.7;">
+                                ${book.original_language.toUpperCase()}→${book.translated_language.toUpperCase()}
+                            </div>
+                        </div>
+                        <div class="book-info">
+                            <div class="book-title">${book.title}</div>
+                            <div class="book-author">${book.author}</div>
+                            <div class="book-meta">
+                                <span>${formatDate(book.saved_date)}</span>
+                            </div>
                         </div>
                     </div>
-                    <div class="book-info">
-                        <div class="book-title">${book.title}</div>
-                        <div class="book-author">${book.author}</div>
-                        <div class="book-meta">
-                            <span>${formatDate(book.saved_date)}</span>
-                        </div>
+                    <div class="book-actions">
+                        <button class="delete-btn" onclick="confirmDeleteBook('${book.id}', '${book.title.replace(/'/g, '\\\'')}')" title="Deletar livro">
+                            🗑️
+                        </button>
                     </div>
                 </div>
             `;
         }).join('');
         
+        // Add "Delete All" button if there are books
+        if (books.length > 0) {
+            container.innerHTML += `
+                <div class="delete-all-container">
+                    <button class="delete-all-btn" onclick="confirmDeleteAllBooks()">
+                        🗑️ Deletar Todos os Livros (${books.length})
+                    </button>
+                </div>
+            `;
+        }
+        
     } catch (error) {
         console.error('Failed to load saved books:', error);
     }
+}
+
+// Delete book functions
+async function confirmDeleteBook(bookId, bookTitle) {
+    if (!isTauriEnvironment || !invoke) {
+        showError('Delete function not available in browser mode');
+        return;
+    }
+    
+    const confirmed = confirm(`Tem certeza que deseja deletar o livro "${bookTitle}"?\n\nEsta ação não pode ser desfeita.`);
+    
+    if (confirmed) {
+        await deleteBook(bookId, bookTitle);
+    }
+}
+
+async function deleteBook(bookId, bookTitle) {
+    try {
+        showLoading(`Deletando "${bookTitle}"...`);
+        
+        await invoke('delete_saved_book', { bookId });
+        
+        // Reload the books list
+        await loadSavedBooks();
+        
+        showSuccess(`Livro "${bookTitle}" deletado com sucesso!`);
+        
+        // Clear the reading area if this book was being read
+        if (currentBook && currentBook.title === bookTitle) {
+            currentBook = null;
+            translatedContent = {};
+            currentChapter = 0;
+            document.getElementById('readingArea').innerHTML = `
+                <div class="reading-content">
+                    <h2>Livro deletado</h2>
+                    <p>O livro que você estava lendo foi deletado.</p>
+                </div>
+            `;
+        }
+        
+    } catch (error) {
+        console.error('Failed to delete book:', error);
+        showError(`Erro ao deletar o livro: ${error.message || error}`);
+    }
+}
+
+async function confirmDeleteAllBooks() {
+    if (!isTauriEnvironment || !invoke) {
+        showError('Delete function not available in browser mode');
+        return;
+    }
+    
+    const confirmed = confirm('Tem certeza que deseja deletar TODOS os livros salvos?\n\nEsta ação não pode ser desfeita e removerá todos os ePubs traduzidos permanentemente.');
+    
+    if (confirmed) {
+        const doubleConfirmed = confirm('ATENÇÃO: Isso deletará TODOS os seus livros traduzidos!\n\nDigite "DELETAR" para confirmar ou cancele para voltar.');
+        
+        if (doubleConfirmed) {
+            await deleteAllBooks();
+        }
+    }
+}
+
+async function deleteAllBooks() {
+    try {
+        showLoading('Deletando todos os livros...');
+        
+        await invoke('delete_all_saved_books');
+        
+        // Reload the books list (should show empty now)
+        await loadSavedBooks();
+        
+        showSuccess('Todos os livros foram deletados com sucesso!');
+        
+        // Clear current reading state
+        currentBook = null;
+        translatedContent = {};
+        currentChapter = 0;
+        document.getElementById('readingArea').innerHTML = `
+            <div class="reading-content">
+                <h2>Biblioteca limpa</h2>
+                <p>Todos os livros traduzidos foram removidos.</p>
+                <p>Abra um novo ePub para começar a ler.</p>
+            </div>
+        `;
+        
+    } catch (error) {
+        console.error('Failed to delete all books:', error);
+        showError(`Erro ao deletar todos os livros: ${error.message || error}`);
+    }
+}
+
+function showSuccess(message) {
+    const readingArea = document.getElementById('readingArea');
+    readingArea.innerHTML = `
+        <div class="reading-content">
+            <div class="success" style="color: green; font-weight: bold; margin-bottom: 20px;">
+                ✅ ${message}
+            </div>
+        </div>
+    `;
+    
+    // Hide success message after 3 seconds
+    setTimeout(() => {
+        if (readingArea.innerHTML.includes('✅')) {
+            readingArea.innerHTML = `
+                <div class="reading-content">
+                    <h2>Selecione um livro</h2>
+                    <p>Escolha um livro da biblioteca ou abra um novo ePub para começar a ler.</p>
+                </div>
+            `;
+        }
+    }, 3000);
 }
 
 function getBookCoverElement(book) {

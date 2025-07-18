@@ -390,3 +390,135 @@ fn add_dir_to_zip<W: std::io::Write + std::io::Seek>(
     }
     Ok(())
 }
+
+pub async fn delete_saved_book(book_id: &str) -> Result<()> {
+    info!("Deleting saved book with ID: {}", book_id);
+    
+    let app_dir = get_app_directory()?;
+    let ebooks_dir = app_dir.join("ebooks");
+    let book_dir = ebooks_dir.join(book_id);
+    
+    // Check if book directory exists
+    if !book_dir.exists() {
+        warn!("Book directory does not exist: {}", book_dir.display());
+        return Err(anyhow!("Book with ID '{}' not found", book_id));
+    }
+    
+    // Remove the entire book directory
+    debug!("Removing book directory: {}", book_dir.display());
+    fs::remove_dir_all(&book_dir)
+        .map_err(|e| {
+            error!("Failed to remove book directory '{}': {}", book_dir.display(), e);
+            anyhow!("Failed to delete book files: {}", e)
+        })?;
+    
+    info!("Successfully deleted book directory: {}", book_dir.display());
+    
+    // Update the books index by removing the book entry
+    let index_file = app_dir.join("books_index.json");
+    
+    if index_file.exists() {
+        debug!("Updating books index after deletion");
+        
+        // Load existing books
+        let index_content = fs::read_to_string(&index_file)
+            .map_err(|e| {
+                error!("Failed to read books index '{}': {}", index_file.display(), e);
+                anyhow!("Failed to read books index: {}", e)
+            })?;
+        
+        let mut books: Vec<SavedBook> = serde_json::from_str(&index_content)
+            .unwrap_or_else(|e| {
+                warn!("Failed to parse books index, starting fresh: {}", e);
+                Vec::new()
+            });
+        
+        // Remove the deleted book from the index
+        let original_count = books.len();
+        books.retain(|book| book.id != book_id);
+        
+        if books.len() < original_count {
+            debug!("Removed book '{}' from index", book_id);
+            
+            // Save updated index
+            let index_json = serde_json::to_string_pretty(&books)
+                .map_err(|e| {
+                    error!("Failed to serialize updated books index: {}", e);
+                    anyhow!("Failed to serialize books index: {}", e)
+                })?;
+            
+            fs::write(&index_file, index_json)
+                .map_err(|e| {
+                    error!("Failed to write updated books index to '{}': {}", index_file.display(), e);
+                    anyhow!("Failed to write books index: {}", e)
+                })?;
+            
+            info!("Books index updated successfully after deletion");
+        } else {
+            warn!("Book '{}' was not found in the index", book_id);
+        }
+    } else {
+        debug!("Books index file does not exist, no need to update");
+    }
+    
+    info!("Successfully deleted saved book: {}", book_id);
+    Ok(())
+}
+
+pub async fn delete_all_saved_books() -> Result<()> {
+    info!("Deleting all saved books");
+    
+    let app_dir = get_app_directory()?;
+    let ebooks_dir = app_dir.join("ebooks");
+    
+    if !ebooks_dir.exists() {
+        debug!("Ebooks directory does not exist, nothing to delete");
+        return Ok(());
+    }
+    
+    // Get list of all book directories
+    let mut deleted_count = 0;
+    let entries = fs::read_dir(&ebooks_dir)
+        .map_err(|e| {
+            error!("Failed to read ebooks directory '{}': {}", ebooks_dir.display(), e);
+            anyhow!("Failed to read ebooks directory: {}", e)
+        })?;
+    
+    for entry in entries {
+        let entry = entry?;
+        let path = entry.path();
+        
+        if path.is_dir() {
+            debug!("Removing book directory: {}", path.display());
+            fs::remove_dir_all(&path)
+                .map_err(|e| {
+                    error!("Failed to remove directory '{}': {}", path.display(), e);
+                    anyhow!("Failed to remove directory: {}", e)
+                })?;
+            deleted_count += 1;
+        }
+    }
+    
+    // Clear the books index
+    let index_file = app_dir.join("books_index.json");
+    if index_file.exists() {
+        debug!("Clearing books index");
+        let empty_books: Vec<SavedBook> = Vec::new();
+        let index_json = serde_json::to_string_pretty(&empty_books)
+            .map_err(|e| {
+                error!("Failed to serialize empty books index: {}", e);
+                anyhow!("Failed to serialize books index: {}", e)
+            })?;
+        
+        fs::write(&index_file, index_json)
+            .map_err(|e| {
+                error!("Failed to write empty books index to '{}': {}", index_file.display(), e);
+                anyhow!("Failed to write books index: {}", e)
+            })?;
+        
+        info!("Books index cleared successfully");
+    }
+    
+    info!("Successfully deleted {} saved books", deleted_count);
+    Ok(())
+}

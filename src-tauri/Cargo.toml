@@ -7,11 +7,18 @@ license = "MIT"
 repository = ""
 edition = "2021"
 
+[lib]
+name = "epubreader_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
 [build-dependencies]
-tauri-build = { version = "1.0", features = [] }
+tauri-build = { version = "2.0", features = [] }
 
 [dependencies]
-tauri = { version = "1.0", features = ["dialog-open", "dialog-save", "fs-all", "shell-open"] }
+tauri = { version = "2.0", features = [] }
+tauri-plugin-dialog = "2.0"
+tauri-plugin-fs = "2.0"
+tauri-plugin-shell = "2.0"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 tokio = { version = "1.0", features = ["full"] }

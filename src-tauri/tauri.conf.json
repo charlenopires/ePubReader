@@ -1,45 +1,15 @@
 {
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "ePubReader",
+  "version": "0.1.0",
+  "identifier": "com.epubreader.app",
   "build": {
     "beforeDevCommand": "",
     "beforeBuildCommand": "",
-    "devPath": "../src",
-    "distDir": "../src",
-    "withGlobalTauri": true
+    "frontendDist": "../src",
+    "devUrl": "http://localhost:8080"
   },
-  "package": {
-    "productName": "ePubReader",
-    "version": "0.1.0"
-  },
-  "tauri": {
-    "allowlist": {
-      "all": false,
-      "shell": {
-        "all": false,
-        "open": true
-      },
-      "dialog": {
-        "all": false,
-        "open": true,
-        "save": true
-      },
-      "fs": {
-        "all": true,
-        "readFile": true,
-        "writeFile": true,
-        "readDir": true,
-        "copyFile": true,
-        "createDir": true,
-        "removeDir": true,
-        "removeFile": true,
-        "renameFile": true,
-        "exists": true
-      }
-    },
-    "bundle": {
-      "active": true,
-      "targets": "all",
-      "identifier": "com.epubreader.app"
-    },
+  "app": {
     "security": {
       "csp": null
     },
@@ -54,5 +24,31 @@
         "minHeight": 600
       }
     ]
+  },
+  "plugins": {
+    "dialog": {
+      "all": true,
+      "ask": true,
+      "confirm": true,
+      "message": true,
+      "open": true,
+      "save": true
+    },
+    "fs": {
+      "all": true,
+      "readFile": true,
+      "writeFile": true,
+      "readDir": true,
+      "copyFile": true,
+      "createDir": true,
+      "removeDir": true,
+      "removeFile": true,
+      "renameFile": true,
+      "exists": true
+    },
+    "shell": {
+      "all": false,
+      "open": true
+    }
   }
 }
