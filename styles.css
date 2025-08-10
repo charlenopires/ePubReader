@@ -49,20 +49,23 @@ body {
     flex: 1;
     display: flex;
     justify-content: center;
+    align-items: center;
+    gap: 2rem;
 }
 
-.language-selector {
+.language-selector, .model-selector {
     display: flex;
     align-items: center;
     gap: 0.5rem;
 }
 
-.language-selector label {
+.language-selector label, .model-selector label {
     font-size: 0.9rem;
     color: #b0b0b0;
+    white-space: nowrap;
 }
 
-.language-selector select {
+.language-selector select, .model-selector select {
     background-color: #404040;
     color: #ffffff;
     border: 1px solid #555;
@@ -72,7 +75,7 @@ body {
     min-width: 150px;
 }
 
-.language-selector select:focus {
+.language-selector select:focus, .model-selector select:focus {
     outline: none;
     border-color: #3498db;
 }
@@ -415,6 +418,11 @@ body {
     .header-right {
         width: 100%;
         justify-content: center;
+    }
+    
+    .header-center {
+        flex-direction: column;
+        gap: 1rem;
     }
     
     .main-content {

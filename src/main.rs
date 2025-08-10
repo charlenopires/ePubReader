@@ -57,7 +57,10 @@ async fn main() {
             set_target_language,
             translate_book,
             generate_book_html,
-            pull_translation_model
+            pull_translation_model,
+            get_available_models,
+            set_ollama_model,
+            get_current_model
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

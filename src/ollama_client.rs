@@ -7,6 +7,7 @@ use tracing::{info, error, warn};
 pub struct OllamaClient {
     client: Client,
     base_url: String,
+    current_model: std::sync::Arc<std::sync::Mutex<Option<String>>>,
 }
 
 impl OllamaClient {
@@ -14,6 +15,7 @@ impl OllamaClient {
         Self {
             client: Client::new(),
             base_url: "http://localhost:11434".to_string(),
+            current_model: std::sync::Arc::new(std::sync::Mutex::new(None)),
         }
     }
     
@@ -83,7 +85,11 @@ impl OllamaClient {
             return Err(anyhow!("Ollama is not running"));
         }
         
-        let model = status.recommended_model
+        // Use current model if set, otherwise use recommended model
+        let model = {
+            let current = self.current_model.lock().unwrap();
+            current.clone()
+        }.or(status.recommended_model)
             .ok_or_else(|| anyhow!("No suitable model available for translation"))?;
         
         let prompt = self.create_translation_prompt(&request);
@@ -179,6 +185,65 @@ Translation:"#,
         } else {
             let error_text = response.text().await?;
             Err(anyhow!("Failed to pull model: {}", error_text))
+        }
+    }
+    
+    pub async fn list_models(&self) -> Result<Vec<String>> {
+        info!("Listing available Ollama models");
+        
+        let response = self.client
+            .get(&format!("{}/api/tags", self.base_url))
+            .send()
+            .await?;
+        
+        if !response.status().is_success() {
+            return Err(anyhow!("Failed to get models from Ollama"));
+        }
+        
+        let data: Value = response.json().await?;
+        let models: Vec<String> = data["models"]
+            .as_array()
+            .unwrap_or(&vec![])
+            .iter()
+            .filter_map(|m| m["name"].as_str().map(|s| s.to_string()))
+            .collect();
+        
+        Ok(models)
+    }
+    
+    pub async fn set_model(&self, model: String) -> Result<()> {
+        info!("Setting current model to: {}", model);
+        
+        // Verify the model exists
+        let available_models = self.list_models().await?;
+        if !available_models.contains(&model) {
+            return Err(anyhow!("Model '{}' is not available", model));
+        }
+        
+        // Set the current model
+        {
+            let mut current = self.current_model.lock().unwrap();
+            *current = Some(model.clone());
+        }
+        
+        info!("Successfully set current model to: {}", model);
+        Ok(())
+    }
+    
+    pub async fn get_current_model(&self) -> Result<String> {
+        let current_model = {
+            let current = self.current_model.lock().unwrap();
+            current.clone()
+        };
+        
+        match current_model {
+            Some(model) => Ok(model),
+            None => {
+                // If no model is set, return the recommended model
+                let status = self.check_status().await?;
+                status.recommended_model
+                    .ok_or_else(|| anyhow!("No model is currently set and no recommended model available"))
+            }
         }
     }
 }

@@ -252,3 +252,51 @@ pub async fn pull_translation_model(state: State<'_, AppState>) -> Result<String
         }
     }
 }
+
+#[tauri::command]
+pub async fn get_available_models(state: State<'_, AppState>) -> Result<Vec<String>, String> {
+    info!("Getting available Ollama models");
+    
+    match state.ollama.list_models().await {
+        Ok(models) => {
+            info!("Found {} available models", models.len());
+            Ok(models)
+        }
+        Err(e) => {
+            error!("Failed to get models: {}", e);
+            Err(e.to_string())
+        }
+    }
+}
+
+#[tauri::command]
+pub async fn set_ollama_model(state: State<'_, AppState>, model: String) -> Result<(), String> {
+    info!("Setting Ollama model to: {}", model);
+    
+    match state.ollama.set_model(model.clone()).await {
+        Ok(_) => {
+            info!("Successfully set model to: {}", model);
+            Ok(())
+        }
+        Err(e) => {
+            error!("Failed to set model: {}", e);
+            Err(e.to_string())
+        }
+    }
+}
+
+#[tauri::command]
+pub async fn get_current_model(state: State<'_, AppState>) -> Result<String, String> {
+    info!("Getting current Ollama model");
+    
+    match state.ollama.get_current_model().await {
+        Ok(model) => {
+            info!("Current model: {}", model);
+            Ok(model)
+        }
+        Err(e) => {
+            error!("Failed to get current model: {}", e);
+            Err(e.to_string())
+        }
+    }
+}

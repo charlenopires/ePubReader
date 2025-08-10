@@ -9,6 +9,8 @@ class EpubReaderApp {
         this.books = [];
         this.languages = [];
         this.selectedLanguage = '';
+        this.availableModels = [];
+        this.selectedModel = '';
         this.ollamaStatus = null;
         this.init();
     }
@@ -23,8 +25,9 @@ class EpubReaderApp {
             // Load supported languages
             await this.loadLanguages();
             
-            // Check Ollama status
+            // Check Ollama status and load models
             await this.checkOllamaStatus();
+            await this.loadAvailableModels();
             
             // Load books
             await this.loadBooks();
@@ -70,12 +73,44 @@ class EpubReaderApp {
         });
     }
 
+    async loadAvailableModels() {
+        try {
+            this.availableModels = await invoke('get_available_models');
+            this.populateModelSelector();
+            
+            // Try to get current model
+            try {
+                this.selectedModel = await invoke('get_current_model');
+                document.getElementById('ollama-model').value = this.selectedModel;
+            } catch (error) {
+                console.log('No current model set:', error);
+            }
+        } catch (error) {
+            console.error('Failed to load available models:', error);
+        }
+    }
+
+    populateModelSelector() {
+        const select = document.getElementById('ollama-model');
+        select.innerHTML = '<option value="">Select Model</option>';
+        
+        this.availableModels.forEach(model => {
+            const option = document.createElement('option');
+            option.value = model;
+            option.textContent = model;
+            select.appendChild(option);
+        });
+    }
+
     async checkOllamaStatus() {
         try {
             this.ollamaStatus = await invoke('check_ollama_status');
             
             if (!this.ollamaStatus.is_running) {
                 this.showOllamaModal();
+            } else {
+                // Update available models when Ollama is running
+                await this.loadAvailableModels();
             }
         } catch (error) {
             console.error('Failed to check Ollama status:', error);
@@ -173,9 +208,27 @@ class EpubReaderApp {
             this.selectedLanguage = e.target.value;
         });
         
+        // Model selector
+        document.getElementById('ollama-model').addEventListener('change', async (e) => {
+            const selectedModel = e.target.value;
+            if (selectedModel) {
+                try {
+                    await invoke('set_ollama_model', { model: selectedModel });
+                    this.selectedModel = selectedModel;
+                    console.log('Model set to:', selectedModel);
+                } catch (error) {
+                    console.error('Failed to set model:', error);
+                    this.showError('Failed to set model: ' + error);
+                }
+            }
+        });
+        
         // Ollama modal buttons
-        document.getElementById('check-ollama-btn').addEventListener('click', () => {
-            this.checkOllamaStatus();
+        document.getElementById('check-ollama-btn').addEventListener('click', async () => {
+            await this.checkOllamaStatus();
+            if (this.ollamaStatus?.is_running) {
+                this.hideOllamaModal();
+            }
         });
         
         document.getElementById('continue-without-ollama-btn').addEventListener('click', () => {
