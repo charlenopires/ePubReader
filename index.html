@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ePub Reader Library</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-left">
+                <div class="logo">
+                    <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="32" height="32" rx="6" fill="#3498db"/>
+                        <path d="M8 10h16v2H8v-2zm0 4h16v2H8v-2zm0 4h12v2H8v-2z" fill="white"/>
+                    </svg>
+                    <span>ePub Reader</span>
+                </div>
+            </div>
+            
+            <div class="header-center">
+                <div class="language-selector">
+                    <label for="target-language">Translate to:</label>
+                    <select id="target-language">
+                        <option value="">Select Language</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="header-right">
+                <button id="add-book-btn" class="add-book-btn">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M10 4v12m-6-6h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    Add Book
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Ollama Status Modal -->
+            <div id="ollama-modal" class="modal hidden">
+                <div class="modal-content">
+                    <h2>Ollama Setup Required</h2>
+                    <p>Ollama is not running. Please start Ollama to enable translation features.</p>
+                    <div class="modal-actions">
+                        <button id="check-ollama-btn" class="btn-primary">Check Again</button>
+                        <button id="continue-without-ollama-btn" class="btn-secondary">Continue Without Translation</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Loading Indicator -->
+            <div id="loading" class="loading hidden">
+                <div class="spinner"></div>
+                <p>Loading your library...</p>
+            </div>
+
+            <!-- Empty State -->
+            <div id="empty-state" class="empty-state hidden">
+                <div class="empty-icon">📚</div>
+                <h2>Your Library is Empty</h2>
+                <p>Add your first ebook to get started</p>
+                <button id="add-first-book-btn" class="btn-primary">Add Your First Book</button>
+            </div>
+
+            <!-- Books Grid -->
+            <div id="books-grid" class="books-grid hidden">
+                <!-- Books will be dynamically loaded here -->
+            </div>
+        </main>
+
+        <!-- Translation Progress Modal -->
+        <div id="translation-modal" class="modal hidden">
+            <div class="modal-content">
+                <h2>Translating Book</h2>
+                <div class="progress-container">
+                    <div class="progress-bar">
+                        <div id="translation-progress" class="progress-fill"></div>
+                    </div>
+                    <p id="translation-status">Preparing translation...</p>
+                </div>
+                <button id="cancel-translation-btn" class="btn-secondary">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

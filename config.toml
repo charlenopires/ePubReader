@@ -1,0 +1,303 @@
+# ePub Reader Library - Configuration File
+# This file contains all configurable settings for the application
+
+[app]
+name = "ePub Reader Library"
+version = "0.1.0"
+description = "A modern ebook library with translation capabilities"
+author = "Your Name <your.email@example.com>"
+license = "MIT"
+repository = "https://github.com/yourusername/epub-reader-library"
+
+[app.window]
+title = "ePub Reader Library"
+width = 1200
+height = 800
+min_width = 800
+min_height = 600
+resizable = true
+center = true
+fullscreen = false
+always_on_top = false
+
+[database]
+# Database configuration
+name = "library.db"
+# Connection pool settings
+max_connections = 10
+min_connections = 1
+connection_timeout = 30 # seconds
+idle_timeout = 600 # seconds
+
+[database.migrations]
+# Auto-run migrations on startup
+auto_migrate = true
+# Create backup before migrations
+backup_before_migrate = true
+
+[storage]
+# Base directory for storing ebooks and data
+# Relative to user's data directory (~/.epubreader/ on Unix, %APPDATA%/.epubreader/ on Windows)
+base_dir = ".epubreader"
+ebooks_dir = "ebooks"
+cache_dir = "cache"
+logs_dir = "logs"
+backups_dir = "backups"
+
+[storage.cleanup]
+# Automatic cleanup settings
+enable_auto_cleanup = true
+# Clean cache older than X days
+cache_retention_days = 30
+# Clean logs older than X days
+log_retention_days = 7
+# Maximum cache size in MB
+max_cache_size_mb = 500
+
+[epub]
+# EPUB processing settings
+extract_images = true
+extract_metadata = true
+# Maximum file size in MB for processing
+max_file_size_mb = 100
+# Supported EPUB versions
+supported_versions = ["2.0", "3.0", "3.1"]
+
+[epub.html_generation]
+# HTML generation settings for the reader
+include_css = true
+include_js = true
+responsive_design = true
+# Theme options: "light", "dark", "auto"
+default_theme = "dark"
+# Font settings
+default_font_family = "Georgia, serif"
+default_font_size = "16px"
+line_height = "1.6"
+
+[epub.images]
+# Image processing settings
+resize_large_images = true
+max_image_width = 800
+max_image_height = 600
+# Image quality (1-100)
+jpeg_quality = 85
+# Convert images to web-friendly formats
+convert_to_webp = false
+
+[translation]
+# Translation service configuration
+enabled = true
+# Default translation service: "ollama"
+default_service = "ollama"
+# Maximum text chunk size for translation
+max_chunk_size = 2000
+# Retry settings
+max_retries = 3
+retry_delay_ms = 1000
+
+[translation.ollama]
+# Ollama service configuration
+host = "localhost"
+port = 11434
+# Default model for translation
+default_model = "llama3.1:8b"
+# Alternative models (fallback order)
+fallback_models = ["llama3:8b", "mistral:7b"]
+# Request timeout in seconds
+timeout = 120
+# Maximum concurrent requests
+max_concurrent_requests = 2
+
+[translation.ollama.models]
+# Model-specific configurations
+[translation.ollama.models."llama3.1:8b"]
+temperature = 0.3
+top_p = 0.9
+max_tokens = 4000
+
+[translation.ollama.models."llama3:8b"]
+temperature = 0.3
+top_p = 0.9
+max_tokens = 4000
+
+[translation.ollama.models."mistral:7b"]
+temperature = 0.2
+top_p = 0.8
+max_tokens = 3000
+
+[translation.languages]
+# Supported languages for translation
+# Format: code = "native_name"
+en = "English"
+pt = "Português"
+es = "Español"
+fr = "Français"
+de = "Deutsch"
+it = "Italiano"
+ja = "日本語"
+ko = "한국어"
+zh = "中文"
+ru = "Русский"
+ar = "العربية"
+hi = "हिन्दी"
+
+[ui]
+# User interface settings
+theme = "dark" # "light", "dark", "auto"
+language = "en" # Default UI language
+# Grid layout settings
+books_per_row = 4
+book_card_width = 200
+book_card_height = 300
+# Animation settings
+enable_animations = true
+animation_duration_ms = 300
+
+[ui.reader]
+# Reader-specific UI settings
+show_progress_bar = true
+show_chapter_navigation = true
+enable_keyboard_shortcuts = true
+# Reading settings
+auto_save_position = true
+# Font size limits
+min_font_size = "12px"
+max_font_size = "24px"
+
+[logging]
+# Logging configuration
+level = "info" # "trace", "debug", "info", "warn", "error"
+# Log to file
+log_to_file = true
+# Log file rotation
+max_log_file_size_mb = 10
+max_log_files = 5
+# Console logging
+log_to_console = true
+
+[logging.modules]
+# Module-specific log levels
+epub_processor = "debug"
+translation = "debug"
+database = "info"
+ui = "warn"
+
+[performance]
+# Performance optimization settings
+# Thread pool size for background tasks
+worker_threads = 4
+# Memory limits
+max_memory_usage_mb = 1024
+# Cache settings
+enable_metadata_cache = true
+metadata_cache_size = 1000
+# Image cache settings
+enable_image_cache = true
+image_cache_size_mb = 100
+
+[security]
+# Security settings
+# Validate EPUB files before processing
+validate_epub_files = true
+# Sanitize HTML content
+sanitize_html = true
+# Maximum file path length
+max_path_length = 260
+# Allowed file extensions for import
+allowed_extensions = ["epub"]
+
+[backup]
+# Backup configuration
+enable_auto_backup = true
+# Backup frequency in hours
+backup_frequency_hours = 24
+# Maximum number of backups to keep
+max_backups = 7
+# Backup location (relative to base_dir)
+backup_location = "backups"
+# Compress backups
+compress_backups = true
+
+[updates]
+# Update checking configuration
+check_for_updates = true
+# Check frequency in hours
+check_frequency_hours = 168 # Weekly
+# Update channel: "stable", "beta", "nightly"
+update_channel = "stable"
+# Auto-download updates
+auto_download = false
+
+[development]
+# Development-only settings
+debug_mode = false
+# Enable hot reload for UI
+hot_reload = false
+# Mock translation service for testing
+mock_translation = false
+# Enable detailed error reporting
+verbose_errors = false
+
+[experimental]
+# Experimental features (use with caution)
+# Enable PDF support (experimental)
+enable_pdf_support = false
+# Enable MOBI support (experimental)
+enable_mobi_support = false
+# Enable cloud sync (experimental)
+enable_cloud_sync = false
+# Enable collaborative features (experimental)
+enable_collaboration = false
+
+# Advanced configuration for power users
+[advanced]
+# Custom CSS for reader
+custom_reader_css = ""
+# Custom JavaScript for reader
+custom_reader_js = ""
+# Plugin directory
+plugin_directory = "plugins"
+# Enable plugin system
+enable_plugins = false
+
+[advanced.database]
+# Advanced database settings
+# SQLite pragma settings
+journal_mode = "WAL"
+synchronous = "NORMAL"
+cache_size = 10000
+temp_store = "MEMORY"
+mmap_size = 268435456 # 256MB
+
+[advanced.networking]
+# Network configuration
+user_agent = "ePub Reader Library/0.1.0"
+# Connection timeout in seconds
+connect_timeout = 30
+# Read timeout in seconds
+read_timeout = 60
+# Maximum redirects
+max_redirects = 5
+
+# Environment-specific overrides
+[environments.development]
+logging.level = "debug"
+logging.log_to_console = true
+development.debug_mode = true
+development.verbose_errors = true
+performance.worker_threads = 2
+
+[environments.production]
+logging.level = "warn"
+logging.log_to_console = false
+development.debug_mode = false
+development.verbose_errors = false
+security.validate_epub_files = true
+backup.enable_auto_backup = true
+
+[environments.testing]
+logging.level = "debug"
+development.mock_translation = true
+database.name = "test_library.db"
+storage.base_dir = ".epubreader_test"

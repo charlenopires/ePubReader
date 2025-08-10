@@ -1,0 +1,225 @@
+# Ollama Configuration for ePub Reader Library
+# This file contains specific settings for Ollama integration
+
+[connection]
+host = "localhost"
+port = 11434
+protocol = "http"
+# Connection timeout in seconds
+timeout = 30
+# Maximum number of connection retries
+max_retries = 3
+# Delay between retries in milliseconds
+retry_delay = 1000
+
+[models]
+# Default model for translation
+default = "llama3.1:8b"
+
+# Model priority order (fallback chain)
+priority = [
+    "llama3.1:8b",
+    "llama3:8b", 
+    "mistral:7b",
+    "codellama:7b"
+]
+
+# Model-specific configurations
+[models.configs]
+
+[models.configs."llama3.1:8b"]
+# Model parameters for llama3.1:8b
+temperature = 0.3
+top_p = 0.9
+top_k = 40
+max_tokens = 4000
+# Context window size
+context_length = 8192
+# Specific for translation tasks
+translation_temperature = 0.2
+translation_top_p = 0.8
+
+[models.configs."llama3:8b"]
+temperature = 0.3
+top_p = 0.9
+top_k = 40
+max_tokens = 4000
+context_length = 8192
+translation_temperature = 0.2
+translation_top_p = 0.8
+
+[models.configs."mistral:7b"]
+temperature = 0.2
+top_p = 0.8
+top_k = 35
+max_tokens = 3000
+context_length = 4096
+translation_temperature = 0.1
+translation_top_p = 0.7
+
+[models.configs."codellama:7b"]
+temperature = 0.1
+top_p = 0.7
+top_k = 30
+max_tokens = 2000
+context_length = 4096
+# Not recommended for translation, but can be used as fallback
+translation_temperature = 0.1
+translation_top_p = 0.6
+
+[translation]
+# Translation-specific settings
+# Maximum text chunk size for translation
+max_chunk_size = 2000
+# Overlap between chunks to maintain context
+chunk_overlap = 200
+# Maximum concurrent translation requests
+max_concurrent = 2
+# Timeout for individual translation requests
+request_timeout = 120
+
+[translation.prompts]
+# System prompts for different translation scenarios
+
+# General translation prompt
+general = """You are a professional translator. Translate the following text from {source_language} to {target_language}. 
+Maintain the original formatting, style, and meaning. Do not add explanations or comments.
+Only return the translated text.
+
+Text to translate:
+{text}"""
+
+# Literary translation prompt (for books)
+literary = """You are a professional literary translator specializing in books and literature. 
+Translate the following text from {source_language} to {target_language}.
+Preserve the literary style, tone, and cultural nuances. Maintain paragraph breaks and formatting.
+Do not add explanations or comments. Only return the translated text.
+
+Text to translate:
+{text}"""
+
+# Technical translation prompt (for technical books)
+technical = """You are a technical translator. Translate the following text from {source_language} to {target_language}.
+Preserve technical terms, maintain accuracy, and keep the original formatting.
+Do not translate proper nouns, technical terms that are commonly used in the target language, or code examples.
+Only return the translated text.
+
+Text to translate:
+{text}"""
+
+[health_check]
+# Health check configuration
+enabled = true
+# Interval between health checks in seconds
+interval = 60
+# Timeout for health check requests
+timeout = 10
+# Number of failed checks before marking as unhealthy
+failure_threshold = 3
+# Number of successful checks to mark as healthy again
+success_threshold = 2
+
+[performance]
+# Performance optimization settings
+# Enable request batching
+enable_batching = true
+# Maximum batch size
+max_batch_size = 5
+# Batch timeout in milliseconds
+batch_timeout = 1000
+
+# Memory management
+# Maximum memory usage for model loading (in MB)
+max_memory_mb = 4096
+# Enable model unloading when idle
+auto_unload = true
+# Idle timeout before unloading (in seconds)
+idle_timeout = 300
+
+[logging]
+# Ollama-specific logging
+enabled = true
+level = "info"
+# Log file for Ollama interactions
+log_file = "ollama.log"
+# Log request/response details
+log_requests = false
+log_responses = false
+# Log performance metrics
+log_performance = true
+
+[cache]
+# Response caching configuration
+enabled = true
+# Cache size in MB
+size_mb = 100
+# Cache TTL in seconds
+ttl = 3600
+# Cache key includes model parameters
+include_params_in_key = true
+
+[monitoring]
+# Monitoring and metrics
+enabled = true
+# Collect performance metrics
+collect_metrics = true
+# Metrics collection interval in seconds
+metrics_interval = 30
+
+[monitoring.alerts]
+# Alert thresholds
+# Response time threshold in milliseconds
+response_time_threshold = 30000
+# Error rate threshold (percentage)
+error_rate_threshold = 10
+# Memory usage threshold (percentage)
+memory_threshold = 90
+
+[development]
+# Development-specific settings
+# Enable debug logging
+debug = false
+# Mock responses for testing
+mock_responses = false
+# Simulate network delays
+simulate_delays = false
+# Delay range in milliseconds
+delay_range = [100, 500]
+
+[experimental]
+# Experimental features
+# Enable streaming responses
+enable_streaming = false
+# Enable parallel processing
+enable_parallel = false
+# Maximum parallel requests
+max_parallel = 3
+
+# Language-specific configurations
+[languages]
+# Language codes and their full names
+[languages.supported]
+en = "English"
+pt = "Portuguese"
+es = "Spanish"
+fr = "French"
+de = "German"
+it = "Italian"
+ja = "Japanese"
+ko = "Korean"
+zh = "Chinese"
+ru = "Russian"
+ar = "Arabic"
+hi = "Hindi"
+
+# Language-specific model preferences
+[languages.model_preferences]
+# Some models work better for specific languages
+ja = ["llama3.1:8b", "mistral:7b"]  # Japanese works well with these
+zh = ["llama3.1:8b", "llama3:8b"]   # Chinese
+ar = ["llama3.1:8b"]                # Arabic
+hi = ["llama3.1:8b"]                # Hindi
+ko = ["llama3.1:8b", "mistral:7b"]  # Korean
+
+# Default fallback for all other languages
+default = ["llama3.1:8b", "llama3:8b", "mistral:7b"]

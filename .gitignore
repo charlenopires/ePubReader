@@ -1,58 +1,21 @@
-# Claude Code Configuration
-.claude
-CLAUDE.md
-
-# Environment Variables
-.env
-.env.local
-.env.production
-.env.staging
-
-# Rust/Cargo
-src-tauri/target/
-src-tauri/Cargo.lock
+# Rust
+/target/
 **/*.rs.bk
+Cargo.lock
 
 # Tauri
-src-tauri/gen/
-src-tauri/WixTools/
+/src-tauri/target/
+/src-tauri/Cargo.lock
 
-# Node.js (if using npm/yarn for frontend)
+# Node.js
 node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-package-lock.json
-yarn.lock
 
 # Build outputs
-dist/
-build/
-out/
-
-# Logs
-*.log
-logs/
-*.log.*
-
-# macOS
-.DS_Store
-.AppleDouble
-.LSOverride
-Icon
-._*
-
-# Windows
-Thumbs.db
-ehthumbs.db
-Desktop.ini
-$RECYCLE.BIN/
-
-# Linux
-*~
-.fuse_hidden*
-.directory
-.Trash-*
+/dist/
+/build/
 
 # IDE
 .vscode/
@@ -61,20 +24,51 @@ $RECYCLE.BIN/
 *.swo
 *~
 
-# Temporary files
-*.tmp
-*.temp
-.cache/
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
 
-# Application-specific
-# User data directory (contains sensitive data)
-**/.epubreader/
+# Logs
+*.log
 
-# Test books and sample files
-test-books/
-sample-epubs/
-*.epub
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
 
-# API Keys and sensitive config
-config/secrets.json
-secrets.yaml
+# Coverage directory used by tools like istanbul
+coverage/
+
+# nyc test coverage
+.nyc_output
+
+# Dependency directories
+jspm_packages/
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Output of 'npm pack'
+*.tgz
+
+# Yarn Integrity file
+.yarn-integrity
+
+# dotenv environment variables file
+.env
+.env.test
+.env.production
+
+# Application specific
+.epubreader/
+*.db
+*.sqlite

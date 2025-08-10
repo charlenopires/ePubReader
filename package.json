@@ -1,0 +1,13 @@
+{
+  "name": "epub-reader-library",
+  "version": "0.1.0",
+  "description": "A modern ebook library with translation capabilities",
+  "scripts": {
+    "dev": "cargo tauri dev",
+    "build": "cargo tauri build",
+    "tauri": "tauri"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.0.0"
+  }
+}

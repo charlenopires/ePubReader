@@ -1,0 +1,229 @@
+# Logging Configuration for ePub Reader Library
+# This file configures all logging aspects of the application
+
+[global]
+# Global logging settings
+enabled = true
+# Default log level: trace, debug, info, warn, error
+level = "info"
+# Log format: "compact", "pretty", "json"
+format = "pretty"
+# Include timestamps
+include_timestamp = true
+# Include thread information
+include_thread = true
+# Include module path
+include_module = true
+
+[console]
+# Console logging configuration
+enabled = true
+# Console-specific log level (can override global)
+level = "info"
+# Colorize console output
+colorize = true
+# Show progress bars in console
+show_progress = true
+
+[file]
+# File logging configuration
+enabled = true
+# Base directory for log files (relative to data directory)
+directory = "logs"
+# Log file naming pattern
+filename_pattern = "epub-reader-{date}.log"
+# File-specific log level
+level = "debug"
+# Maximum file size in MB before rotation
+max_size_mb = 10
+# Maximum number of log files to keep
+max_files = 7
+# Compress rotated log files
+compress_rotated = true
+
+[modules]
+# Module-specific logging levels
+# Override global level for specific modules
+
+[modules.epub_processor]
+level = "debug"
+# Log EPUB processing details
+log_metadata_extraction = true
+log_image_processing = true
+log_html_generation = true
+
+[modules.translation]
+level = "debug"
+# Log translation requests and responses
+log_requests = true
+log_responses = false  # Can be large, enable for debugging
+log_performance = true
+# Log translation chunks
+log_chunks = false
+
+[modules.database]
+level = "info"
+# Log SQL queries (be careful with sensitive data)
+log_queries = false
+log_migrations = true
+log_performance = true
+
+[modules.ollama_client]
+level = "debug"
+# Log Ollama API interactions
+log_requests = true
+log_responses = false
+log_connection_status = true
+log_model_loading = true
+
+[modules.ui]
+level = "warn"
+# Log UI events
+log_user_actions = false
+log_state_changes = false
+log_performance = true
+
+[modules.storage]
+level = "info"
+# Log file operations
+log_file_operations = true
+log_cleanup_operations = true
+log_backup_operations = true
+
+[performance]
+# Performance logging configuration
+enabled = true
+# Log slow operations (threshold in milliseconds)
+slow_operation_threshold = 1000
+# Log memory usage
+log_memory_usage = true
+# Memory logging interval in seconds
+memory_log_interval = 60
+# Log CPU usage
+log_cpu_usage = false
+
+[security]
+# Security-related logging
+enabled = true
+# Log authentication attempts (if applicable)
+log_auth_attempts = false
+# Log file access attempts
+log_file_access = false
+# Log potentially suspicious activities
+log_suspicious_activities = true
+# Sanitize sensitive data in logs
+sanitize_sensitive_data = true
+
+[errors]
+# Error logging configuration
+# Log full stack traces
+include_stack_traces = true
+# Log error context
+include_context = true
+# Log user actions leading to errors
+include_user_actions = true
+# Maximum error context length
+max_context_length = 1000
+
+[audit]
+# Audit logging for important operations
+enabled = true
+# Log book additions/removals
+log_library_changes = true
+# Log translation operations
+log_translations = true
+# Log configuration changes
+log_config_changes = true
+# Log backup operations
+log_backups = true
+
+[development]
+# Development-specific logging
+# Enable debug logging in development
+debug_mode = false
+# Log all HTTP requests/responses
+log_http_traffic = false
+# Log detailed timing information
+log_detailed_timing = false
+# Log memory allocations
+log_memory_allocations = false
+
+[filters]
+# Log filtering configuration
+# Exclude certain log messages
+exclude_patterns = [
+    "routine health check",
+    "periodic cleanup",
+    "cache hit"
+]
+# Include only certain patterns (if specified, only these will be logged)
+include_patterns = []
+# Rate limiting for repeated messages
+rate_limit_enabled = true
+# Maximum same messages per minute
+max_same_messages_per_minute = 10
+
+[structured_logging]
+# Structured logging configuration
+enabled = false
+# Output format: "json", "logfmt"
+format = "json"
+# Include additional structured fields
+include_fields = [
+    "user_id",
+    "session_id", 
+    "operation_id",
+    "book_id"
+]
+
+[remote_logging]
+# Remote logging configuration (for production monitoring)
+enabled = false
+# Remote logging service URL
+endpoint = ""
+# API key for remote service
+api_key = ""
+# Batch size for remote logging
+batch_size = 100
+# Flush interval in seconds
+flush_interval = 30
+
+[alerting]
+# Log-based alerting configuration
+enabled = false
+# Alert on error threshold
+error_threshold_per_minute = 10
+# Alert on warning threshold  
+warning_threshold_per_minute = 50
+# Alert channels
+channels = ["email", "webhook"]
+# Email configuration
+email_recipients = []
+# Webhook URL for alerts
+webhook_url = ""
+
+# Environment-specific overrides
+[environments.development]
+global.level = "debug"
+console.enabled = true
+console.level = "debug"
+file.level = "trace"
+modules.epub_processor.level = "trace"
+modules.translation.level = "trace"
+development.debug_mode = true
+
+[environments.production]
+global.level = "warn"
+console.enabled = false
+file.level = "info"
+performance.enabled = true
+security.enabled = true
+audit.enabled = true
+remote_logging.enabled = false  # Set to true when configured
+
+[environments.testing]
+global.level = "debug"
+console.enabled = true
+file.enabled = false
+modules.database.log_queries = true
+development.debug_mode = true

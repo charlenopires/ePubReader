@@ -1,0 +1,259 @@
+{
+  "reader": {
+    "name": "ePub Reader Library - HTML Reader",
+    "version": "0.1.0",
+    "description": "HTML-based ebook reader configuration"
+  },
+  "ui": {
+    "themes": {
+      "light": {
+        "name": "Light Theme",
+        "background": "#ffffff",
+        "text": "#333333",
+        "accent": "#007bff",
+        "secondary": "#6c757d",
+        "border": "#dee2e6",
+        "hover": "#f8f9fa"
+      },
+      "dark": {
+        "name": "Dark Theme", 
+        "background": "#1a1a1a",
+        "text": "#e0e0e0",
+        "accent": "#4dabf7",
+        "secondary": "#868e96",
+        "border": "#495057",
+        "hover": "#2d3748"
+      },
+      "sepia": {
+        "name": "Sepia Theme",
+        "background": "#f4f1ea",
+        "text": "#5c4b37",
+        "accent": "#8b4513",
+        "secondary": "#a0522d",
+        "border": "#d2b48c",
+        "hover": "#f5f5dc"
+      }
+    },
+    "default_theme": "dark",
+    "fonts": {
+      "serif": {
+        "name": "Serif",
+        "family": "Georgia, 'Times New Roman', serif",
+        "description": "Traditional reading font"
+      },
+      "sans_serif": {
+        "name": "Sans Serif", 
+        "family": "Arial, Helvetica, sans-serif",
+        "description": "Modern clean font"
+      },
+      "system": {
+        "name": "System",
+        "family": "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+        "description": "System default font"
+      },
+      "dyslexic": {
+        "name": "Dyslexic Friendly",
+        "family": "'OpenDyslexic', Arial, sans-serif",
+        "description": "Font designed for dyslexic readers"
+      }
+    },
+    "default_font": "serif",
+    "font_sizes": {
+      "min": 12,
+      "max": 32,
+      "default": 16,
+      "step": 2
+    },
+    "line_heights": {
+      "compact": 1.2,
+      "normal": 1.6,
+      "relaxed": 2.0,
+      "default": "normal"
+    },
+    "margins": {
+      "narrow": "10px",
+      "normal": "20px", 
+      "wide": "40px",
+      "default": "normal"
+    },
+    "max_width": {
+      "narrow": "600px",
+      "normal": "800px",
+      "wide": "1000px",
+      "full": "100%",
+      "default": "normal"
+    }
+  },
+  "navigation": {
+    "keyboard_shortcuts": {
+      "enabled": true,
+      "shortcuts": {
+        "next_chapter": ["ArrowRight", "PageDown", "Space"],
+        "previous_chapter": ["ArrowLeft", "PageUp"],
+        "go_to_index": ["Home", "Escape"],
+        "toggle_fullscreen": ["F11"],
+        "increase_font": ["Equal", "Plus"],
+        "decrease_font": ["Minus"],
+        "toggle_theme": ["KeyT"],
+        "toggle_menu": ["KeyM"]
+      }
+    },
+    "mouse_navigation": {
+      "enabled": true,
+      "click_to_turn": true,
+      "scroll_to_turn": false,
+      "gesture_sensitivity": 0.3
+    },
+    "progress_bar": {
+      "enabled": true,
+      "position": "bottom",
+      "height": "4px",
+      "color": "#007bff",
+      "background": "#e9ecef"
+    },
+    "chapter_navigation": {
+      "show_buttons": true,
+      "show_dropdown": true,
+      "auto_hide": false,
+      "position": "top"
+    }
+  },
+  "reading": {
+    "auto_save_position": true,
+    "save_interval": 5000,
+    "smooth_scrolling": true,
+    "reading_time_tracking": true,
+    "word_count_display": false,
+    "estimated_time_display": true,
+    "words_per_minute": 250
+  },
+  "accessibility": {
+    "high_contrast": false,
+    "focus_indicators": true,
+    "screen_reader_support": true,
+    "keyboard_only_navigation": true,
+    "reduced_motion": false,
+    "text_to_speech": {
+      "enabled": false,
+      "voice": "default",
+      "rate": 1.0,
+      "pitch": 1.0,
+      "volume": 1.0
+    }
+  },
+  "performance": {
+    "lazy_loading": true,
+    "image_optimization": true,
+    "preload_next_chapter": true,
+    "cache_chapters": true,
+    "max_cached_chapters": 5,
+    "virtual_scrolling": false
+  },
+  "content": {
+    "image_handling": {
+      "max_width": "100%",
+      "max_height": "80vh",
+      "lazy_load": true,
+      "zoom_on_click": true,
+      "alt_text_fallback": true
+    },
+    "text_processing": {
+      "hyphenation": false,
+      "justify_text": false,
+      "smart_quotes": true,
+      "preserve_whitespace": false
+    },
+    "links": {
+      "external_links_new_tab": true,
+      "internal_links_smooth_scroll": true,
+      "footnote_popups": false
+    }
+  },
+  "ui_elements": {
+    "header": {
+      "show": true,
+      "auto_hide": false,
+      "height": "60px",
+      "elements": ["title", "progress", "controls"]
+    },
+    "footer": {
+      "show": true,
+      "auto_hide": false,
+      "height": "40px",
+      "elements": ["navigation", "page_info"]
+    },
+    "sidebar": {
+      "show": false,
+      "position": "left",
+      "width": "300px",
+      "collapsible": true,
+      "elements": ["toc", "bookmarks", "notes"]
+    },
+    "toolbar": {
+      "show": true,
+      "position": "top",
+      "elements": [
+        "font_size",
+        "theme_toggle", 
+        "fullscreen",
+        "settings"
+      ]
+    }
+  },
+  "customization": {
+    "custom_css": {
+      "enabled": true,
+      "file": "custom.css",
+      "inline": ""
+    },
+    "custom_js": {
+      "enabled": false,
+      "file": "custom.js",
+      "inline": ""
+    },
+    "user_preferences": {
+      "save_locally": true,
+      "sync_across_books": true,
+      "export_settings": true
+    }
+  },
+  "development": {
+    "debug_mode": false,
+    "show_debug_info": false,
+    "console_logging": false,
+    "performance_monitoring": false,
+    "hot_reload": false
+  },
+  "analytics": {
+    "enabled": false,
+    "track_reading_time": false,
+    "track_chapter_completion": false,
+    "track_user_preferences": false,
+    "privacy_mode": true
+  },
+  "experimental": {
+    "features": {
+      "voice_navigation": false,
+      "eye_tracking": false,
+      "gesture_controls": false,
+      "ai_summaries": false,
+      "collaborative_reading": false
+    }
+  },
+  "localization": {
+    "default_language": "en",
+    "supported_languages": [
+      "en", "pt", "es", "fr", "de", "it", 
+      "ja", "ko", "zh", "ru", "ar", "hi"
+    ],
+    "rtl_support": true,
+    "date_format": "locale",
+    "number_format": "locale"
+  },
+  "security": {
+    "sanitize_html": true,
+    "allow_external_resources": false,
+    "content_security_policy": true,
+    "safe_mode": true
+  }
+}

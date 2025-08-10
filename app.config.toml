@@ -1,0 +1,227 @@
+# ePub Reader Library - Master Configuration File
+# This is the main configuration file that references all other configuration files
+
+[meta]
+name = "ePub Reader Library"
+version = "0.1.0"
+config_version = "1.0"
+last_updated = "2024-01-01T00:00:00Z"
+
+[config_files]
+# References to other configuration files
+# All paths are relative to the application root directory
+
+# Main application configuration
+main_config = "config.toml"
+
+# Environment-specific configurations
+development_env = ".env.development"
+production_env = ".env.production"
+testing_env = ".env.testing"
+
+# Service-specific configurations
+ollama_config = "ollama.config.toml"
+reader_config = "reader.config.json"
+logging_config = "logging.config.toml"
+
+# Runtime configurations (created at runtime)
+user_preferences = "user.config.toml"
+cache_config = "cache.config.toml"
+
+[environment]
+# Current environment: development, production, testing
+current = "development"
+# Auto-detect environment based on build type
+auto_detect = true
+# Environment detection priority
+detection_order = ["ENVIRONMENT", "RUST_ENV", "NODE_ENV"]
+
+[config_loading]
+# Configuration loading behavior
+# Load order (later configs override earlier ones)
+load_order = [
+    "config.toml",
+    "ollama.config.toml", 
+    "logging.config.toml",
+    ".env.{environment}",
+    "user.config.toml"
+]
+# Fail if required config files are missing
+fail_on_missing_required = true
+# Required configuration files
+required_files = ["config.toml"]
+# Optional configuration files
+optional_files = [
+    "ollama.config.toml",
+    "reader.config.json", 
+    "logging.config.toml",
+    "user.config.toml"
+]
+
+[validation]
+# Configuration validation settings
+enabled = true
+# Validate on startup
+validate_on_startup = true
+# Validate on config reload
+validate_on_reload = true
+# Strict validation (fail on unknown keys)
+strict_mode = false
+
+[hot_reload]
+# Hot reload configuration changes
+enabled = true
+# Watch for file changes
+watch_files = true
+# Reload interval in seconds
+check_interval = 5
+# Files to watch for changes
+watched_files = [
+    "config.toml",
+    "ollama.config.toml",
+    "logging.config.toml",
+    "user.config.toml"
+]
+
+[backup]
+# Configuration backup settings
+enabled = true
+# Backup before applying changes
+backup_before_changes = true
+# Backup directory
+backup_directory = "config_backups"
+# Maximum number of backups to keep
+max_backups = 10
+
+[defaults]
+# Default values for missing configurations
+# These are used when config files are missing or incomplete
+
+[defaults.app]
+name = "ePub Reader Library"
+version = "0.1.0"
+window_width = 1200
+window_height = 800
+
+[defaults.database]
+name = "library.db"
+max_connections = 10
+
+[defaults.ollama]
+host = "localhost"
+port = 11434
+default_model = "llama3.1:8b"
+timeout = 120
+
+[defaults.ui]
+theme = "dark"
+language = "en"
+books_per_row = 4
+
+[defaults.logging]
+level = "info"
+log_to_file = true
+log_to_console = true
+
+[overrides]
+# Configuration overrides for specific scenarios
+# These take precedence over all other configurations
+
+[overrides.development]
+# Development overrides
+logging.level = "debug"
+logging.log_to_console = true
+app.debug_mode = true
+
+[overrides.production]
+# Production overrides
+logging.level = "warn"
+logging.log_to_console = false
+security.validate_epub_files = true
+
+[overrides.testing]
+# Testing overrides
+database.name = "test_library.db"
+storage.base_dir = ".epubreader_test"
+translation.mock_translation = true
+
+[schema]
+# Configuration schema validation
+# Define expected structure and types for validation
+
+[schema.app]
+name = { type = "string", required = true }
+version = { type = "string", required = true }
+window_width = { type = "integer", min = 800, max = 3840 }
+window_height = { type = "integer", min = 600, max = 2160 }
+
+[schema.database]
+name = { type = "string", required = true }
+max_connections = { type = "integer", min = 1, max = 100 }
+
+[schema.ollama]
+host = { type = "string", required = true }
+port = { type = "integer", min = 1, max = 65535 }
+timeout = { type = "integer", min = 10, max = 600 }
+
+[migration]
+# Configuration migration settings
+enabled = true
+# Migration scripts directory
+scripts_directory = "config_migrations"
+# Current schema version
+current_version = "1.0"
+# Auto-migrate on version mismatch
+auto_migrate = true
+
+[security]
+# Configuration security settings
+# Encrypt sensitive configuration values
+encrypt_sensitive = false
+# Sensitive keys that should be encrypted
+sensitive_keys = [
+    "api_keys",
+    "passwords",
+    "tokens"
+]
+# Configuration file permissions
+file_permissions = "600"
+
+[monitoring]
+# Configuration monitoring
+enabled = true
+# Monitor configuration changes
+log_changes = true
+# Alert on configuration errors
+alert_on_errors = true
+# Performance impact monitoring
+monitor_performance = true
+
+[documentation]
+# Configuration documentation
+# Generate documentation from configuration
+generate_docs = false
+# Documentation output format
+docs_format = "markdown"
+# Documentation output file
+docs_output = "CONFIG.md"
+
+[examples]
+# Example configurations for different use cases
+# These can be copied to create new configurations
+
+[examples.minimal]
+description = "Minimal configuration for basic usage"
+files = ["config.minimal.toml"]
+
+[examples.full_featured]
+description = "Full-featured configuration with all options"
+files = ["config.full.toml", "ollama.full.toml"]
+
+[examples.performance_optimized]
+description = "Configuration optimized for performance"
+files = ["config.performance.toml"]
+
+[examples.security_hardened]
+description = "Security-hardened configuration"
+files = ["config.security.toml"]
