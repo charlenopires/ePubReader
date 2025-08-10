@@ -1,102 +1,130 @@
 # ePub Reader Library
 
-Uma biblioteca moderna de livros eletrônicos com capacidades de tradução usando Ollama AI.
+A modern ebook library with translation capabilities using Ollama AI.
 
-## Características
+## Features
 
-- 📚 **Gerenciamento de Biblioteca**: Organize seus livros EPUB em uma interface moderna
-- 🌍 **Tradução Inteligente**: Traduza livros para diferentes idiomas usando Ollama
-- 📖 **Leitor Integrado**: Leia seus livros em HTML/CSS/JS otimizado
-- 💾 **Armazenamento Local**: Dados salvos em `~/.epubreader/ebooks`
-- 🎨 **Interface Moderna**: Design escuro e responsivo
+- 📚 **Library Management**: Organize your EPUB books in a modern interface
+- 🌍 **Smart Translation**: Translate books to different languages using Ollama
+- 📖 **Integrated Reader**: Read your books in optimized HTML/CSS/JS
+- 💾 **Local Storage**: Data saved in `~/.epubreader/ebooks`
+- 🎨 **Modern Interface**: Dark and responsive design
 
-## Pré-requisitos
+## Prerequisites
 
-1. **Rust** (versão 1.70+)
-2. **Node.js** (versão 16+)
-3. **Ollama** (para funcionalidades de tradução)
+1. **Rust** (version 1.70+)
+2. **Node.js** (version 16+)
+3. **Ollama** (for translation features)
 
-### Instalação do Ollama
+### Ollama Installation
 
 ```bash
 # macOS/Linux
 curl -fsSL https://ollama.ai/install.sh | sh
 
 # Windows
-# Baixe de https://ollama.ai/download
+# Download from https://ollama.ai/download
 
-# Inicie o Ollama
+# Start Ollama
 ollama serve
 
-# Instale um modelo recomendado
+# Install a recommended model
 ollama pull llama3.1:8b
 ```
 
-## Instalação
+## Installation
 
-1. Clone o repositório:
+### Quick Start
+```bash
+# Run the automated setup script
+./setup.sh
+
+# Start the application
+cargo tauri dev
+```
+
+### Manual Installation
+
+1. Clone the repository:
 ```bash
 git clone <repository-url>
 cd epub-reader-library
 ```
 
-2. Instale as dependências do Tauri:
+2. Install Tauri dependencies:
 ```bash
 cargo install tauri-cli
 ```
 
-3. Execute em modo de desenvolvimento:
+3. Run in development mode:
 ```bash
 cargo tauri dev
 ```
 
-4. Para build de produção:
+4. For production build:
 ```bash
 cargo tauri build
 ```
 
-## Uso
+## Usage
 
-### Adicionando Livros
+### Adding Books
 
-1. Clique no botão "Add Book" no canto superior direito
-2. Selecione um arquivo EPUB do seu sistema
-3. O livro será processado e adicionado à sua biblioteca
+1. Click the "Add Book" button in the top right corner
+2. Select an EPUB file from your system
+3. The book will be processed and added to your library
 
-### Traduzindo Livros
+### Translating Books
 
-1. Certifique-se de que o Ollama está rodando
-2. Selecione o idioma de destino no seletor do cabeçalho
-3. Clique em "Translate" no cartão do livro
-4. Aguarde o processo de tradução ser concluído
+1. Make sure Ollama is running
+2. Select the target language in the header selector
+3. Click "Translate" on the book card
+4. Wait for the translation process to complete
 
-### Lendo Livros
+### Reading Books
 
-1. Clique em "Read" no cartão do livro
-2. O livro será aberto em seu navegador padrão
-3. Use as teclas de seta para navegar entre capítulos
-4. Use os controles de leitura para ajustar fonte e tema
+1. Click "Read" on the book card
+2. The book will open in your default browser
+3. Use arrow keys to navigate between chapters
+4. Use reading controls to adjust font and theme
 
-## Estrutura do Projeto
+## 📚 Documentation
+
+### Quick Links
+- 🚀 **[Quick Start Guide](guides/quick-start.md)** - Get up and running in 5 minutes
+- 👤 **[User Guide](guides/user-guide.md)** - Complete feature documentation
+- 🎨 **[Visual Guide](guides/visual-guide.md)** - Interface mockups and workflows
+- 🔧 **[Troubleshooting](guides/troubleshooting.md)** - Common issues and solutions
+
+### Full Documentation
+Visit the **[guides/](guides/)** directory for comprehensive documentation including:
+- Installation and setup instructions
+- Feature tutorials and workflows
+- Visual interface guides
+- Troubleshooting and FAQ
+- Configuration options
+
+## Project Structure
 
 ```
 epub-reader-library/
-├── src/                    # Código Rust (backend)
-│   ├── main.rs            # Ponto de entrada principal
-│   ├── commands.rs        # Comandos Tauri
-│   ├── database.rs        # Gerenciamento do banco SQLite
-│   ├── epub_processor.rs  # Processamento de arquivos EPUB
-│   ├── ollama_client.rs   # Cliente para API do Ollama
-│   └── models.rs          # Estruturas de dados
-├── src-tauri/             # Configuração do Tauri
-├── assets/                # Assets para livros gerados
-├── index.html             # Interface principal
-├── styles.css             # Estilos da aplicação
-├── app.js                 # JavaScript principal
-└── README.md              # Este arquivo
+├── src/                    # Rust code (backend)
+│   ├── main.rs            # Main entry point
+│   ├── commands.rs        # Tauri commands
+│   ├── database.rs        # SQLite database management
+│   ├── epub_processor.rs  # EPUB file processing
+│   ├── ollama_client.rs   # Ollama API client
+│   └── models.rs          # Data structures
+├── src-tauri/             # Tauri configuration
+├── assets/                # Assets for generated books
+├── guides/                # Documentation guides
+├── index.html             # Main interface
+├── styles.css             # Application styles
+├── app.js                 # Main JavaScript
+└── README.md              # This file
 ```
 
-## Idiomas Suportados
+## Supported Languages
 
 - 🇺🇸 English
 - 🇧🇷 Português
@@ -111,57 +139,67 @@ epub-reader-library/
 - 🇸🇦 العربية
 - 🇮🇳 हिन्दी
 
-## Armazenamento de Dados
+## Data Storage
 
-Os dados são armazenados em:
+Data is stored in:
 - **macOS**: `~/Library/Application Support/.epubreader/ebooks/`
 - **Linux**: `~/.local/share/.epubreader/ebooks/`
 - **Windows**: `%APPDATA%\.epubreader\ebooks\`
 
-Cada livro tem:
-- Banco SQLite com texto traduzido
-- Diretório de imagens extraídas
-- Arquivos HTML/CSS/JS gerados
+Each book has:
+- SQLite database with translated text
+- Directory of extracted images
+- Generated HTML/CSS/JS files
 
-## Desenvolvimento
+## Development
 
-### Estrutura do Backend (Rust)
+### Backend Structure (Rust)
 
-- **Database**: SQLite com tabelas para livros, capítulos e imagens
-- **EPUB Processing**: Extração de texto, metadados e imagens
-- **Ollama Integration**: Cliente HTTP para tradução via IA
-- **Tauri Commands**: Interface entre frontend e backend
+- **Database**: SQLite with tables for books, chapters and images
+- **EPUB Processing**: Text, metadata and image extraction
+- **Ollama Integration**: HTTP client for AI translation
+- **Tauri Commands**: Interface between frontend and backend
 
-### Estrutura do Frontend
+### Frontend Structure
 
-- **HTML/CSS/JS Vanilla**: Interface simples e rápida
-- **Grid Layout**: Visualização de biblioteca em grade
-- **Modal System**: Diálogos para status e progresso
-- **Responsive Design**: Funciona em diferentes tamanhos de tela
+- **Vanilla HTML/CSS/JS**: Simple and fast interface
+- **Grid Layout**: Library visualization in grid
+- **Modal System**: Dialogs for status and progress
+- **Responsive Design**: Works on different screen sizes
 
-## Contribuindo
+## Contributing
 
-1. Fork o projeto
-2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
-3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
-4. Push para a branch (`git push origin feature/AmazingFeature`)
-5. Abra um Pull Request
+1. Fork the project
+2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
-## Licença
+## License
 
-Este projeto está licenciado sob a Licença MIT - veja o arquivo [LICENSE](LICENSE) para detalhes.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## Problemas Conhecidos
+## Known Issues
 
-- A tradução pode ser lenta dependendo do modelo Ollama usado
-- Alguns arquivos EPUB com DRM não são suportados
-- A interface de leitura é básica (melhorias planejadas)
+- Translation can be slow depending on the Ollama model used
+- Some EPUB files with DRM are not supported
+- The reading interface is basic (improvements planned)
 
 ## Roadmap
 
-- [ ] Suporte para mais formatos (PDF, MOBI)
-- [ ] Sincronização em nuvem
-- [ ] Anotações e marcadores
-- [ ] Leitor integrado na aplicação
-- [ ] Temas personalizáveis
-- [ ] Estatísticas de leitura
+- [ ] Support for more formats (PDF, MOBI)
+- [ ] Cloud synchronization
+- [ ] Annotations and bookmarks
+- [ ] Integrated reader in application
+- [ ] Customizable themes
+- [ ] Reading statistics
+
+## Getting Help
+
+- 📖 **[Read the guides](guides/)** for comprehensive documentation
+- 🐛 **[Report issues](https://github.com/charlenopires/ePubReader/issues)** on GitHub
+- 💬 **[Start a discussion](https://github.com/charlenopires/ePubReader/discussions)** for questions
+
+---
+
+**Enjoy your smart digital library! 📚✨**

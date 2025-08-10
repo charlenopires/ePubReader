@@ -1,8 +1,8 @@
-# 🎨 Guia Visual - ePub Reader Library
+# 🎨 Visual Guide - ePub Reader Library
 
-## 📱 Interface Principal
+## 📱 Main Interface
 
-### Tela Inicial (Biblioteca Vazia)
+### Initial Screen (Empty Library)
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │ 📚 ePub Reader Library    [Translate to: Select Language ▼]    [+ Add Book] │
@@ -20,58 +20,58 @@
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
 
-### Biblioteca com Livros
+### Library with Books
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│ 📚 ePub Reader Library    [Translate to: Português ▼]        [+ Add Book]   │
+│ 📚 ePub Reader Library    [Translate to: English ▼]          [+ Add Book]   │
 ├─────────────────────────────────────────────────────────────────────────────┤
 │                                                                             │
 │  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐        │
 │  │     📖      │  │     📖      │  │     📖      │  │     📖      │        │
 │  │             │  │             │  │             │  │             │        │
-│  │   [CAPA]    │  │   [CAPA]    │  │   [CAPA]    │  │   [CAPA]    │        │
+│  │   [COVER]   │  │   [COVER]   │  │   [COVER]   │  │   [COVER]   │        │
 │  │             │  │             │  │             │  │             │        │
 │  │             │  │             │  │             │  │             │        │
 │  │🟢 COMPLETED │  │🟡 IN PROGRESS│  │🔘 NOT STARTED│  │🔴 FAILED    │        │
 │  │             │  │             │  │             │  │             │        │
-│  │ Dom Casmurro│  │ 1984        │  │ Dune        │  │ Neuromancer │        │
-│  │ Machado de  │  │ George      │  │ Frank       │  │ William     │        │
-│  │ Assis       │  │ Orwell      │  │ Herbert     │  │ Gibson      │        │
-│  │ Portuguese  │  │ English     │  │ English     │  │ English     │        │
+│  │ The Hobbit  │  │ 1984        │  │ Dune        │  │ Neuromancer │        │
+│  │ J.R.R.      │  │ George      │  │ Frank       │  │ William     │        │
+│  │ Tolkien     │  │ Orwell      │  │ Herbert     │  │ Gibson      │        │
+│  │ English     │  │ English     │  │ English     │  │ English     │        │
 │  └─────────────┘  └─────────────┘  └─────────────┘  └─────────────┘        │
 │                                                                             │
 │  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐        │
 │  │     📖      │  │     📖      │  │     📖      │  │     📖      │        │
-│  │   [CAPA]    │  │   [CAPA]    │  │   [CAPA]    │  │   [CAPA]    │        │
+│  │   [COVER]   │  │   [COVER]   │  │   [COVER]   │  │   [COVER]   │        │
 │  │🟢 COMPLETED │  │🔘 NOT STARTED│  │🟡 IN PROGRESS│  │🟢 COMPLETED │        │
-│  │ The Hobbit  │  │ Fundação    │  │ Cem Anos de │  │ Harry Potter│        │
-│  │ J.R.R.      │  │ Isaac       │  │ Solidão     │  │ J.K.        │        │
-│  │ Tolkien     │  │ Asimov      │  │ G. G. Márquez│  │ Rowling     │        │
+│  │ Foundation  │  │ Hyperion    │  │ One Hundred │  │ Harry Potter│        │
+│  │ Isaac       │  │ Dan         │  │ Years of    │  │ J.K.        │        │
+│  │ Asimov      │  │ Simmons     │  │ Solitude    │  │ Rowling     │        │
 │  │ English     │  │ English     │  │ Spanish     │  │ English     │        │
 │  └─────────────┘  └─────────────┘  └─────────────┘  └─────────────┘        │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
 
-### Hover sobre Livro (Ações Disponíveis)
+### Hover on Book (Available Actions)
 ```
 ┌─────────────┐
 │     📖      │
 │             │
-│   [CAPA]    │
+│   [COVER]   │
 │             │
-│ ┌─────────┐ │ ← Overlay aparece no hover
+│ ┌─────────┐ │ ← Overlay appears on hover
 │ │ [Read]  │ │
 │ │[Translate]│ │
 │ └─────────┘ │
 │🟢 COMPLETED │
-│ Dom Casmurro│
-│ Machado de  │
-│ Assis       │
-│ Portuguese  │
+│ The Hobbit  │
+│ J.R.R.      │
+│ Tolkien     │
+│ English     │
 └─────────────┘
 ```
 
-## 🔄 Modais e Diálogos
+## 🔄 Modals and Dialogs
 
 ### Modal: Ollama Setup Required
 ```
@@ -93,7 +93,7 @@
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
 
-### Modal: Tradução em Progresso
+### Modal: Translation in Progress
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │                                                                             │
@@ -113,7 +113,7 @@
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
 
-### Loading: Carregando Biblioteca
+### Loading: Loading Library
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │ 📚 ePub Reader Library    [Translate to: Select Language ▼]    [+ Add Book] │
@@ -127,29 +127,29 @@
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
 
-## 📖 Interface do Leitor
+## 📖 Reader Interface
 
-### Página Inicial do Livro (Capa)
+### Book Home Page (Cover)
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │                                                                             │
 │                                                                             │
 │                              ┌─────────────┐                               │
 │                              │             │                               │
-│                              │    CAPA     │                               │
-│                              │   DO LIVRO  │                               │
+│                              │    BOOK     │                               │
+│                              │   COVER     │                               │
 │                              │             │                               │
 │                              └─────────────┘                               │
 │                                                                             │
-│                              Dom Casmurro                                   │
-│                             Machado de Assis                                │
+│                              The Hobbit                                     │
+│                             J.R.R. Tolkien                                  │
 │                                                                             │
 │                           Table of Contents                                 │
 │                                                                             │
-│                          • Capítulo I - Do título                          │
-│                          • Capítulo II - Do livro                          │
-│                          • Capítulo III - A denúncia                       │
-│                          • Capítulo IV - A ideia                           │
+│                          • Chapter I - An Unexpected Party                 │
+│                          • Chapter II - Roast Mutton                       │
+│                          • Chapter III - A Short Rest                      │
+│                          • Chapter IV - Over Hill and Under Hill           │
 │                          • ...                                             │
 │                                                                             │
 │                            [Start Reading]                                  │
@@ -157,118 +157,117 @@
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
 
-### Página de Capítulo
+### Chapter Page
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │                                                                             │
-│                    Capítulo I - Do título                                   │
+│                    Chapter I - An Unexpected Party                          │
 │                                                                             │
 │  [← Previous]              [Contents]              [Next →]                │
 │                                                                             │
 │ ┌─────────────────┐                                                         │
-│ │ [A-] [A+] [🌓] [⛶] │ ← Controles de leitura                                │
+│ │ [A-] [A+] [🌓] [⛶] │ ← Reading controls                                     │
 │ └─────────────────┘                                                         │
 │                                                                             │
-│     Uma noite destas, vindo da cidade para o Engenho Novo, encontrei       │
-│ no trem da Central um rapaz aqui do bairro, que eu conheço de vista e      │
-│ de chapéu. Cumprimentou-me, sentou-se ao pé de mim, falou da lua e dos     │
-│ ministros, e acabou recitando-me versos. A viagem era curta, e os versos   │
-│ pode ser que não fossem inteiramente maus. Faltava-lhes, porém, o último   │
-│ acabamento, o lavor do artista, como se diz. Eram versos de um homem       │
-│ feliz.                                                                      │
+│     In a hole in the ground there lived a hobbit. Not a nasty, dirty,      │
+│ wet hole, filled with the ends of worms and an oozy smell, nor yet a       │
+│ dry, bare, sandy hole with nothing in it to sit down on or to eat: it      │
+│ was a hobbit-hole, and that means comfort.                                 │
 │                                                                             │
-│     No dia seguinte entrei a pensar na vida do meu vizinho, e perguntei    │
-│ a mim mesmo se nunca fora poeta. Pareceu-me que sim e não. Há muito que    │
-│ não leio versos; mas a sensação que tive é que a poesia desta vez era      │
-│ diferente da de outros tempos.                                              │
+│     It had a perfectly round door like a porthole, painted green, with     │
+│ a shiny yellow brass knob in the exact middle. The door opened on to a     │
+│ tube-shaped hall like a tunnel: a very comfortable tunnel without smoke,   │
+│ with panelled walls, and floors tiled and carpeted, provided with          │
+│ polished chairs, and lots and lots of pegs for hats and coats - the        │
+│ hobbit was fond of visitors.                                               │
 │                                                                             │
-│                              [Imagem, se houver]                            │
+│                              [Image, if any]                               │
 │                                                                             │
-│     Continuação do texto do capítulo...                                    │
+│     Chapter text continuation...                                           │
 │                                                                             │
 ├─────────────────────────────────────────────────────────────────────────────┤
 │ ████████████████████████████████████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░ 75%    │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
 
-### Controles de Leitura (Expandido)
+### Reading Controls (Expanded)
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │                                                                             │
 │ ┌─────────────────┐                                                         │
-│ │ [A-] [A+] [🌓] [⛶] │ ← Clique em cada botão                                │
+│ │ [A-] [A+] [🌓] [⛶] │ ← Click each button                                   │
 │ └─────────────────┘                                                         │
 │   │    │    │    │                                                          │
-│   │    │    │    └── Tela cheia                                             │
-│   │    │    └─────── Alternar tema (claro/escuro)                           │
-│   │    └──────────── Aumentar fonte                                         │
-│   └───────────────── Diminuir fonte                                         │
+│   │    │    │    └── Fullscreen                                             │
+│   │    │    └─────── Toggle theme (light/dark)                              │
+│   │    └──────────── Increase font                                          │
+│   └───────────────── Decrease font                                          │
 │                                                                             │
-│ Efeito dos controles:                                                       │
+│ Control effects:                                                            │
 │                                                                             │
-│ Fonte pequena:  Este é um texto de exemplo                                 │
-│ Fonte normal:   Este é um texto de exemplo                                 │
-│ Fonte grande:   Este é um texto de exemplo                                 │
+│ Small font:  This is sample text                                           │
+│ Normal font: This is sample text                                           │
+│ Large font:  This is sample text                                           │
 │                                                                             │
-│ Tema claro:  ┌─────────────────┐                                           │
-│              │ Texto em preto  │                                           │
-│              │ Fundo branco    │                                           │
+│ Light theme: ┌─────────────────┐                                           │
+│              │ Black text      │                                           │
+│              │ White background│                                           │
 │              └─────────────────┘                                           │
 │                                                                             │
-│ Tema escuro: ┌─────────────────┐                                           │
-│              │ Texto em branco │                                           │
-│              │ Fundo preto     │                                           │
+│ Dark theme:  ┌─────────────────┐                                           │
+│              │ White text      │                                           │
+│              │ Black background│                                           │
 │              └─────────────────┘                                           │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
 
-## 🎯 Fluxo de Uso Visual
+## 🎯 Visual Usage Flow
 
-### 1. Adicionar Livro
+### 1. Add Book
 ```
-[Clique "Add Book"] → [Seletor de Arquivo] → [Processamento] → [Livro na Biblioteca]
+[Click "Add Book"] → [File Selector] → [Processing] → [Book in Library]
 
 ┌─────────────┐    ┌─────────────┐    ┌─────────────┐    ┌─────────────┐
-│ + Add Book  │ →  │ 📁 Selecione│ →  │ ⟳ Loading   │ →  │ 📖 Livro    │
-│             │    │ arquivo.epub│    │ Processing  │    │ Adicionado  │
+│ + Add Book  │ →  │ 📁 Select   │ →  │ ⟳ Loading   │ →  │ 📖 Book     │
+│             │    │ file.epub   │    │ Processing  │    │ Added       │
 └─────────────┘    └─────────────┘    └─────────────┘    └─────────────┘
 ```
 
-### 2. Traduzir Livro
+### 2. Translate Book
 ```
-[Selecionar Idioma] → [Hover no Livro] → [Clique "Translate"] → [Aguardar] → [Concluído]
+[Select Language] → [Hover on Book] → [Click "Translate"] → [Wait] → [Complete]
 
 ┌─────────────┐    ┌─────────────┐    ┌─────────────┐    ┌─────────────┐    ┌─────────────┐
 │ Translate   │ →  │ 📖 Hover    │ →  │ Translate   │ →  │ 🟡 65%      │ →  │ 🟢 Complete │
-│ to: Português│    │ [Translate] │    │ Progress    │    │ Translating │    │ Translated  │
+│ to: English │    │ [Translate] │    │ Progress    │    │ Translating │    │ Translated  │
 └─────────────┘    └─────────────┘    └─────────────┘    └─────────────┘    └─────────────┘
 ```
 
-### 3. Ler Livro
+### 3. Read Book
 ```
-[Hover no Livro] → [Clique "Read"] → [Navegador Abre] → [Leitura]
+[Hover on Book] → [Click "Read"] → [Browser Opens] → [Reading]
 
 ┌─────────────┐    ┌─────────────┐    ┌─────────────┐    ┌─────────────┐
-│ 📖 Hover    │ →  │ 🌐 Browser  │ →  │ 📄 Capa     │ →  │ 📖 Capítulo │
+│ 📖 Hover    │ →  │ 🌐 Browser  │ →  │ 📄 Cover    │ →  │ 📖 Chapter  │
 │ [Read]      │    │ Opens       │    │ & Contents  │    │ Content     │
 └─────────────┘    └─────────────┘    └─────────────┘    └─────────────┘
 ```
 
-## 🎨 Estados Visuais dos Livros
+## 🎨 Book Visual States
 
-### Status de Tradução
+### Translation Status
 ```
 🔘 NOT STARTED     🟡 IN PROGRESS     🟢 COMPLETED     🔴 FAILED
 ┌─────────────┐    ┌─────────────┐    ┌─────────────┐    ┌─────────────┐
-│ 📖 [CAPA]   │    │ 📖 [CAPA]   │    │ 📖 [CAPA]   │    │ 📖 [CAPA]   │
+│ 📖 [COVER]  │    │ 📖 [COVER]  │    │ 📖 [COVER]  │    │ 📖 [COVER]  │
 │🔘 NOT STARTED│    │🟡 IN PROGRESS│    │🟢 COMPLETED │    │🔴 FAILED    │
-│ Título      │    │ Título      │    │ Título      │    │ Título      │
-│ Autor       │    │ Autor       │    │ Autor       │    │ Autor       │
-│ Idioma      │    │ Idioma      │    │ Idioma      │    │ Idioma      │
+│ Title       │    │ Title       │    │ Title       │    │ Title       │
+│ Author      │    │ Author      │    │ Author      │    │ Author      │
+│ Language    │    │ Language    │    │ Language    │    │ Language    │
 └─────────────┘    └─────────────┘    └─────────────┘    └─────────────┘
 ```
 
-### Ações Disponíveis por Status
+### Available Actions by Status
 ```
 NOT STARTED:           IN PROGRESS:           COMPLETED:             FAILED:
 ┌─────────────┐        ┌─────────────┐        ┌─────────────┐        ┌─────────────┐
@@ -277,14 +276,14 @@ NOT STARTED:           IN PROGRESS:           COMPLETED:             FAILED:
 └─────────────┘        └─────────────┘        └─────────────┘        └─────────────┘
 ```
 
-## 📱 Responsividade
+## 📱 Responsiveness
 
-### Desktop (Tela Grande)
+### Desktop (Large Screen)
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│ Header com Logo, Seletor de Idioma e Botão Add Book                        │
+│ Header with Logo, Language Selector and Add Book Button                    │
 ├─────────────────────────────────────────────────────────────────────────────┤
-│ ┌───┐ ┌───┐ ┌───┐ ┌───┐ ┌───┐  ← 5 livros por linha                       │
+│ ┌───┐ ┌───┐ ┌───┐ ┌───┐ ┌───┐  ← 5 books per row                          │
 │ │ 📖│ │ 📖│ │ 📖│ │ 📖│ │ 📖│                                             │
 │ └───┘ └───┘ └───┘ └───┘ └───┘                                             │
 │ ┌───┐ ┌───┐ ┌───┐ ┌───┐ ┌───┐                                             │
@@ -293,15 +292,15 @@ NOT STARTED:           IN PROGRESS:           COMPLETED:             FAILED:
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
 
-### Tablet (Tela Média)
+### Tablet (Medium Screen)
 ```
 ┌─────────────────────────────────────────────────────┐
-│ Header empilhado                                    │
+│ Stacked header                                      │
 │ Logo                                                │
-│ Seletor de Idioma                                   │
-│ Botão Add Book                                      │
+│ Language Selector                                   │
+│ Add Book Button                                     │
 ├─────────────────────────────────────────────────────┤
-│ ┌─────┐ ┌─────┐ ┌─────┐  ← 3 livros por linha      │
+│ ┌─────┐ ┌─────┐ ┌─────┐  ← 3 books per row         │
 │ │ 📖  │ │ 📖  │ │ 📖  │                            │
 │ └─────┘ └─────┘ └─────┘                            │
 │ ┌─────┐ ┌─────┐ ┌─────┐                            │
@@ -310,30 +309,30 @@ NOT STARTED:           IN PROGRESS:           COMPLETED:             FAILED:
 └─────────────────────────────────────────────────────┘
 ```
 
-### Mobile (Tela Pequena)
+### Mobile (Small Screen)
 ```
 ┌─────────────────────────────┐
-│ Header Vertical             │
+│ Vertical Header             │
 │ 📚 ePub Reader             │
-│ [Translate to: PT ▼]       │
+│ [Translate to: EN ▼]       │
 │ [+ Add Book]               │
 ├─────────────────────────────┤
-│ ┌─────────┐ ┌─────────┐    │ ← 2 livros por linha
+│ ┌─────────┐ ┌─────────┐    │ ← 2 books per row
 │ │   📖    │ │   📖    │    │
-│ │ [CAPA]  │ │ [CAPA]  │    │
-│ │ Título  │ │ Título  │    │
+│ │ [COVER] │ │ [COVER] │    │
+│ │ Title   │ │ Title   │    │
 │ └─────────┘ └─────────┘    │
 │ ┌─────────┐ ┌─────────┐    │
 │ │   📖    │ │   📖    │    │
-│ │ [CAPA]  │ │ [CAPA]  │    │
-│ │ Título  │ │ Título  │    │
+│ │ [COVER] │ │ [COVER] │    │
+│ │ Title   │ │ Title   │    │
 │ └─────────┘ └─────────┘    │
 └─────────────────────────────┘
 ```
 
-## 🎯 Indicadores Visuais
+## 🎯 Visual Indicators
 
-### Barra de Progresso (Tradução)
+### Progress Bar (Translation)
 ```
 0%   ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
 25%  ████████████████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
@@ -342,14 +341,14 @@ NOT STARTED:           IN PROGRESS:           COMPLETED:             FAILED:
 100% ████████████████████████████████████████████████████████████████████████████
 ```
 
-### Barra de Progresso (Leitura)
+### Progress Bar (Reading)
 ```
-Início do capítulo:  ████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
-Meio do capítulo:    ████████████████████████████████████░░░░░░░░░░░░░░░░░░░░░░░░░░
-Final do capítulo:   ████████████████████████████████████████████████████████████
+Chapter start:   ████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
+Chapter middle:  ████████████████████████████████████░░░░░░░░░░░░░░░░░░░░░░░░░░
+Chapter end:     ████████████████████████████████████████████████████████████
 ```
 
-### Spinner de Loading
+### Loading Spinner
 ```
 Frame 1: ⠋ Loading...
 Frame 2: ⠙ Loading...
@@ -363,35 +362,35 @@ Frame 8: ⠧ Loading...
 
 ---
 
-## 🎨 Paleta de Cores
+## 🎨 Color Palette
 
-### Tema Escuro (Padrão)
+### Dark Theme (Default)
 ```
 ┌─────────────────────────────────────┐
-│ Background: #1a1a1a (Preto suave)  │
-│ Cards: #2d2d2d (Cinza escuro)      │
-│ Text: #ffffff (Branco)              │
-│ Secondary: #b0b0b0 (Cinza claro)   │
-│ Primary: #3498db (Azul)             │
-│ Success: #27ae60 (Verde)            │
-│ Warning: #f39c12 (Amarelo)          │
-│ Error: #e74c3c (Vermelho)           │
-│ Info: #95a5a6 (Cinza)               │
+│ Background: #1a1a1a (Soft black)   │
+│ Cards: #2d2d2d (Dark gray)         │
+│ Text: #ffffff (White)               │
+│ Secondary: #b0b0b0 (Light gray)     │
+│ Primary: #3498db (Blue)             │
+│ Success: #27ae60 (Green)            │
+│ Warning: #f39c12 (Yellow)           │
+│ Error: #e74c3c (Red)                │
+│ Info: #95a5a6 (Gray)                │
 └─────────────────────────────────────┘
 ```
 
-### Tema Claro (Leitor)
+### Light Theme (Reader)
 ```
 ┌─────────────────────────────────────┐
-│ Background: #f8f9fa (Branco suave) │
-│ Cards: #ffffff (Branco)             │
-│ Text: #333333 (Preto suave)         │
-│ Secondary: #7f8c8d (Cinza médio)    │
-│ Primary: #2980b9 (Azul escuro)      │
-│ Borders: #ecf0f1 (Cinza muito claro)│
+│ Background: #f8f9fa (Soft white)   │
+│ Cards: #ffffff (White)              │
+│ Text: #333333 (Soft black)          │
+│ Secondary: #7f8c8d (Medium gray)    │
+│ Primary: #2980b9 (Dark blue)        │
+│ Borders: #ecf0f1 (Very light gray) │
 └─────────────────────────────────────┘
 ```
 
 ---
 
-**🎨 Este guia visual ajuda a entender a interface e fluxos da aplicação de forma intuitiva!**
+**🎨 This visual guide helps understand the interface and application flows intuitively!**
