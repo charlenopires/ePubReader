@@ -4,12 +4,12 @@
 mod commands;
 mod database;
 mod epub_processor;
-mod ollama_client;
+mod lmstudio_client;
 mod models;
 
 use commands::*;
 use database::Database;
-use ollama_client::OllamaClient;
+use lmstudio_client::LmStudioClient;
 use std::sync::Arc;
 use tokio::sync::Mutex;
 use tracing::{info, error};
@@ -17,14 +17,14 @@ use tracing::{info, error};
 #[derive(Clone)]
 pub struct AppState {
     pub db: Arc<Mutex<Database>>,
-    pub ollama: Arc<OllamaClient>,
+    pub lmstudio: Arc<LmStudioClient>,
 }
 
 #[tokio::main]
 async fn main() {
     // Initialize tracing
     tracing_subscriber::fmt::init();
-    
+
     info!("Starting ePub Reader Library");
 
     // Initialize database
@@ -36,10 +36,10 @@ async fn main() {
         }
     };
 
-    // Initialize Ollama client
-    let ollama = Arc::new(OllamaClient::new());
+    // Initialize LM Studio client
+    let lmstudio = Arc::new(LmStudioClient::new());
 
-    let app_state = AppState { db, ollama };
+    let app_state = AppState { db, lmstudio };
 
     tauri::Builder::default()
         .plugin(tauri_plugin_shell::init())
@@ -48,7 +48,7 @@ async fn main() {
         .plugin(tauri_plugin_http::init())
         .manage(app_state)
         .invoke_handler(tauri::generate_handler![
-            check_ollama_status,
+            check_lmstudio_status,
             get_books,
             add_book,
             get_book_content,
@@ -57,10 +57,10 @@ async fn main() {
             set_target_language,
             translate_book,
             generate_book_html,
-            pull_translation_model,
             get_available_models,
-            set_ollama_model,
-            get_current_model
+            set_lmstudio_model,
+            get_current_model,
+            delete_book
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

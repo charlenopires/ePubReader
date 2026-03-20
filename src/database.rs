@@ -4,7 +4,7 @@ use sqlx::{SqlitePool, Row};
 use std::path::PathBuf;
 use uuid::Uuid;
 use chrono::Utc;
-use tracing::{info, error};
+use tracing::info;
 
 pub struct Database {
     pool: SqlitePool,
@@ -344,6 +344,78 @@ impl Database {
         }
     }
     
+    pub async fn delete_book(&mut self, book_id: &str) -> Result<()> {
+        info!("Deleting book: {}", book_id);
+
+        // Delete images associated with the book's chapters
+        sqlx::query(
+            "DELETE FROM images WHERE chapter_id IN (SELECT id FROM chapters WHERE book_id = ?)"
+        )
+        .bind(book_id)
+        .execute(&self.pool)
+        .await?;
+
+        // Delete chapters
+        sqlx::query("DELETE FROM chapters WHERE book_id = ?")
+            .bind(book_id)
+            .execute(&self.pool)
+            .await?;
+
+        // Delete the book
+        sqlx::query("DELETE FROM books WHERE id = ?")
+            .bind(book_id)
+            .execute(&self.pool)
+            .await?;
+
+        info!("Successfully deleted book: {}", book_id);
+        Ok(())
+    }
+
+    pub async fn update_book_cover(&mut self, book_id: &str, cover_path: &str) -> Result<()> {
+        sqlx::query("UPDATE books SET cover_path = ? WHERE id = ?")
+            .bind(cover_path)
+            .bind(book_id)
+            .execute(&self.pool)
+            .await?;
+
+        Ok(())
+    }
+
+    pub async fn update_book_progress(&mut self, book_id: &str, progress: f64) -> Result<()> {
+        let now = Utc::now().to_rfc3339();
+
+        sqlx::query("UPDATE books SET progress = ?, last_read = ? WHERE id = ?")
+            .bind(progress)
+            .bind(&now)
+            .bind(book_id)
+            .execute(&self.pool)
+            .await?;
+
+        Ok(())
+    }
+
+    pub async fn get_chapter_count(&self, book_id: &str) -> Result<i32> {
+        let row = sqlx::query("SELECT COUNT(*) as count FROM chapters WHERE book_id = ?")
+            .bind(book_id)
+            .fetch_one(&self.pool)
+            .await?;
+
+        let count: i32 = row.get("count");
+        Ok(count)
+    }
+
+    pub async fn get_translated_chapter_count(&self, book_id: &str) -> Result<i32> {
+        let row = sqlx::query(
+            "SELECT COUNT(*) as count FROM chapters WHERE book_id = ? AND translated_content IS NOT NULL"
+        )
+        .bind(book_id)
+        .fetch_one(&self.pool)
+        .await?;
+
+        let count: i32 = row.get("count");
+        Ok(count)
+    }
+
     pub fn get_base_path(&self) -> &PathBuf {
         &self.base_path
     }

@@ -66,10 +66,19 @@ pub struct Language {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct OllamaStatus {
+pub struct LmStudioStatus {
     pub is_running: bool,
     pub available_models: Vec<String>,
     pub recommended_model: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct TranslationProgress {
+    pub book_id: String,
+    pub total_chapters: i32,
+    pub translated_chapters: i32,
+    pub current_chapter_title: String,
+    pub percentage: f64,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

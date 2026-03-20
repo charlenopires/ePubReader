@@ -3,10 +3,10 @@
   "version": "0.1.0",
   "identifier": "com.fazapp.epub-reader-library",
   "build": {
-    "beforeBuildCommand": "",
-    "beforeDevCommand": "",
-    "devUrl": "http://localhost:3000",
-    "frontendDist": "./dist"
+    "beforeBuildCommand": "cd ui && bun run build",
+    "beforeDevCommand": "cd ui && bun run dev",
+    "devUrl": "http://localhost:5173",
+    "frontendDist": "./ui/dist"
   },
   "app": {
     "windows": [
@@ -37,7 +37,7 @@
     "copyright": "",
     "category": "Education",
     "shortDescription": "A modern ebook library with translation capabilities",
-    "longDescription": "ePub Reader Library is a modern desktop application for managing and reading ebooks with built-in translation capabilities using Ollama AI models."
+    "longDescription": "ePub Reader Library is a modern desktop application for managing and reading ebooks with built-in translation capabilities using LM Studio AI models."
   },
   "plugins": {
     "shell": {

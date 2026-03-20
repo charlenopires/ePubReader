@@ -5,11 +5,8 @@ use epub::doc::EpubDoc;
 use std::path::{Path, PathBuf};
 use std::fs;
 use uuid::Uuid;
-use image::ImageFormat;
-use base64::{Engine as _, engine::general_purpose};
-use html2text::from_read;
 use regex::Regex;
-use tracing::{info, error, warn};
+use tracing::{info, warn};
 
 pub struct EpubProcessor {
     base_path: PathBuf,
@@ -48,7 +45,9 @@ impl EpubProcessor {
         // Extract cover image
         if let Some((cover_data, _)) = doc.get_cover() {
             let cover_path = images_dir.join("cover.jpg");
-            fs::write(&cover_path, cover_data)?;
+            fs::write(&cover_path, &cover_data)?;
+            let cover_path_str = cover_path.to_string_lossy().to_string();
+            db.update_book_cover(&book.id, &cover_path_str).await?;
             info!("Extracted cover image to: {}", cover_path.display());
         }
         
@@ -100,17 +99,28 @@ impl EpubProcessor {
     }
     
     fn clean_html_content(&self, html_content: &str) -> String {
-        // Remove script and style tags
-        let script_regex = Regex::new(r"<script[^>]*>.*?</script>").unwrap();
-        let style_regex = Regex::new(r"<style[^>]*>.*?</style>").unwrap();
-        
+        // Remove script and style tags (including their content)
+        let script_regex = Regex::new(r"(?is)<script[^>]*>.*?</script>").unwrap();
+        let style_regex = Regex::new(r"(?is)<style[^>]*>.*?</style>").unwrap();
+
         let mut cleaned = script_regex.replace_all(html_content, "").to_string();
         cleaned = style_regex.replace_all(&cleaned, "").to_string();
-        
-        // Keep basic formatting tags but remove complex attributes
-        let tag_regex = Regex::new(r#"<(\w+)[^>]*>"#).unwrap();
-        cleaned = tag_regex.replace_all(&cleaned, "<$1>").to_string();
-        
+
+        // Remove dangerous event handler attributes (onclick, onload, onerror, etc.)
+        let event_handler_regex = Regex::new(r#"\s+on\w+\s*=\s*"[^"]*""#).unwrap();
+        cleaned = event_handler_regex.replace_all(&cleaned, "").to_string();
+        let event_handler_single_regex = Regex::new(r#"\s+on\w+\s*=\s*'[^']*'"#).unwrap();
+        cleaned = event_handler_single_regex.replace_all(&cleaned, "").to_string();
+
+        // Remove inline style attributes
+        let inline_style_regex = Regex::new(r#"\s+style\s*=\s*"[^"]*""#).unwrap();
+        cleaned = inline_style_regex.replace_all(&cleaned, "").to_string();
+        let inline_style_single_regex = Regex::new(r#"\s+style\s*=\s*'[^']*'"#).unwrap();
+        cleaned = inline_style_single_regex.replace_all(&cleaned, "").to_string();
+
+        // Preserve src, alt, href, class, id attributes; these are safe and needed for display
+        // All other dangerous attributes have already been stripped above
+
         cleaned
     }
     
@@ -129,7 +139,7 @@ impl EpubProcessor {
                 
                 // Get image data from EPUB
                 if let Some((image_data, media_type)) = doc.get_resource(src) {
-                    let image_id = Uuid::new_v4().to_string();
+                    let _image_id = Uuid::new_v4().to_string();
                     let extension = self.get_image_extension(&media_type);
                     let local_filename = format!("{}_{}.{}", chapter_id, paragraph_index, extension);
                     let local_path = images_dir.join(&local_filename);

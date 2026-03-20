@@ -16,6 +16,10 @@ yarn-error.log*
 # Build outputs
 /dist/
 /build/
+ui/dist/
+
+# Bun
+bun.lock
 
 # IDE
 .vscode/
